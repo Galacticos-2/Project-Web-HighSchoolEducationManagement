@@ -1,0 +1,6 @@
+@Project_Web_HighSchoolEducationManagement.Server_HostAddress = http://localhost:5170
+
+GET {{Project_Web_HighSchoolEducationManagement.Server_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -1,0 +1,379 @@
+﻿/* src/styles/teacherHome.css */
+/* ===== User dropdown menu ===== */
+.teacher-menu {
+    position: relative;
+}
+
+.teacher-avatar-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    border: 1px solid #e1e6ef;
+    background: #fff;
+    border-radius: 999px;
+    cursor: pointer;
+}
+
+    .teacher-avatar-btn:hover {
+        background: #f3f6fb;
+    }
+
+.teacher-caret {
+    font-size: 12px;
+    color: #2b3f57;
+    transition: transform 0.12s ease;
+    margin-right: 2px;
+}
+
+    .teacher-caret.open {
+        transform: rotate(180deg);
+    }
+
+.teacher-menu__dropdown {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 10px);
+    width: 220px;
+    background: #ffffff;
+    border: 1px solid #e7eaf0;
+    border-radius: 14px;
+    box-shadow: 0 14px 28px rgba(16, 58, 113, 0.12);
+    padding: 8px;
+    z-index: 1000;
+}
+
+.teacher-menu__item {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 10px;
+    border: none;
+    background: transparent;
+    border-radius: 10px;
+    cursor: pointer;
+    text-align: left;
+    color: #172b41;
+    font-size: 14px;
+}
+
+    .teacher-menu__item:hover {
+        background: #f3f6fb;
+    }
+
+    .teacher-menu__item.danger {
+        color: #b42318;
+    }
+
+.teacher-menu__icon {
+    width: 22px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.teacher-menu__divider {
+    height: 1px;
+    background: #e7eaf0;
+    margin: 6px 4px;
+}
+.teacher-home {
+    min-height: 100vh;
+    padding-bottom: 40px;
+    background: #f5f7fb;
+}
+
+/* ===== Top bar ===== */
+.teacher-topbar {
+    height: 64px;
+    background: #ffffff;
+    border-bottom: 1px solid #e7eaf0;
+    display: flex;
+    align-items: center;
+    justify-content: stretch; /* ✅ full width */
+}
+
+.teacher-topbar__inner {
+    width: 100%; /* ✅ full width */
+    max-width: none; /* ✅ bỏ giới hạn 1200px */
+    padding: 0 24px; /* ✅ tạo lề 2 bên giống hình 2 */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.teacher-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+}
+
+.teacher-brand__logo {
+    width: auto;
+    height: 44px; /* tăng cho rõ, bạn chỉnh 40-48 tuỳ */
+    border-radius: 0; /* bỏ bo tròn để khỏi cắt logo */
+    overflow: visible; /* không cắt */
+    display: flex;
+    align-items: center;
+}
+
+    .teacher-brand__logo img {
+        height: 44px;
+        width: auto;
+        object-fit: contain;
+        display: block;
+    }
+    .teacher-brand__logo img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain; /* logo không bị méo */
+        display: block;
+    }
+
+.teacher-brand__name {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    color: #103a71;
+    white-space: nowrap;
+}
+
+/* Right actions */
+.teacher-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.teacher-select {
+    height: 36px;
+    padding: 0 10px;
+    border: 1px solid #e1e6ef;
+    border-radius: 10px;
+    background: #fff;
+    color: #1b2b41;
+    outline: none;
+}
+
+.teacher-icon-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    border: 1px solid #e1e6ef;
+    background: #fff;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+}
+
+    .teacher-icon-btn:hover {
+        background: #f3f6fb;
+    }
+
+.teacher-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 999px;
+    background: #cfe3ff;
+    color: #114a8f;
+    display: grid;
+    place-items: center;
+    font-weight: 700;
+}
+
+/* ===== Content ===== */
+.teacher-content {
+    display: flex;
+    justify-content: center;
+    padding: 24px 0 0;
+}
+
+.teacher-content__inner {
+    width: min(1200px, calc(100% - 32px));
+}
+
+/* Search bar like screenshot */
+.teacher-search {
+    background: #ffffff;
+    border: 1px solid #e7eaf0;
+    border-radius: 999px;
+    height: 54px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 18px;
+    box-shadow: 0 6px 18px rgba(16, 58, 113, 0.06);
+}
+
+    .teacher-search input {
+        border: none;
+        outline: none;
+        width: 100%;
+        font-size: 15px;
+        background: transparent;
+    }
+
+.teacher-section {
+    margin-top: 26px;
+}
+
+/* ===== Tiles grid ===== */
+.teacher-tiles {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.teacher-tile {
+    background: #ffffff;
+    border: 1px solid #e7eaf0;
+    border-radius: 16px;
+    padding: 18px;
+    display: flex;
+    gap: 14px;
+    cursor: pointer;
+    transition: transform 0.08s ease, box-shadow 0.12s ease;
+    text-align: left;
+}
+
+    .teacher-tile:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 22px rgba(16, 58, 113, 0.08);
+    }
+
+.teacher-tile__icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    background: #f3f8ff;
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+}
+
+.teacher-tile__title {
+    margin: 2px 0 6px;
+    font-size: 18px;
+    font-weight: 800;
+    color: #0f2f5f;
+}
+
+.teacher-tile__desc {
+    margin: 0;
+    font-size: 13.5px;
+    line-height: 1.35rem;
+    color: #53657d;
+}
+body.app-teacher-bg {
+    background: #f5f7fb !important;
+}
+/* Responsive */
+@media (max-width: 980px) {
+    .teacher-tiles {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .teacher-brand {
+        min-width: auto;
+    }
+
+    .teacher-brand__name {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 620px) {
+    .teacher-tiles {
+        grid-template-columns: 1fr;
+    }
+
+    .teacher-actions {
+        gap: 8px;
+    }
+}
+
+/* ===== Simple profile UI ===== */
+.teacher-card {
+    margin-top: 10px;
+    background: #fff;
+    border: 1px solid #e7eaf0;
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 10px 22px rgba(16, 58, 113, 0.06);
+}
+
+.teacher-row {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 12px;
+    padding: 12px 6px;
+    border-bottom: 1px solid #eef2f8;
+}
+.teacher-avatar-btn {
+    background: #f1f3f5;
+    border-color: #f1f3f5;
+}
+    .teacher-row:last-child {
+        border-bottom: none;
+    }
+/* thêm vào src/styles/teacherHome.css */
+.teacher-name {
+    font-weight: 800;
+    color: #172b41;
+    font-size: 14px;
+    max-width: 220px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.teacher-label {
+    color: #5a6a80;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.teacher-value {
+    color: #0f2f5f;
+    font-weight: 700;
+    font-size: 14px;
+    word-break: break-word;
+}
+
+.teacher-note {
+    margin-top: 14px;
+    color: #607087;
+    font-size: 13px;
+    line-height: 1.4rem;
+}
+
+.teacher-link-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 36px;
+    padding: 0 12px;
+    border-radius: 10px;
+    border: 1px solid #e1e6ef;
+    background: #fff;
+    text-decoration: none;
+    color: #172b41;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+    .teacher-link-btn:hover {
+        background: #f3f6fb;
+    }
+
+    .teacher-link-btn.danger {
+        color: #b42318;
+    }
