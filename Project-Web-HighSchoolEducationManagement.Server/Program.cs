@@ -1,6 +1,8 @@
 ﻿using System.Text;
 using EduManagement.Application.Common.Interfaces;
+using EduManagement.Application.Features.AdminApproval;
 using EduManagement.Application.Features.Auth;
+using EduManagement.Application.Features.Lessons;
 using EduManagement.Infrastructure.Identity;
 using EduManagement.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -65,6 +67,9 @@ namespace Project_Web_HighSchoolEducationManagement.Server
             builder.Services.AddScoped<AuthService>();
             builder.Services.AddScoped<EduManagement.Application.Features.AdminApproval.AdminApprovalService>();
 
+            builder.Services.AddScoped<AdminAssignmentService>();
+            builder.Services.AddScoped<StudentLessonService>();
+            builder.Services.AddScoped<TeacherLessonService>();
             // Controllers + Swagger
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();

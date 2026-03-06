@@ -10,12 +10,15 @@ namespace EduManagement.Infrastructure.Persistence;
 
 public class AppDbContext : DbContext, IAppDbContext
 {
+    //Khai báo DbSet cho các entity
+    
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
-
+    public DbSet<Subject> Subjects => Set<Subject>();
     public DbSet<Admin> Admins => Set<Admin>();
     public DbSet<Teacher> Teachers => Set<Teacher>();
     public DbSet<Student> Students => Set<Student>();
     public DbSet<PendingAccount> PendingAccounts => Set<PendingAccount>();
+    public DbSet<TeacherAssignment> TeacherAssignments => Set<TeacherAssignment>();
     public DbSet<Lesson> Lessons => Set<Lesson>();
     public DbSet<Class> Classes => Set<Class>();
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -71,7 +74,12 @@ public class AppDbContext : DbContext, IAppDbContext
         modelBuilder.Entity<PendingAccount>().Property(x => x.FullName).HasMaxLength(100).IsRequired();
         modelBuilder.Entity<PendingAccount>().Property(x => x.Email).HasMaxLength(150).IsRequired();
         modelBuilder.Entity<PendingAccount>().Property(x => x.PasswordHash).HasMaxLength(200).IsRequired();
+        modelBuilder.Entity<Subject>().ToTable("Subject").HasKey(x => x.SubjectID);
 
+        modelBuilder.Entity<Subject>()
+            .Property(x => x.SubjectName)
+            .HasMaxLength(100)
+            .IsRequired();
         // unique email trong bảng pending để không spam
         modelBuilder.Entity<PendingAccount>().HasIndex(x => x.Email).IsUnique();
         modelBuilder.Entity<Lesson>().ToTable("Lesson").HasKey(x => x.LessonID);
@@ -83,5 +91,34 @@ public class AppDbContext : DbContext, IAppDbContext
         modelBuilder.Entity<Lesson>().Property(x => x.StoredFileName).HasMaxLength(255).IsRequired();
         modelBuilder.Entity<Lesson>().Property(x => x.FilePath).HasMaxLength(500).IsRequired();
         modelBuilder.Entity<Lesson>().Property(x => x.ContentType).HasMaxLength(100).IsRequired();
+        modelBuilder.Entity<TeacherAssignment>().ToTable("TeacherAssignment").HasKey(x => x.TeacherAssignmentID);
+
+        modelBuilder.Entity<TeacherAssignment>()
+            .HasOne(x => x.Teacher)
+            .WithMany()
+            .HasForeignKey(x => x.TeacherId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<TeacherAssignment>()
+            .HasOne(x => x.Class)
+            .WithMany()
+            .HasForeignKey(x => x.ClassId)
+            .OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<TeacherAssignment>()
+    .HasOne(x => x.Subject)
+    .WithMany()
+    .HasForeignKey(x => x.SubjectId)
+    .OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<Lesson>()
+    .HasOne(x => x.Class)
+    .WithMany()
+    .HasForeignKey(x => x.ClassId)
+    .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Lesson>()
+            .HasOne(x => x.Subject)
+            .WithMany()
+            .HasForeignKey(x => x.SubjectId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

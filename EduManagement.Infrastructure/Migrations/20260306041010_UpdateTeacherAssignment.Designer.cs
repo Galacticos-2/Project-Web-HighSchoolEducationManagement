@@ -4,6 +4,7 @@ using EduManagement.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EduManagement.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260306041010_UpdateTeacherAssignment")]
+    partial class UpdateTeacherAssignment
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -90,9 +93,6 @@ namespace EduManagement.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("LessonID"));
 
-                    b.Property<int>("ClassId")
-                        .HasColumnType("int");
-
                     b.Property<string>("ContentType")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -133,9 +133,6 @@ namespace EduManagement.Infrastructure.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
-                    b.Property<int>("SubjectId")
-                        .HasColumnType("int");
-
                     b.Property<int>("TeacherId")
                         .HasColumnType("int");
 
@@ -144,10 +141,6 @@ namespace EduManagement.Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("LessonID");
-
-                    b.HasIndex("ClassId");
-
-                    b.HasIndex("SubjectId");
 
                     b.ToTable("Lesson", (string)null);
                 });
@@ -336,25 +329,6 @@ namespace EduManagement.Infrastructure.Migrations
                     b.HasIndex("TeacherId");
 
                     b.ToTable("TeacherAssignment", (string)null);
-                });
-
-            modelBuilder.Entity("EduManagement.Domain.Entities.Lesson", b =>
-                {
-                    b.HasOne("EduManagement.Domain.Entities.Class", "Class")
-                        .WithMany()
-                        .HasForeignKey("ClassId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("EduManagement.Domain.Entities.Subject", "Subject")
-                        .WithMany()
-                        .HasForeignKey("SubjectId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Class");
-
-                    b.Navigation("Subject");
                 });
 
             modelBuilder.Entity("EduManagement.Domain.Entities.Student", b =>
