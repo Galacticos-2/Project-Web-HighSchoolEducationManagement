@@ -38,7 +38,7 @@ export const authStorage = {
         localStorage.removeItem(KEY_TOKEN);
         localStorage.removeItem(KEY_ROLE);
         localStorage.removeItem(KEY_FULLNAME);
-        localStorage.removeItem(KEY_EMAIL);     // ✅ NEW
+        localStorage.removeItem(KEY_EMAIL);     
         localStorage.removeItem(KEY_EXPIRES);
     },
 
@@ -49,7 +49,7 @@ export const authStorage = {
     getProfile: () => ({
         role: localStorage.getItem(KEY_ROLE),
         fullName: localStorage.getItem(KEY_FULLNAME),
-        email: localStorage.getItem(KEY_EMAIL),         // ✅ NEW
+        email: localStorage.getItem(KEY_EMAIL),         
         expiresAtUtc: localStorage.getItem(KEY_EXPIRES),
     }),
 };
