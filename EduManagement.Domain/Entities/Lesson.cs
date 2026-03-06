@@ -16,8 +16,11 @@ namespace EduManagement.Domain.Entities
 
         // Gắn theo nghiệp vụ
         public int TeacherId { get; set; }               // lấy từ JWT (sub)
+        public int ClassId { get; set; }     
+        public int SubjectId { get; set; }
         public string Status { get; set; } = "Draft";    // Draft/Published/Hidden...
-
+        public Class? Class { get; set; }
+        public Subject? Subject { get; set; }
         // File metadata
         public string FileName { get; set; } = default!;
         public string StoredFileName { get; set; } = default!;

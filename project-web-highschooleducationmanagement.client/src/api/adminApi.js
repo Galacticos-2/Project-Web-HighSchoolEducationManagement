@@ -11,4 +11,6 @@ export const adminApi = {
     getSummary: () => axiosClient.get("/api/admin/accounts/summary"),
     listAccounts: ({ role, page = 1, pageSize = 10, q = "" }) =>
         axiosClient.get("/api/admin/accounts", { params: { role, page, pageSize, q } }),
+    assignTeacher: (data) =>
+        axiosClient.post("/api/admin/accounts/assign", data)
 };

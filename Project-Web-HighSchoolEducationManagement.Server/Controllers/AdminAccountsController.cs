@@ -1,4 +1,5 @@
-﻿using EduManagement.Application.Features.AdminApproval;
+﻿using EduManagement.Application.DTOs.Admin;
+using EduManagement.Application.Features.AdminApproval;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -52,5 +53,14 @@ public class AdminAccountsController : ControllerBase
     {
         await _svc.RejectAsync(pendingId);
         return Ok(new { message = "Đã từ chối và xóa đơn đăng ký." });
+    }
+
+    [HttpPost("assign")]
+    public async Task<IActionResult> AssignTeacher(
+    [FromBody] AssignTeacherRequest req,
+    [FromServices] AdminAssignmentService svc)
+    {
+        await svc.AssignAsync(req);
+        return Ok(new { message = "Phân công giảng dạy thành công." });
     }
 }

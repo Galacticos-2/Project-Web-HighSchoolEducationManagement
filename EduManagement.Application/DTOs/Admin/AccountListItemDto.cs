@@ -12,5 +12,9 @@ namespace EduManagement.Application.DTOs.Admin
         public string PhoneNumber { get; set; } 
         public string Role { get; set; } = "";  // "Student"/"Teacher"/"Admin"
         public bool? IsApproved { get; set; } // trạng thái duyệt
+        public int? ClassId { get; set; }
+        public string? ClassName { get; set; }
+        public List<string>? AssignedClasses { get; set; }
+        public List<string>? AssignedSubjects { get; set; }
     }
 }
