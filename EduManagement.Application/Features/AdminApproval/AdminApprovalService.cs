@@ -169,7 +169,29 @@ public class AdminApprovalService
                     FullName = x.TeacherName,
                     Email = x.TeacherEmail,
                     PhoneNumber = x.TeacherPhoneNumber == null ? "" : x.TeacherPhoneNumber.ToString(),
-                    IsApproved = x.IsApproved
+                    IsApproved = x.IsApproved,
+
+                    AssignedClasses = _db.TeacherAssignments
+                        .Where(a => a.TeacherId == x.TeacherID)
+                        .Join(
+                            _db.Classes,
+                            a => a.ClassId,
+                            c => c.ClassID,
+                            (a, c) => c.ClassName
+                        )
+                        .Distinct()
+                        .ToList(),
+                    AssignedSubjects = _db.TeacherAssignments
+                        .Where(a => a.TeacherId == x.TeacherID)
+                        .Join(
+                            _db.Subjects,
+                            a => a.SubjectId,
+                            s => s.SubjectID,
+                            (a, s) => s.SubjectName
+                        )
+            .Distinct()
+            .ToList()
+
                 })
                 .ToListAsync();
 
@@ -184,25 +206,32 @@ public class AdminApprovalService
 
         if (role == UserRole.Student)
         {
-            var query = _db.Students.AsNoTracking();
+            var query =
+                from s in _db.Students.AsNoTracking()
+                join c in _db.Classes.AsNoTracking() on s.ClassId equals c.ClassID into gj
+                from c in gj.DefaultIfEmpty()
+                select new { s, c };
 
             if (q != null)
-                query = query.Where(x => x.StudentName.Contains(q) || x.StudentEmail.Contains(q));
+                query = query.Where(x => x.s.StudentName.Contains(q) || x.s.StudentEmail.Contains(q));
 
             var total = await query.CountAsync();
 
             var items = await query
-                .OrderByDescending(x => x.StudentID)
+                .OrderByDescending(x => x.s.StudentID)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .Select(x => new AccountListItemDto
                 {
                     Role = UserRole.Student,
-                    Id = x.StudentID,
-                    FullName = x.StudentName,
-                    Email = x.StudentEmail,
-                    PhoneNumber = x.PhoneNumber == null ? "" : x.PhoneNumber.ToString(),
-                    IsApproved = x.IsApproved
+                    Id = x.s.StudentID,
+                    FullName = x.s.StudentName,
+                    Email = x.s.StudentEmail,
+                    PhoneNumber = x.s.PhoneNumber == null ? "" : x.s.PhoneNumber.ToString(),
+                    IsApproved = x.s.IsApproved,
+
+                    ClassId = x.s.ClassId,
+                    ClassName = x.c != null ? x.c.ClassName : null
                 })
                 .ToListAsync();
 

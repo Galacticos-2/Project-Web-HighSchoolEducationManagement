@@ -7,13 +7,13 @@ using Microsoft.AspNetCore.Mvc;
 namespace Project_Web_HighSchoolEducationManagement.Server.Controllers;
 
 [ApiController]
-[Route("api/lessons")]
-public class LessonsController : ControllerBase
+[Route("api/student/lessons")]
+public class StudentLessonsController : ControllerBase
 {
-    private readonly TeacherLessonService _svc;
+    private readonly StudentLessonService _svc;
     private readonly IWebHostEnvironment _env;
 
-    public LessonsController(TeacherLessonService svc, IWebHostEnvironment env)
+    public StudentLessonsController(StudentLessonService svc, IWebHostEnvironment env)
     {
         _svc = svc;
         _env = env;
@@ -33,15 +33,22 @@ public class LessonsController : ControllerBase
         return id;
     }
 
-    // Teacher download chính bài của mình
-    [Authorize(Roles = "Teacher")]
+    [Authorize(Roles = "Student")]
+    [HttpGet("listMine")]
+    public async Task<IActionResult> List([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string? q = null)
+    {
+        var studentId = GetUserIdOrThrow();
+        var data = await _svc.GetLessonsForStudentAsync(studentId, page, pageSize, q);
+        return Ok(data);
+    }
+
+    [Authorize(Roles = "Student")]
     [HttpGet("{id:int}/download")]
     public async Task<IActionResult> Download(int id)
     {
-        var teacherId = GetUserIdOrThrow();
-        //Find lesson data in database 
-        var lesson = await _svc.GetOwnedLessonAsync(teacherId, id);
-        //Create absolute path, check file existence, return file stream
+        var studentId = GetUserIdOrThrow();
+        var lesson = await _svc.GetAllowedLessonForStudentAsync(studentId, id);
+
         var abs = Path.Combine(_env.WebRootPath, lesson.FilePath.Replace("/", Path.DirectorySeparatorChar.ToString()));
         if (!System.IO.File.Exists(abs))
             return NotFound(new { message = "Không tìm thấy file trên server." });

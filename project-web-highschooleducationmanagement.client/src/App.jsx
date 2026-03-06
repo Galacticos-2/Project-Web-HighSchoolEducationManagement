@@ -7,7 +7,7 @@ import PrivateRoute from "./auth/PrivateRoute";
 import RoleHomeRedirect from "./auth/RoleHomeRedirect";
 import AdminDashboard from "./pages/AdminDashboard";
 import MyInfoPage from "./pages/MyInfoPage.jsx";
-
+import StudentLessonsPage from "./pages/StudentLessonsPage.jsx";
 import TeacherLessonsPage from "./pages/TeacherLessonsPage.jsx";
 import TeacherVirtualClassPage from "./pages/TeacherVirtualClassPage.jsx";
 import TeacherSchedulePage from "./pages/TeacherSchedulePage.jsx";
@@ -32,6 +32,7 @@ export default function App() {
             {/* STUDENT only */}
             <Route element={<PrivateRoute allowedRoles={["Student"]} />}>
                 <Route path="/student" element={<HomePageStudent />} />
+                <Route path="/student/lessons" element={<StudentLessonsPage />} />
                 <Route path="/student/my-info" element={<Navigate to="/my-info" replace />} />
             </Route>
 

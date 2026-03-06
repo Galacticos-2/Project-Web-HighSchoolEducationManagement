@@ -16,19 +16,28 @@ namespace EduManagement.Application.Features.Lessons
 
         public TeacherLessonService(IAppDbContext db) => _db = db;
 
+        //Create a new lesson for the teacher, return the new lesson's ID
         public async Task<int> CreateAsync(
-            int teacherId,
-            CreateLessonRequest meta,
-            IFormFile file,
-            string storedFileName,
-            string relativePath
-        )
+    int teacherId,
+    CreateLessonRequest meta,
+    IFormFile file,
+    string storedFileName,
+    string relativePath
+)
         {
             if (string.IsNullOrWhiteSpace(meta.Title))
                 throw new Exception("Tên bài giảng không được trống.");
 
             if (file == null || file.Length <= 0)
                 throw new Exception("Bạn chưa chọn file.");
+
+            // Lấy lớp + môn mà teacher được assign
+            var assignment = await _db.TeacherAssignments
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.TeacherId == teacherId);
+
+            if (assignment == null)
+                throw new Exception("Bạn chưa được phân dạy lớp nào.");
 
             var lesson = new Lesson
             {
@@ -38,6 +47,8 @@ namespace EduManagement.Application.Features.Lessons
                 Status = string.IsNullOrWhiteSpace(meta.Status) ? "Draft" : meta.Status.Trim(),
 
                 TeacherId = teacherId,
+                ClassId = assignment.ClassId,
+                SubjectId = assignment.SubjectId,
 
                 FileName = file.FileName,
                 StoredFileName = storedFileName,
@@ -46,13 +57,13 @@ namespace EduManagement.Application.Features.Lessons
                 ContentType = file.ContentType,
                 CreatedAtUtc = DateTime.UtcNow
             };
-
+            //Save to database
             _db.Lessons.Add(lesson);
             await _db.SaveChangesAsync();
 
             return lesson.LessonID;
         }
-
+        //Get list of lessons of the teacher with pagination, filtering by status and searching by title/description
         public async Task<PagedResult<LessonListItemDto>> GetMyLessonsAsync(
             int teacherId,
             int page,
@@ -81,6 +92,8 @@ namespace EduManagement.Application.Features.Lessons
                 .OrderByDescending(x => x.LessonID)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
+
+                //Convert to DTO
                 .Select(x => new LessonListItemDto
                 {
                     Id = x.LessonID,
@@ -102,7 +115,7 @@ namespace EduManagement.Application.Features.Lessons
                 Items = items
             };
         }
-
+        //Get a lesson by ID, only if it belongs to the teacher
         public async Task<Lesson> GetOwnedLessonAsync(int teacherId, int lessonId)
         {
             var lesson = await _db.Lessons.FirstOrDefaultAsync(x => x.LessonID == lessonId)

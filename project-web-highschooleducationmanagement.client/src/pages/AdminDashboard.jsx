@@ -2,6 +2,8 @@
 import { useNavigate } from "react-router-dom";
 import { adminApi } from "../api/adminApi";
 import { authStorage } from "../auth/authStorage";
+import { classesApi } from "../api/classesApi";
+import { subjectsApi } from "../api/subjectsApi";
 import UserActions from "../components/UserActions";
 const ROLES = ["Student", "Teacher", "Admin"];
 
@@ -54,7 +56,13 @@ export default function AdminDashboard() {
         if (Number.isNaN(dt.getTime())) return String(d);
         return dt.toLocaleDateString();
     };
-
+    
+    const [classes, setClasses] = useState([]);
+    const [subjects, setSubjects] = useState([]);
+    const [assignTeacherId, setAssignTeacherId] = useState(null);
+    
+    const [selectedSubject, setSelectedSubject] = useState(null);
+    const [selectedClasses, setSelectedClasses] = useState([]);
     // ===== Close dropdown when click outside + ESC =====
     useEffect(() => {
         function onDocMouseDown(e) {
@@ -75,7 +83,25 @@ export default function AdminDashboard() {
             document.removeEventListener("keydown", onEsc);
         };
     }, []);
+    
+    const toggleClass = (id) => {
+        setSelectedClasses(prev =>
+            prev.includes(id)
+                ? prev.filter(x => x !== id)
+                : [...prev, id]
+        );
+    };
+    
 
+    const loadClasses = async () => {
+        const { data } = await classesApi.getAll();
+        setClasses(data);
+    };
+
+    const loadSubjects = async () => {
+        const { data } = await subjectsApi.getAll();
+        setSubjects(data);
+    };
     // ===== Menu actions =====
     const onMyAccount = () => {
         // làm sau: bạn có thể tạo trang /admin/my-info
@@ -157,6 +183,9 @@ export default function AdminDashboard() {
 
     useEffect(() => {
         loadAll();
+        
+        loadClasses();
+        loadSubjects();
     }, []);
 
     useEffect(() => {
@@ -394,7 +423,15 @@ export default function AdminDashboard() {
                 <button
                     onClick={async () => {
                         await loadAll();
-                        await loadList();
+                        await adminApi.assignTeacher({
+                            teacherId: assignTeacherId,
+                            subjectId: selectedSubject,
+                            classIds: selectedClasses
+                        });
+
+                        await loadList(); // reload teacher list
+
+                        alert("Phân công thành công");
                     }}
                     disabled={loading}
                     style={{
@@ -522,9 +559,18 @@ export default function AdminDashboard() {
                                 <th align="left">Họ tên</th>
                                 <th align="left">Email</th>
                                 <th align="left">SĐT</th>
-                                <th align="left">Lớp</th>
+                                <th align="left">
+                                    {tab === "Student"
+                                        ? "Lớp"
+                                        : tab === "Teacher"
+                                            ? "Lớp được giao"
+                                            : "-"}
+                                </th>
+                                <th align="left">Môn</th>
                                 <th align="left">Approved</th>
                                 
+                                <th align="left">Assign</th>
+
                             </tr>
                         </thead>
                         <tbody>
@@ -542,7 +588,22 @@ export default function AdminDashboard() {
                                     <td>{x.email}</td>
                                     <td>{x.phoneNumber ?? ""}</td>
                                     <td>
-                                        {x.role === "Student" ? (x.className || x.classId || "-") : "-"}
+                                        {tab === "Student" && (x.className || x.classId || "-")}
+
+                                        {tab === "Teacher" && (
+                                            x.assignedClasses?.length
+                                                ? x.assignedClasses.join(", ")
+                                                : "-"
+                                        )}
+
+                                        {tab === "Admin" && "-"}
+                                    </td>
+                                    <td>
+                                        {tab === "Teacher" && (
+                                            x.assignedSubjects?.length
+                                                ? x.assignedSubjects.join(", ")
+                                                : "-"
+                                        )}
                                     </td>
                                     <td>
                                         {x.isApproved === null
@@ -551,12 +612,29 @@ export default function AdminDashboard() {
                                                 ? "Yes"
                                                 : "No"}
                                     </td>
+                                    {tab === "Teacher" && (
+                                        <td>
+                                            <button
+                                                onClick={() => setAssignTeacherId(x.id)}
+                                                style={{
+                                                    padding: "6px 10px",
+                                                    borderRadius: 8,
+                                                    border: "none",
+                                                    background: "#0f172a",
+                                                    color: "#fff",
+                                                    cursor: "pointer"
+                                                }}
+                                            >
+                                                Assign
+                                            </button>
+                                        </td>
+                                    )}
 
                                 </tr>
                             ))}
                             {listState.items.length === 0 && (
                                 <tr>
-                                    <td colSpan={6} style={{ padding: 16, color: "#64748b" }}>
+                                    <td colSpan={tab === "Teacher" ? 8 : 7} style={{ padding: 16, color: "#64748b" }}>
                                         Không có dữ liệu.
                                     </td>
                                 </tr>
@@ -610,7 +688,157 @@ export default function AdminDashboard() {
                     </div>
                 </div>
             </div>
+            {/* ===== Assign Teacher ===== */}
+            {assignTeacherId && (
+                <div
+                    style={{
+                        position: "fixed",
+                        inset: 0,
+                        background: "rgba(0,0,0,0.5)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        zIndex: 1000
+                    }}
+                >
+                    <div
+                        style={{
+                            width: 420,
+                            background: "#fff",
+                            borderRadius: 14,
+                            padding: 20,
+                            boxShadow: "0 20px 40px rgba(0,0,0,0.3)"
+                        }}
+                    >
+                        <h3 style={{ marginTop: 0 }}>Phân công giảng dạy</h3>
+                    
 
+                    {/* Subject */}
+                    <div style={{ marginBottom: 10 }}>
+                        <label>Subject</label>
+                        <br />
+                            <select
+                                value={selectedSubject || ""}
+                                onChange={(e) =>
+                                    setSelectedSubject(e.target.value ? Number(e.target.value) : null)
+                                }
+                                style={{
+                                    padding: 8,
+                                    borderRadius: 8,
+                                    border: "1px solid #ddd",
+                                    width: "100%"
+                                }}
+                            >
+                          
+                            <option value="">-- chọn môn --</option>
+                                {subjects.map(s => (
+                                    <option key={s.subjectID || s.id} value={s.subjectID || s.id}>
+                                        {s.subjectName || s.name}
+                                    </option>
+                                ))}
+                        </select>
+                    </div>
+                   
+                    {/* Classes */}
+                    <div>
+                        <label>Classes</label>
+
+                            <div
+                                style={{
+                                    display: "grid",
+                                    gridTemplateColumns: "repeat(5, 1fr)",
+                                    gap: 10,
+                                    marginTop: 6
+                                }}
+                            >
+                                {classes.map(c => {
+                                    const id = c.id || c.classID;
+                                    const name = c.name || c.className || c.ClassName;
+
+                                    return (
+                                        <label
+                                            key={id}
+                                            style={{
+                                                display: "flex",
+                                                alignItems: "center",
+                                                gap: 6,
+                                                padding: "6px 8px",
+                                                border: "1px solid #ddd",
+                                                borderRadius: 8,
+                                                cursor: "pointer",
+                                                fontSize: 13,
+                                                color: "red",          // ⭐ thêm dòng này
+                                                fontWeight: 600
+                                            }}
+                                        >
+                                            <input
+                                                type="checkbox"
+                                                checked={selectedClasses.includes(id)}
+                                                onChange={() => toggleClass(id)}
+                                            />
+                                            {name}
+                                        </label>
+                                    );
+                                })}
+                            </div>
+                    </div>
+
+                    <div style={{ marginTop: 12, display: "flex", gap: 10 }}>
+                        <button
+                                onClick={async () => {
+
+                                    if (!selectedSubject) {
+                                        alert("Vui lòng chọn môn");
+                                        return;
+                                    }
+
+                                    if (selectedClasses.length === 0) {
+                                        alert("Vui lòng chọn lớp");
+                                        return;
+                                    }
+
+                                    await adminApi.assignTeacher({
+                                        teacherId: assignTeacherId,
+                                        subjectId: selectedSubject,
+                                        classIds: selectedClasses
+                                    });
+
+                                    alert("Phân công thành công");
+
+                                    setAssignTeacherId(null);
+                                    setSelectedSubject(null);
+                                    setSelectedClasses([]);
+                                }}
+                            style={{
+                                padding: "10px 14px",
+                                borderRadius: 10,
+                                border: "none",
+                                background: "#0f172a",
+                                color: "#fff",
+                                cursor: "pointer"
+                            }}
+                        >
+                            Save
+                        </button>
+
+                            <button
+                                onClick={() => setAssignTeacherId(null)}
+                                style={{
+                                    padding: "10px 14px",
+                                    borderRadius: 10,
+                                    border: "1px solid #ddd",
+                                    background: "#fff",
+                                    cursor: "pointer",
+                                    color: "red",      // ⭐ thêm
+                                    fontWeight: 700
+                                }}
+                            >
+                                Cancel
+                            </button>
+                    </div>
+                    </div>
+                </div>
+            )}
             {/* pending approvals */}
             <div
                 style={{
@@ -639,6 +867,7 @@ export default function AdminDashboard() {
                                     <th align="left">Email</th>
                                     <th align="left">SĐT</th>
                                     <th align="left">Ngày sinh</th>
+                                    <th align="left">Lớp </th>
                                     <th align="left">Thao tác</th>
                                 </tr>
                             </thead>
@@ -657,6 +886,11 @@ export default function AdminDashboard() {
                                         <td>{x.email}</td>
                                         <td>{x.phoneNumber ?? ""}</td>
                                         <td>{fmtDate(x.birthDate)}</td>
+                                        <td>
+                                            {x.role === "Student"
+                                                ? (x.className ?? x.ClassName ?? x.classId ?? x.ClassId ?? "-")
+                                                : "-"}
+                                        </td>
                                         <td style={{ whiteSpace: "nowrap" }}>
                                             <button
                                                 onClick={() => approve(x.id)}

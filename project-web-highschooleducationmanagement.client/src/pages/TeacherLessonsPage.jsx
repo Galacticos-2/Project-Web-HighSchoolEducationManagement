@@ -89,29 +89,43 @@ export default function TeacherLessonsPage() {
         e.preventDefault();
         setCreateErr("");
 
-        if (!title.trim()) return setCreateErr("Tên bài giảng không được trống.");
-        if (!file) return setCreateErr("Bạn chưa chọn file (PDF/DOC/DOCX).");
+        if (!title.trim()) {
+            setCreateErr("Tên bài giảng không được trống.");
+            return;
+        }
+
+        if (!file) {
+            setCreateErr("Bạn chưa chọn file (PDF/DOC/DOCX).");
+            return;
+        }
 
         setCreating(true);
+
         try {
             const fd = new FormData();
-            fd.append("Title", title);
-            fd.append("Description", description);
-            fd.append("TimeShouldLearn", timeShouldLearn);
+
+            fd.append("Title", title.trim());
+            fd.append("Description", description || "");
+            fd.append("TimeShouldLearn", timeShouldLearn || "");
             fd.append("Status", createStatus);
             fd.append("file", file);
 
-            await lessonsApi.create(fd);
+            await lessonsApi.createnewlesson(fd);
+
             closeModal();
             await load(1);
         } catch (ex) {
-            const msg = ex?.response?.data?.message || ex?.response?.data || "Tạo bài giảng thất bại.";
+            const msg =
+                ex?.response?.data?.message ||
+                ex?.response?.data ||
+                "Tạo bài giảng thất bại.";
+
             setCreateErr(typeof msg === "string" ? msg : JSON.stringify(msg));
         } finally {
             setCreating(false);
         }
     };
-
+    //function to download a lesson file 
     const onDownload = async (item) => {
         try {
             const res = await lessonsApi.download(item.id);
