@@ -231,3 +231,249 @@ WHERE [t].[TeacherId] = @teacherId AND [t].[ClassId] = @classId
 2026-03-12 14:03:29.699 +07:00 [INF] Request finished HTTP/1.1 GET https://localhost:7190/api/teacher/virtual-classes/classes - 200 null application/json; charset=utf-8 259.3205ms
 2026-03-12 14:03:29.703 +07:00 [INF] HTTP GET /api/teacher/virtual-classes/subjects responded 200 in 146.3359 ms
 2026-03-12 14:03:29.717 +07:00 [INF] Request finished HTTP/1.1 GET https://localhost:7190/api/teacher/virtual-classes/subjects - 200 null application/json; charset=utf-8 219.9585ms
+2026-03-12 14:09:46.462 +07:00 [INF] Request starting HTTP/1.1 GET https://localhost:7190/api/teacher/virtual-classes/classes - null null
+2026-03-12 14:09:46.571 +07:00 [INF] Request starting HTTP/1.1 GET https://localhost:7190/api/teacher/virtual-classes - null null
+2026-03-12 14:09:46.562 +07:00 [INF] Request starting HTTP/1.1 GET https://localhost:7190/api/teacher/virtual-classes/subjects - null null
+2026-03-12 14:09:46.615 +07:00 [INF] Executing endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMyClasses (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-12 14:09:46.674 +07:00 [INF] Executing endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMine (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-12 14:09:46.692 +07:00 [INF] Executing endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMySubjects (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-12 14:09:46.698 +07:00 [INF] Route matched with {action = "GetMyClasses", controller = "TeacherVirtualClasses"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetMyClasses() on controller Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController (Project-Web-HighSchoolEducationManagement.Server).
+2026-03-12 14:09:46.711 +07:00 [INF] Route matched with {action = "GetMine", controller = "TeacherVirtualClasses"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetMine() on controller Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController (Project-Web-HighSchoolEducationManagement.Server).
+2026-03-12 14:09:46.724 +07:00 [INF] Route matched with {action = "GetMySubjects", controller = "TeacherVirtualClasses"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetMySubjects(Int32) on controller Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController (Project-Web-HighSchoolEducationManagement.Server).
+2026-03-12 14:09:46.906 +07:00 [INF] Executed DbCommand (33ms) [Parameters=[@teacherId='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT DISTINCT [c].[ClassID] AS [id], [c].[ClassName] AS [name], [c].[ClassYear] AS [year]
+FROM [TeacherAssignment] AS [t]
+INNER JOIN [Class] AS [c] ON [t].[ClassId] = [c].[ClassID]
+WHERE [t].[TeacherId] = @teacherId
+2026-03-12 14:09:46.907 +07:00 [INF] Executed DbCommand (12ms) [Parameters=[@teacherId='?' (DbType = Int32), @classId='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT DISTINCT [s].[SubjectID] AS [id], [s].[SubjectName] AS [name]
+FROM [TeacherAssignment] AS [t]
+INNER JOIN [Subject] AS [s] ON [t].[SubjectId] = [s].[SubjectID]
+WHERE [t].[TeacherId] = @teacherId AND [t].[ClassId] = @classId
+2026-03-12 14:09:46.917 +07:00 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[System.Object, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-03-12 14:09:46.914 +07:00 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[System.Object, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-03-12 14:09:46.907 +07:00 [INF] Executed DbCommand (23ms) [Parameters=[@teacherId='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT [v].[VirtualClassID] AS [Id], [c].[ClassName], [s].[SubjectName], [v].[MeetingUrl], [v].[StartTime], [v].[EndTime], [v].[CreatedAtUtc]
+FROM [VirtualClass] AS [v]
+INNER JOIN [Class] AS [c] ON [v].[ClassId] = [c].[ClassID]
+INNER JOIN [Subject] AS [s] ON [v].[SubjectId] = [s].[SubjectID]
+WHERE [v].[TeacherId] = @teacherId
+ORDER BY [v].[StartTime] DESC
+2026-03-12 14:09:46.920 +07:00 [INF] Executed action Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMySubjects (Project-Web-HighSchoolEducationManagement.Server) in 138.3541ms
+2026-03-12 14:09:46.924 +07:00 [INF] Executed action Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMyClasses (Project-Web-HighSchoolEducationManagement.Server) in 183.797ms
+2026-03-12 14:09:46.929 +07:00 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[EduManagement.Application.DTOs.VirtualClass.VirtualClassListItemDto, EduManagement.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-03-12 14:09:46.931 +07:00 [INF] Executed endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMySubjects (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-12 14:09:46.934 +07:00 [INF] Executed endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMyClasses (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-12 14:09:46.937 +07:00 [INF] Executed action Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMine (Project-Web-HighSchoolEducationManagement.Server) in 163.5912ms
+2026-03-12 14:09:46.940 +07:00 [INF] HTTP GET /api/teacher/virtual-classes/subjects responded 200 in 250.4557 ms
+2026-03-12 14:09:46.942 +07:00 [INF] HTTP GET /api/teacher/virtual-classes/classes responded 200 in 330.3040 ms
+2026-03-12 14:09:46.944 +07:00 [INF] Executed endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMine (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-12 14:09:46.962 +07:00 [INF] HTTP GET /api/teacher/virtual-classes responded 200 in 288.7307 ms
+2026-03-12 14:09:46.959 +07:00 [INF] Request finished HTTP/1.1 GET https://localhost:7190/api/teacher/virtual-classes/classes - 200 null application/json; charset=utf-8 496.776ms
+2026-03-12 14:09:46.954 +07:00 [INF] Request finished HTTP/1.1 GET https://localhost:7190/api/teacher/virtual-classes/subjects - 200 null application/json; charset=utf-8 392.6403ms
+2026-03-12 14:09:46.977 +07:00 [INF] Request finished HTTP/1.1 GET https://localhost:7190/api/teacher/virtual-classes - 200 null application/json; charset=utf-8 406.163ms
+2026-03-12 14:09:47.120 +07:00 [INF] Request starting HTTP/1.1 GET https://localhost:7190/api/teacher/virtual-classes/classes - null null
+2026-03-12 14:09:47.129 +07:00 [INF] Executing endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMyClasses (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-12 14:09:47.131 +07:00 [INF] Route matched with {action = "GetMyClasses", controller = "TeacherVirtualClasses"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetMyClasses() on controller Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController (Project-Web-HighSchoolEducationManagement.Server).
+2026-03-12 14:09:47.144 +07:00 [INF] Request starting HTTP/1.1 GET https://localhost:7190/api/teacher/virtual-classes/subjects - null null
+2026-03-12 14:09:47.148 +07:00 [INF] Executed DbCommand (2ms) [Parameters=[@teacherId='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT DISTINCT [c].[ClassID] AS [id], [c].[ClassName] AS [name], [c].[ClassYear] AS [year]
+FROM [TeacherAssignment] AS [t]
+INNER JOIN [Class] AS [c] ON [t].[ClassId] = [c].[ClassID]
+WHERE [t].[TeacherId] = @teacherId
+2026-03-12 14:09:47.150 +07:00 [INF] Executing endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMySubjects (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-12 14:09:47.153 +07:00 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[System.Object, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-03-12 14:09:47.156 +07:00 [INF] Route matched with {action = "GetMySubjects", controller = "TeacherVirtualClasses"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetMySubjects(Int32) on controller Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController (Project-Web-HighSchoolEducationManagement.Server).
+2026-03-12 14:09:47.181 +07:00 [INF] Request starting HTTP/1.1 GET https://localhost:7190/api/teacher/virtual-classes - null null
+2026-03-12 14:09:47.257 +07:00 [INF] Executed action Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMyClasses (Project-Web-HighSchoolEducationManagement.Server) in 112.6115ms
+2026-03-12 14:09:47.281 +07:00 [INF] Executed DbCommand (7ms) [Parameters=[@teacherId='?' (DbType = Int32), @classId='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT DISTINCT [s].[SubjectID] AS [id], [s].[SubjectName] AS [name]
+FROM [TeacherAssignment] AS [t]
+INNER JOIN [Subject] AS [s] ON [t].[SubjectId] = [s].[SubjectID]
+WHERE [t].[TeacherId] = @teacherId AND [t].[ClassId] = @classId
+2026-03-12 14:09:47.308 +07:00 [INF] Executing endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMine (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-12 14:09:47.337 +07:00 [INF] Executed endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMyClasses (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-12 14:09:47.346 +07:00 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[System.Object, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-03-12 14:09:47.348 +07:00 [INF] Route matched with {action = "GetMine", controller = "TeacherVirtualClasses"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetMine() on controller Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController (Project-Web-HighSchoolEducationManagement.Server).
+2026-03-12 14:09:47.351 +07:00 [INF] HTTP GET /api/teacher/virtual-classes/classes responded 200 in 222.9079 ms
+2026-03-12 14:09:47.640 +07:00 [INF] Request finished HTTP/1.1 GET https://localhost:7190/api/teacher/virtual-classes/classes - 200 null application/json; charset=utf-8 520.6886ms
+2026-03-12 14:09:47.636 +07:00 [INF] Executed DbCommand (2ms) [Parameters=[@teacherId='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT [v].[VirtualClassID] AS [Id], [c].[ClassName], [s].[SubjectName], [v].[MeetingUrl], [v].[StartTime], [v].[EndTime], [v].[CreatedAtUtc]
+FROM [VirtualClass] AS [v]
+INNER JOIN [Class] AS [c] ON [v].[ClassId] = [c].[ClassID]
+INNER JOIN [Subject] AS [s] ON [v].[SubjectId] = [s].[SubjectID]
+WHERE [v].[TeacherId] = @teacherId
+ORDER BY [v].[StartTime] DESC
+2026-03-12 14:09:47.368 +07:00 [INF] Executed action Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMySubjects (Project-Web-HighSchoolEducationManagement.Server) in 99.49ms
+2026-03-12 14:09:47.688 +07:00 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[EduManagement.Application.DTOs.VirtualClass.VirtualClassListItemDto, EduManagement.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-03-12 14:09:47.690 +07:00 [INF] Executed endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMySubjects (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-12 14:09:47.694 +07:00 [INF] Executed action Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMine (Project-Web-HighSchoolEducationManagement.Server) in 63.6636ms
+2026-03-12 14:09:47.696 +07:00 [INF] HTTP GET /api/teacher/virtual-classes/subjects responded 200 in 547.2285 ms
+2026-03-12 14:09:47.700 +07:00 [INF] Executed endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMine (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-12 14:09:47.704 +07:00 [INF] Request finished HTTP/1.1 GET https://localhost:7190/api/teacher/virtual-classes/subjects - 200 null application/json; charset=utf-8 560.0984ms
+2026-03-12 14:09:47.706 +07:00 [INF] HTTP GET /api/teacher/virtual-classes responded 200 in 399.0421 ms
+2026-03-12 14:09:47.725 +07:00 [INF] Request finished HTTP/1.1 GET https://localhost:7190/api/teacher/virtual-classes - 200 null application/json; charset=utf-8 544.0805ms
+2026-03-12 14:09:47.775 +07:00 [INF] Request starting HTTP/1.1 GET https://localhost:7190/api/teacher/virtual-classes/classes - null null
+2026-03-12 14:09:47.781 +07:00 [INF] Executing endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMyClasses (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-12 14:09:47.786 +07:00 [INF] Route matched with {action = "GetMyClasses", controller = "TeacherVirtualClasses"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetMyClasses() on controller Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController (Project-Web-HighSchoolEducationManagement.Server).
+2026-03-12 14:09:47.789 +07:00 [INF] Request starting HTTP/1.1 GET https://localhost:7190/api/teacher/virtual-classes/subjects - null null
+2026-03-12 14:09:47.791 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@teacherId='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT DISTINCT [c].[ClassID] AS [id], [c].[ClassName] AS [name], [c].[ClassYear] AS [year]
+FROM [TeacherAssignment] AS [t]
+INNER JOIN [Class] AS [c] ON [t].[ClassId] = [c].[ClassID]
+WHERE [t].[TeacherId] = @teacherId
+2026-03-12 14:09:47.794 +07:00 [INF] Executing endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMySubjects (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-12 14:09:47.799 +07:00 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[System.Object, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-03-12 14:09:47.801 +07:00 [INF] Route matched with {action = "GetMySubjects", controller = "TeacherVirtualClasses"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetMySubjects(Int32) on controller Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController (Project-Web-HighSchoolEducationManagement.Server).
+2026-03-12 14:09:47.803 +07:00 [INF] Executed action Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMyClasses (Project-Web-HighSchoolEducationManagement.Server) in 14.3101ms
+2026-03-12 14:09:47.805 +07:00 [INF] Request starting HTTP/1.1 GET https://localhost:7190/api/teacher/virtual-classes - null null
+2026-03-12 14:09:47.809 +07:00 [INF] Executed endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMyClasses (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-12 14:09:47.810 +07:00 [INF] Executed DbCommand (2ms) [Parameters=[@teacherId='?' (DbType = Int32), @classId='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT DISTINCT [s].[SubjectID] AS [id], [s].[SubjectName] AS [name]
+FROM [TeacherAssignment] AS [t]
+INNER JOIN [Subject] AS [s] ON [t].[SubjectId] = [s].[SubjectID]
+WHERE [t].[TeacherId] = @teacherId AND [t].[ClassId] = @classId
+2026-03-12 14:09:47.814 +07:00 [INF] Executing endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMine (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-12 14:09:47.817 +07:00 [INF] HTTP GET /api/teacher/virtual-classes/classes responded 200 in 36.5123 ms
+2026-03-12 14:09:47.821 +07:00 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[System.Object, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-03-12 14:09:47.822 +07:00 [INF] Route matched with {action = "GetMine", controller = "TeacherVirtualClasses"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetMine() on controller Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController (Project-Web-HighSchoolEducationManagement.Server).
+2026-03-12 14:09:47.826 +07:00 [INF] Request finished HTTP/1.1 GET https://localhost:7190/api/teacher/virtual-classes/classes - 200 null application/json; charset=utf-8 51.295ms
+2026-03-12 14:09:47.830 +07:00 [INF] Executed action Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMySubjects (Project-Web-HighSchoolEducationManagement.Server) in 22.8634ms
+2026-03-12 14:09:47.837 +07:00 [INF] Executed DbCommand (2ms) [Parameters=[@teacherId='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT [v].[VirtualClassID] AS [Id], [c].[ClassName], [s].[SubjectName], [v].[MeetingUrl], [v].[StartTime], [v].[EndTime], [v].[CreatedAtUtc]
+FROM [VirtualClass] AS [v]
+INNER JOIN [Class] AS [c] ON [v].[ClassId] = [c].[ClassID]
+INNER JOIN [Subject] AS [s] ON [v].[SubjectId] = [s].[SubjectID]
+WHERE [v].[TeacherId] = @teacherId
+ORDER BY [v].[StartTime] DESC
+2026-03-12 14:09:47.851 +07:00 [INF] Executed endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMySubjects (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-12 14:09:47.856 +07:00 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[EduManagement.Application.DTOs.VirtualClass.VirtualClassListItemDto, EduManagement.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-03-12 14:09:47.858 +07:00 [INF] HTTP GET /api/teacher/virtual-classes/subjects responded 200 in 64.1962 ms
+2026-03-12 14:09:47.864 +07:00 [INF] Executed action Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMine (Project-Web-HighSchoolEducationManagement.Server) in 30.4467ms
+2026-03-12 14:09:47.870 +07:00 [INF] Request finished HTTP/1.1 GET https://localhost:7190/api/teacher/virtual-classes/subjects - 200 null application/json; charset=utf-8 81.1468ms
+2026-03-12 14:09:47.891 +07:00 [INF] Executed endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMine (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-12 14:09:47.900 +07:00 [INF] HTTP GET /api/teacher/virtual-classes responded 200 in 86.7924 ms
+2026-03-12 14:09:47.904 +07:00 [INF] Request finished HTTP/1.1 GET https://localhost:7190/api/teacher/virtual-classes - 200 null application/json; charset=utf-8 98.053ms
+2026-03-12 14:15:11.752 +07:00 [INF] Request starting HTTP/1.1 GET https://localhost:7190/api/teacher/virtual-classes/classes - null null
+2026-03-12 14:15:11.768 +07:00 [INF] Executing endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMyClasses (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-12 14:15:11.770 +07:00 [INF] Route matched with {action = "GetMyClasses", controller = "TeacherVirtualClasses"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetMyClasses() on controller Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController (Project-Web-HighSchoolEducationManagement.Server).
+2026-03-12 14:15:11.800 +07:00 [INF] Request starting HTTP/1.1 GET https://localhost:7190/api/teacher/virtual-classes - null null
+2026-03-12 14:15:11.778 +07:00 [INF] Request starting HTTP/1.1 GET https://localhost:7190/api/teacher/virtual-classes/subjects - null null
+2026-03-12 14:15:11.824 +07:00 [INF] Executed DbCommand (12ms) [Parameters=[@teacherId='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT DISTINCT [c].[ClassID] AS [id], [c].[ClassName] AS [name], [c].[ClassYear] AS [year]
+FROM [TeacherAssignment] AS [t]
+INNER JOIN [Class] AS [c] ON [t].[ClassId] = [c].[ClassID]
+WHERE [t].[TeacherId] = @teacherId
+2026-03-12 14:15:12.117 +07:00 [INF] Executing endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMine (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-12 14:15:12.245 +07:00 [INF] Route matched with {action = "GetMine", controller = "TeacherVirtualClasses"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetMine() on controller Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController (Project-Web-HighSchoolEducationManagement.Server).
+2026-03-12 14:15:12.243 +07:00 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[System.Object, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-03-12 14:15:12.233 +07:00 [INF] Executing endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMySubjects (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-12 14:15:12.253 +07:00 [INF] Executed DbCommand (2ms) [Parameters=[@teacherId='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT [v].[VirtualClassID] AS [Id], [c].[ClassName], [s].[SubjectName], [v].[MeetingUrl], [v].[StartTime], [v].[EndTime], [v].[CreatedAtUtc]
+FROM [VirtualClass] AS [v]
+INNER JOIN [Class] AS [c] ON [v].[ClassId] = [c].[ClassID]
+INNER JOIN [Subject] AS [s] ON [v].[SubjectId] = [s].[SubjectID]
+WHERE [v].[TeacherId] = @teacherId
+ORDER BY [v].[StartTime] DESC
+2026-03-12 14:15:12.263 +07:00 [INF] Executed action Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMyClasses (Project-Web-HighSchoolEducationManagement.Server) in 456.7669ms
+2026-03-12 14:15:12.266 +07:00 [INF] Route matched with {action = "GetMySubjects", controller = "TeacherVirtualClasses"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetMySubjects(Int32) on controller Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController (Project-Web-HighSchoolEducationManagement.Server).
+2026-03-12 14:15:12.273 +07:00 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[EduManagement.Application.DTOs.VirtualClass.VirtualClassListItemDto, EduManagement.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-03-12 14:15:12.278 +07:00 [INF] Executed endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMyClasses (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-12 14:15:12.308 +07:00 [INF] HTTP GET /api/teacher/virtual-classes/classes responded 200 in 541.1557 ms
+2026-03-12 14:15:12.306 +07:00 [INF] Executed action Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMine (Project-Web-HighSchoolEducationManagement.Server) in 55.5886ms
+2026-03-12 14:15:12.328 +07:00 [INF] Executed endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMine (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-12 14:15:12.324 +07:00 [INF] Request finished HTTP/1.1 GET https://localhost:7190/api/teacher/virtual-classes/classes - 200 null application/json; charset=utf-8 572.0526ms
+2026-03-12 14:15:12.291 +07:00 [INF] Executed DbCommand (4ms) [Parameters=[@teacherId='?' (DbType = Int32), @classId='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT DISTINCT [s].[SubjectID] AS [id], [s].[SubjectName] AS [name]
+FROM [TeacherAssignment] AS [t]
+INNER JOIN [Subject] AS [s] ON [t].[SubjectId] = [s].[SubjectID]
+WHERE [t].[TeacherId] = @teacherId AND [t].[ClassId] = @classId
+2026-03-12 14:15:12.336 +07:00 [INF] HTTP GET /api/teacher/virtual-classes responded 200 in 219.9367 ms
+2026-03-12 14:15:12.348 +07:00 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[System.Object, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-03-12 14:15:12.352 +07:00 [INF] Request finished HTTP/1.1 GET https://localhost:7190/api/teacher/virtual-classes - 200 null application/json; charset=utf-8 551.8313ms
+2026-03-12 14:15:12.353 +07:00 [INF] Executed action Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMySubjects (Project-Web-HighSchoolEducationManagement.Server) in 68.3107ms
+2026-03-12 14:15:12.373 +07:00 [INF] Executed endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMySubjects (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-12 14:15:12.375 +07:00 [INF] HTTP GET /api/teacher/virtual-classes/subjects responded 200 in 142.4821 ms
+2026-03-12 14:15:12.380 +07:00 [INF] Request finished HTTP/1.1 GET https://localhost:7190/api/teacher/virtual-classes/subjects - 200 null application/json; charset=utf-8 601.3328ms
+2026-03-12 14:15:12.549 +07:00 [INF] Request starting HTTP/1.1 GET https://localhost:7190/api/teacher/virtual-classes/classes - null null
+2026-03-12 14:15:12.555 +07:00 [INF] Executing endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMyClasses (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-12 14:15:12.557 +07:00 [INF] Request starting HTTP/1.1 GET https://localhost:7190/api/teacher/virtual-classes/subjects - null null
+2026-03-12 14:15:12.558 +07:00 [INF] Route matched with {action = "GetMyClasses", controller = "TeacherVirtualClasses"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetMyClasses() on controller Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController (Project-Web-HighSchoolEducationManagement.Server).
+2026-03-12 14:15:12.567 +07:00 [INF] Executing endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMySubjects (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-12 14:15:12.573 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@teacherId='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT DISTINCT [c].[ClassID] AS [id], [c].[ClassName] AS [name], [c].[ClassYear] AS [year]
+FROM [TeacherAssignment] AS [t]
+INNER JOIN [Class] AS [c] ON [t].[ClassId] = [c].[ClassID]
+WHERE [t].[TeacherId] = @teacherId
+2026-03-12 14:15:12.574 +07:00 [INF] Route matched with {action = "GetMySubjects", controller = "TeacherVirtualClasses"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetMySubjects(Int32) on controller Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController (Project-Web-HighSchoolEducationManagement.Server).
+2026-03-12 14:15:12.577 +07:00 [INF] Request starting HTTP/1.1 GET https://localhost:7190/api/teacher/virtual-classes - null null
+2026-03-12 14:15:12.580 +07:00 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[System.Object, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-03-12 14:15:12.584 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@teacherId='?' (DbType = Int32), @classId='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT DISTINCT [s].[SubjectID] AS [id], [s].[SubjectName] AS [name]
+FROM [TeacherAssignment] AS [t]
+INNER JOIN [Subject] AS [s] ON [t].[SubjectId] = [s].[SubjectID]
+WHERE [t].[TeacherId] = @teacherId AND [t].[ClassId] = @classId
+2026-03-12 14:15:12.627 +07:00 [INF] Request starting HTTP/1.1 GET https://localhost:7190/api/teacher/virtual-classes/classes - null null
+2026-03-12 14:15:12.586 +07:00 [INF] Executing endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMine (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-12 14:15:12.643 +07:00 [INF] Route matched with {action = "GetMine", controller = "TeacherVirtualClasses"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetMine() on controller Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController (Project-Web-HighSchoolEducationManagement.Server).
+2026-03-12 14:15:12.602 +07:00 [INF] Executed action Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMyClasses (Project-Web-HighSchoolEducationManagement.Server) in 32.0869ms
+2026-03-12 14:15:12.639 +07:00 [INF] Executing endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMyClasses (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-12 14:15:12.634 +07:00 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[System.Object, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-03-12 14:15:12.659 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@teacherId='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT [v].[VirtualClassID] AS [Id], [c].[ClassName], [s].[SubjectName], [v].[MeetingUrl], [v].[StartTime], [v].[EndTime], [v].[CreatedAtUtc]
+FROM [VirtualClass] AS [v]
+INNER JOIN [Class] AS [c] ON [v].[ClassId] = [c].[ClassID]
+INNER JOIN [Subject] AS [s] ON [v].[SubjectId] = [s].[SubjectID]
+WHERE [v].[TeacherId] = @teacherId
+ORDER BY [v].[StartTime] DESC
+2026-03-12 14:15:12.670 +07:00 [INF] Executed endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMyClasses (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-12 14:15:12.678 +07:00 [INF] Route matched with {action = "GetMyClasses", controller = "TeacherVirtualClasses"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetMyClasses() on controller Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController (Project-Web-HighSchoolEducationManagement.Server).
+2026-03-12 14:15:12.684 +07:00 [INF] Executed action Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMySubjects (Project-Web-HighSchoolEducationManagement.Server) in 102.6865ms
+2026-03-12 14:15:12.689 +07:00 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[EduManagement.Application.DTOs.VirtualClass.VirtualClassListItemDto, EduManagement.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-03-12 14:15:12.691 +07:00 [INF] HTTP GET /api/teacher/virtual-classes/classes responded 200 in 137.1711 ms
+2026-03-12 14:15:12.697 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@teacherId='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT DISTINCT [c].[ClassID] AS [id], [c].[ClassName] AS [name], [c].[ClassYear] AS [year]
+FROM [TeacherAssignment] AS [t]
+INNER JOIN [Class] AS [c] ON [t].[ClassId] = [c].[ClassID]
+WHERE [t].[TeacherId] = @teacherId
+2026-03-12 14:15:12.703 +07:00 [INF] Executed action Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMine (Project-Web-HighSchoolEducationManagement.Server) in 48.9735ms
+2026-03-12 14:15:12.754 +07:00 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[System.Object, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-03-12 14:15:12.701 +07:00 [INF] Executed endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMySubjects (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-12 14:15:12.708 +07:00 [INF] Request finished HTTP/1.1 GET https://localhost:7190/api/teacher/virtual-classes/classes - 200 null application/json; charset=utf-8 159.4481ms
+2026-03-12 14:15:12.762 +07:00 [INF] Executed endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMine (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-12 14:15:12.762 +07:00 [INF] Request starting HTTP/1.1 GET https://localhost:7190/api/teacher/virtual-classes/subjects - null null
+2026-03-12 14:15:12.763 +07:00 [INF] Request starting HTTP/1.1 GET https://localhost:7190/api/teacher/virtual-classes - null null
+2026-03-12 14:15:12.765 +07:00 [INF] Executed action Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMyClasses (Project-Web-HighSchoolEducationManagement.Server) in 69.703ms
+2026-03-12 14:15:12.769 +07:00 [INF] HTTP GET /api/teacher/virtual-classes/subjects responded 200 in 202.3903 ms
+2026-03-12 14:15:12.776 +07:00 [INF] HTTP GET /api/teacher/virtual-classes responded 200 in 190.4568 ms
+2026-03-12 14:15:12.782 +07:00 [INF] Executing endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMySubjects (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-12 14:15:12.787 +07:00 [INF] Executing endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMine (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-12 14:15:12.790 +07:00 [INF] Executed endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMyClasses (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-12 14:15:12.793 +07:00 [INF] Request finished HTTP/1.1 GET https://localhost:7190/api/teacher/virtual-classes/subjects - 200 null application/json; charset=utf-8 235.3544ms
+2026-03-12 14:15:12.797 +07:00 [INF] Request finished HTTP/1.1 GET https://localhost:7190/api/teacher/virtual-classes - 200 null application/json; charset=utf-8 220.5982ms
+2026-03-12 14:15:12.800 +07:00 [INF] Route matched with {action = "GetMySubjects", controller = "TeacherVirtualClasses"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetMySubjects(Int32) on controller Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController (Project-Web-HighSchoolEducationManagement.Server).
+2026-03-12 14:15:12.804 +07:00 [INF] Route matched with {action = "GetMine", controller = "TeacherVirtualClasses"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetMine() on controller Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController (Project-Web-HighSchoolEducationManagement.Server).
+2026-03-12 14:15:12.807 +07:00 [INF] HTTP GET /api/teacher/virtual-classes/classes responded 200 in 168.8430 ms
+2026-03-12 14:15:12.848 +07:00 [INF] Executed DbCommand (2ms) [Parameters=[@teacherId='?' (DbType = Int32), @classId='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT DISTINCT [s].[SubjectID] AS [id], [s].[SubjectName] AS [name]
+FROM [TeacherAssignment] AS [t]
+INNER JOIN [Subject] AS [s] ON [t].[SubjectId] = [s].[SubjectID]
+WHERE [t].[TeacherId] = @teacherId AND [t].[ClassId] = @classId
+2026-03-12 14:15:12.851 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@teacherId='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT [v].[VirtualClassID] AS [Id], [c].[ClassName], [s].[SubjectName], [v].[MeetingUrl], [v].[StartTime], [v].[EndTime], [v].[CreatedAtUtc]
+FROM [VirtualClass] AS [v]
+INNER JOIN [Class] AS [c] ON [v].[ClassId] = [c].[ClassID]
+INNER JOIN [Subject] AS [s] ON [v].[SubjectId] = [s].[SubjectID]
+WHERE [v].[TeacherId] = @teacherId
+ORDER BY [v].[StartTime] DESC
+2026-03-12 14:15:12.852 +07:00 [INF] Request finished HTTP/1.1 GET https://localhost:7190/api/teacher/virtual-classes/classes - 200 null application/json; charset=utf-8 225.1351ms
+2026-03-12 14:15:12.857 +07:00 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[System.Object, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-03-12 14:15:12.860 +07:00 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[EduManagement.Application.DTOs.VirtualClass.VirtualClassListItemDto, EduManagement.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-03-12 14:15:12.876 +07:00 [INF] Executed action Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMySubjects (Project-Web-HighSchoolEducationManagement.Server) in 31.7846ms
+2026-03-12 14:15:12.879 +07:00 [INF] Executed action Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMine (Project-Web-HighSchoolEducationManagement.Server) in 31.1829ms
+2026-03-12 14:15:12.882 +07:00 [INF] Executed endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMySubjects (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-12 14:15:12.884 +07:00 [INF] Executed endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMine (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-12 14:15:12.887 +07:00 [INF] HTTP GET /api/teacher/virtual-classes/subjects responded 200 in 105.2567 ms
+2026-03-12 14:15:12.888 +07:00 [INF] HTTP GET /api/teacher/virtual-classes responded 200 in 101.7975 ms
+2026-03-12 14:15:12.894 +07:00 [INF] Request finished HTTP/1.1 GET https://localhost:7190/api/teacher/virtual-classes/subjects - 200 null application/json; charset=utf-8 131.9256ms
+2026-03-12 14:15:12.898 +07:00 [INF] Request finished HTTP/1.1 GET https://localhost:7190/api/teacher/virtual-classes - 200 null application/json; charset=utf-8 134.958ms
