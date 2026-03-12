@@ -13,6 +13,7 @@ namespace EduManagement.Application.Common.Interfaces;
 public interface IAppDbContext
 {
     // Khai báo DbSet cho các entity
+    public DbSet<VirtualClass> VirtualClasses { get; }
     DbSet<Subject> Subjects { get; }
     DbSet<Admin> Admins { get; }
     DbSet<Teacher> Teachers { get; }

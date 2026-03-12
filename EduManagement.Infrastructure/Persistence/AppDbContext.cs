@@ -11,7 +11,7 @@ namespace EduManagement.Infrastructure.Persistence;
 public class AppDbContext : DbContext, IAppDbContext
 {
     //Khai báo DbSet cho các entity
-    
+    public DbSet<VirtualClass> VirtualClasses => Set<VirtualClass>();
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
     public DbSet<Subject> Subjects => Set<Subject>();
     public DbSet<Admin> Admins => Set<Admin>();
@@ -80,6 +80,25 @@ public class AppDbContext : DbContext, IAppDbContext
             .Property(x => x.SubjectName)
             .HasMaxLength(100)
             .IsRequired();
+        modelBuilder.Entity<VirtualClass>().ToTable("VirtualClass").HasKey(x => x.VirtualClassID);
+
+        modelBuilder.Entity<VirtualClass>()
+            .HasOne(x => x.Teacher)
+            .WithMany()
+            .HasForeignKey(x => x.TeacherId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<VirtualClass>()
+            .HasOne(x => x.Class)
+            .WithMany()
+            .HasForeignKey(x => x.ClassId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<VirtualClass>()
+            .HasOne(x => x.Subject)
+            .WithMany()
+            .HasForeignKey(x => x.SubjectId)
+            .OnDelete(DeleteBehavior.Restrict);
         // unique email trong bảng pending để không spam
         modelBuilder.Entity<PendingAccount>().HasIndex(x => x.Email).IsUnique();
         modelBuilder.Entity<Lesson>().ToTable("Lesson").HasKey(x => x.LessonID);

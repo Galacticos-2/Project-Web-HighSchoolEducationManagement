@@ -7,8 +7,8 @@ import { lessonsApi } from "../api/lessonsApi";
 import Brand from "../components/Brand";
 import UserActions from "../components/UserActions";
 import { authStorage } from "../auth/authStorage";
-import "../styles/studentLessons.css";
-
+import "../styles/lessons.css";
+import Button from "../components/Button";
 
 
 function bytesToSize(bytes) {
@@ -117,31 +117,35 @@ export default function StudentLessonsPage() {
             </div>
 
             {/* ===== PAGE CONTENT ===== */}
-            <div className="sl-page">
+            <div className="lesson-page">
 
-                <div className="sl-head">
+                <div className="lesson-head">
                     
 
-                    <div className="sl-title-row">
-                        <h2 className="sl-title">Bài giảng</h2>
+                    <div className="lesson-title-row">
+                        <h2 className="lesson-title">Bài giảng</h2>
 
-                        <div className="sl-actions">
-                            <button className="sl-btn" onClick={onReload} disabled={loading}>
+                        <div className="lesson-actions">
+                            <Button
+                                variant="secondary"
+                                onClick={onReload}
+                                disabled={loading}
+                            >
                                 ⟳ Tải lại
-                            </button>
+                            </Button>
                         </div>
                     </div>
 
-                    <form className="sl-filters" onSubmit={onSearch}>
+                    <form className="lesson-filters" onSubmit={onSearch}>
 
-                        <div className="sl-search">
+                        <div className="lesson-search">
                             <input
                                 placeholder="Tên bài giảng"
                                 value={q}
                                 onChange={(e) => setQ(e.target.value)}
                             />
 
-                            <button className="sl-btn" type="submit" disabled={loading}>
+                            <button className="lesson-btn" type="submit" disabled={loading}>
                                 🔎 Tìm
                             </button>
                         </div>
@@ -154,7 +158,7 @@ export default function StudentLessonsPage() {
 
                 </div>
 
-                <div className="sl-body">
+                <div className="lesson-body">
 
                     {loading ? (
                         <div className="empty">Đang tải...</div>
@@ -168,46 +172,61 @@ export default function StudentLessonsPage() {
                         </div>
                     ) : (
 
-                        <div className="sl-list">
+                                <div className="lesson-list">
+                                    <div className="lesson-table-header">
+                                        <div>STT</div>
+                                        <div>Tên bài giảng</div>
+                                        <div>Mô tả</div>
+                                        <div>Thời gian</div>
+                                        <div>File</div>
+                                        <div>Trạng thái</div>
+                                        <div>Tải xuống</div>
+                                    </div>
 
-                            {paged.items.map((it) => (
+                                    {paged.items.map((it, index) => (
 
-                                <div className="sl-card" key={it.id}>
+                                        <div className="lesson-row" key={it.id}>
 
-                                    <div className="sl-card-main">
+                                            {/* STT */}
+                                            <div className="lesson-cell">
+                                                {(paged.page - 1) * paged.pageSize + index + 1}
+                                            </div>
 
-                                        <div className="sl-card-title">
-                                            {it.title}
-                                        </div>
+                                            {/* Tên */}
+                                            <div className="lesson-cell">
+                                                {it.title}
+                                            </div>
 
-                                        {it.description && (
-                                            <div className="sl-card-desc">
+                                            {/* Mô tả */}
+                                            <div className="lesson-cell lesson-desc">
                                                 {it.description}
                                             </div>
-                                        )}
 
-                                        <div className="sl-meta">
-                                            <span className="badge">{it.status}</span>
-                                            <span className="muted">{it.fileName}</span>
-                                            <span className="muted">
-                                                • {bytesToSize(it.fileSize)}
-                                            </span>
+                                            {/* Thời gian */}
+                                            <div className="lesson-cell">
+                                                {it.timeShouldLearn}
+                                            </div>
+
+                                            {/* File */}
+                                            <div className="lesson-cell">
+                                                {it.fileName} • {bytesToSize(it.fileSize)}
+                                            </div>
+
+                                            {/* Trạng thái */}
+                                            <div className="lesson-cell">
+                                                <span className="status-badge">{it.status}</span>
+                                            </div>
+
+                                            {/* Download */}
+                                            <div className="lesson-actions-cell">
+                                                <Button onClick={() => onDownload(it)}>
+                                                    ⬇ Tải xuống
+                                                </Button>
+                                            </div>
+
                                         </div>
 
-                                    </div>
-
-                                    <div className="sl-card-actions">
-                                        <button
-                                            className="sl-btn "
-                                            onClick={() => onDownload(it)}
-                                        >
-                                            Tải xuống
-                                        </button>
-                                    </div>
-
-                                </div>
-
-                            ))}
+                                    ))}
 
                         </div>
 

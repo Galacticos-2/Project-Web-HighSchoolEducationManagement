@@ -14,6 +14,7 @@ namespace EduManagement.Application.DTOs.Lessons
         public long FileSize { get; set; }
         public string ContentType { get; set; } = default!;
         public string CreatedAtUtc { get; set; } = default!;
+        public string? TimeShouldLearn { get; set; }
     }
 }
 

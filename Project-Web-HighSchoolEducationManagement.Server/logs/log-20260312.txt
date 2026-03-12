@@ -1,0 +1,233 @@
+2026-03-12 14:02:22.026 +07:00 [INF] Executed DbCommand (33ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT 1
+2026-03-12 14:02:22.068 +07:00 [INF] Acquiring an exclusive lock for migration application. See https://aka.ms/efcore-docs-migrations-lock for more information if this takes too long.
+2026-03-12 14:02:22.118 +07:00 [INF] Executed DbCommand (45ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+DECLARE @result int;
+EXEC @result = sp_getapplock @Resource = '__EFMigrationsLock', @LockOwner = 'Session', @LockMode = 'Exclusive';
+SELECT @result
+2026-03-12 14:02:22.176 +07:00 [INF] Executed DbCommand (7ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL
+BEGIN
+    CREATE TABLE [__EFMigrationsHistory] (
+        [MigrationId] nvarchar(150) NOT NULL,
+        [ProductVersion] nvarchar(32) NOT NULL,
+        CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY ([MigrationId])
+    );
+END;
+2026-03-12 14:02:22.191 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT 1
+2026-03-12 14:02:22.194 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT OBJECT_ID(N'[__EFMigrationsHistory]');
+2026-03-12 14:02:22.209 +07:00 [INF] Executed DbCommand (11ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT [MigrationId], [ProductVersion]
+FROM [__EFMigrationsHistory]
+ORDER BY [MigrationId];
+2026-03-12 14:02:22.220 +07:00 [INF] No migrations were applied. The database is already up to date.
+2026-03-12 14:02:22.225 +07:00 [INF] Executed DbCommand (4ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+DECLARE @result int;
+EXEC @result = sp_releaseapplock @Resource = '__EFMigrationsLock', @LockOwner = 'Session';
+SELECT @result
+2026-03-12 14:02:22.487 +07:00 [INF] Executed DbCommand (68ms) [Parameters=[@cls_ClassName='?' (Size = 100)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [c].[ClassID], [c].[ClassName], [c].[ClassYear]
+FROM [Class] AS [c]
+WHERE [c].[ClassName] = @cls_ClassName
+2026-03-12 14:02:22.530 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@cls_ClassName='?' (Size = 100)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [c].[ClassID], [c].[ClassName], [c].[ClassYear]
+FROM [Class] AS [c]
+WHERE [c].[ClassName] = @cls_ClassName
+2026-03-12 14:02:22.534 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@cls_ClassName='?' (Size = 100)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [c].[ClassID], [c].[ClassName], [c].[ClassYear]
+FROM [Class] AS [c]
+WHERE [c].[ClassName] = @cls_ClassName
+2026-03-12 14:02:22.537 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@cls_ClassName='?' (Size = 100)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [c].[ClassID], [c].[ClassName], [c].[ClassYear]
+FROM [Class] AS [c]
+WHERE [c].[ClassName] = @cls_ClassName
+2026-03-12 14:02:22.540 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@cls_ClassName='?' (Size = 100)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [c].[ClassID], [c].[ClassName], [c].[ClassYear]
+FROM [Class] AS [c]
+WHERE [c].[ClassName] = @cls_ClassName
+2026-03-12 14:02:22.542 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@cls_ClassName='?' (Size = 100)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [c].[ClassID], [c].[ClassName], [c].[ClassYear]
+FROM [Class] AS [c]
+WHERE [c].[ClassName] = @cls_ClassName
+2026-03-12 14:02:22.545 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@cls_ClassName='?' (Size = 100)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [c].[ClassID], [c].[ClassName], [c].[ClassYear]
+FROM [Class] AS [c]
+WHERE [c].[ClassName] = @cls_ClassName
+2026-03-12 14:02:22.547 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@cls_ClassName='?' (Size = 100)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [c].[ClassID], [c].[ClassName], [c].[ClassYear]
+FROM [Class] AS [c]
+WHERE [c].[ClassName] = @cls_ClassName
+2026-03-12 14:02:22.550 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@cls_ClassName='?' (Size = 100)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [c].[ClassID], [c].[ClassName], [c].[ClassYear]
+FROM [Class] AS [c]
+WHERE [c].[ClassName] = @cls_ClassName
+2026-03-12 14:02:22.553 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@cls_ClassName='?' (Size = 100)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [c].[ClassID], [c].[ClassName], [c].[ClassYear]
+FROM [Class] AS [c]
+WHERE [c].[ClassName] = @cls_ClassName
+2026-03-12 14:02:22.556 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@cls_ClassName='?' (Size = 100)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [c].[ClassID], [c].[ClassName], [c].[ClassYear]
+FROM [Class] AS [c]
+WHERE [c].[ClassName] = @cls_ClassName
+2026-03-12 14:02:22.558 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@cls_ClassName='?' (Size = 100)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [c].[ClassID], [c].[ClassName], [c].[ClassYear]
+FROM [Class] AS [c]
+WHERE [c].[ClassName] = @cls_ClassName
+2026-03-12 14:02:22.561 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@cls_ClassName='?' (Size = 100)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [c].[ClassID], [c].[ClassName], [c].[ClassYear]
+FROM [Class] AS [c]
+WHERE [c].[ClassName] = @cls_ClassName
+2026-03-12 14:02:22.564 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@cls_ClassName='?' (Size = 100)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [c].[ClassID], [c].[ClassName], [c].[ClassYear]
+FROM [Class] AS [c]
+WHERE [c].[ClassName] = @cls_ClassName
+2026-03-12 14:02:22.567 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@cls_ClassName='?' (Size = 100)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [c].[ClassID], [c].[ClassName], [c].[ClassYear]
+FROM [Class] AS [c]
+WHERE [c].[ClassName] = @cls_ClassName
+2026-03-12 14:02:22.598 +07:00 [INF] Executed DbCommand (3ms) [Parameters=[@subject_SubjectName='?' (Size = 100)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [s].[SubjectID], [s].[SubjectName]
+FROM [Subject] AS [s]
+WHERE [s].[SubjectName] = @subject_SubjectName
+2026-03-12 14:02:22.608 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@subject_SubjectName='?' (Size = 100)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [s].[SubjectID], [s].[SubjectName]
+FROM [Subject] AS [s]
+WHERE [s].[SubjectName] = @subject_SubjectName
+2026-03-12 14:02:22.610 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@subject_SubjectName='?' (Size = 100)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [s].[SubjectID], [s].[SubjectName]
+FROM [Subject] AS [s]
+WHERE [s].[SubjectName] = @subject_SubjectName
+2026-03-12 14:02:22.614 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@subject_SubjectName='?' (Size = 100)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [s].[SubjectID], [s].[SubjectName]
+FROM [Subject] AS [s]
+WHERE [s].[SubjectName] = @subject_SubjectName
+2026-03-12 14:02:22.616 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@subject_SubjectName='?' (Size = 100)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [s].[SubjectID], [s].[SubjectName]
+FROM [Subject] AS [s]
+WHERE [s].[SubjectName] = @subject_SubjectName
+2026-03-12 14:02:22.644 +07:00 [INF] Executed DbCommand (6ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM [Admin] AS [a]) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END
+2026-03-12 14:02:22.772 +07:00 [INF] User profile is available. Using 'C:\Users\admin\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2026-03-12 14:02:23.064 +07:00 [INF] Now listening on: https://localhost:7190
+2026-03-12 14:02:23.066 +07:00 [INF] Now listening on: http://localhost:5170
+2026-03-12 14:02:23.068 +07:00 [INF] Application started. Press Ctrl+C to shut down.
+2026-03-12 14:02:23.070 +07:00 [INF] Hosting environment: Development
+2026-03-12 14:02:23.071 +07:00 [INF] Content root path: D:\CV\Project-Web-HighSchoolEducationManagement\Project-Web-HighSchoolEducationManagement.Server
+2026-03-12 14:02:24.216 +07:00 [INF] Request starting HTTP/2 GET https://localhost:7190/swagger/index.html - null null
+2026-03-12 14:02:24.616 +07:00 [INF] HTTP GET /swagger/index.html responded 200 in 199.8757 ms
+2026-03-12 14:02:24.625 +07:00 [INF] Request starting HTTP/2 GET https://localhost:7190/_vs/browserLink - null null
+2026-03-12 14:02:24.634 +07:00 [INF] Request finished HTTP/2 GET https://localhost:7190/swagger/index.html - 200 null text/html;charset=utf-8 427.5955ms
+2026-03-12 14:02:24.702 +07:00 [INF] Request finished HTTP/2 GET https://localhost:7190/_vs/browserLink - 200 null text/javascript; charset=UTF-8 77.1028ms
+2026-03-12 14:02:24.725 +07:00 [INF] Request starting HTTP/2 GET https://localhost:7190/swagger/v1/swagger.json - null null
+2026-03-12 14:02:24.931 +07:00 [INF] HTTP GET /swagger/v1/swagger.json responded 200 in 200.3809 ms
+2026-03-12 14:02:24.936 +07:00 [INF] Request finished HTTP/2 GET https://localhost:7190/swagger/v1/swagger.json - 200 null application/json;charset=utf-8 211.0258ms
+2026-03-12 14:02:27.055 +07:00 [INF] No SPA development server running at https://localhost:31028 found.
+2026-03-12 14:02:34.620 +07:00 [INF] SPA development server running at 'https://localhost:31028'
+2026-03-12 14:03:23.634 +07:00 [INF] Request starting HTTP/1.1 POST https://localhost:7190/api/auth/login - application/json 46
+2026-03-12 14:03:23.649 +07:00 [INF] CORS policy execution successful.
+2026-03-12 14:03:25.956 +07:00 [INF] Executing endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.AuthController.Login (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-12 14:03:26.027 +07:00 [INF] Route matched with {action = "Login", controller = "Auth"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] Login(EduManagement.Application.DTOs.Auth.LoginRequest) on controller Project_Web_HighSchoolEducationManagement.Server.Controllers.AuthController (Project-Web-HighSchoolEducationManagement.Server).
+2026-03-12 14:03:26.151 +07:00 [INF] Executed DbCommand (9ms) [Parameters=[@req_Email='?' (Size = 150)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [a].[AdminID], [a].[AdminBirthday], [a].[AdminEmail], [a].[AdminName], [a].[AdminPassword], [a].[AdminPhoneNumber]
+FROM [Admin] AS [a]
+WHERE [a].[AdminEmail] = @req_Email
+2026-03-12 14:03:26.178 +07:00 [INF] Executed DbCommand (6ms) [Parameters=[@req_Email='?' (Size = 150)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [t].[TeacherID], [t].[IsApproved], [t].[TeacherBirthday], [t].[TeacherEmail], [t].[TeacherName], [t].[TeacherPassword], [t].[TeacherPhoneNumber]
+FROM [Teacher] AS [t]
+WHERE [t].[TeacherEmail] = @req_Email
+2026-03-12 14:03:26.975 +07:00 [INF] Executing OkObjectResult, writing value of type 'EduManagement.Application.DTOs.Auth.AuthResponse'.
+2026-03-12 14:03:27.025 +07:00 [INF] Executed action Project_Web_HighSchoolEducationManagement.Server.Controllers.AuthController.Login (Project-Web-HighSchoolEducationManagement.Server) in 981.8202ms
+2026-03-12 14:03:27.069 +07:00 [INF] Executed endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.AuthController.Login (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-12 14:03:27.098 +07:00 [INF] HTTP POST /api/auth/login responded 200 in 3453.1312 ms
+2026-03-12 14:03:27.130 +07:00 [INF] Request finished HTTP/1.1 POST https://localhost:7190/api/auth/login - 200 null application/json; charset=utf-8 3496.7072ms
+2026-03-12 14:03:28.630 +07:00 [INF] Request starting HTTP/1.1 GET https://localhost:7190/api/teacher/virtual-classes - null null
+2026-03-12 14:03:28.630 +07:00 [INF] Request starting HTTP/1.1 GET https://localhost:7190/api/teacher/virtual-classes/classes - null null
+2026-03-12 14:03:28.632 +07:00 [INF] Request starting HTTP/1.1 GET https://localhost:7190/api/teacher/virtual-classes/subjects - null null
+2026-03-12 14:03:28.761 +07:00 [INF] Executing endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMine (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-12 14:03:28.761 +07:00 [INF] Executing endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMySubjects (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-12 14:03:28.761 +07:00 [INF] Executing endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMyClasses (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-12 14:03:28.804 +07:00 [INF] Route matched with {action = "GetMine", controller = "TeacherVirtualClasses"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetMine() on controller Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController (Project-Web-HighSchoolEducationManagement.Server).
+2026-03-12 14:03:28.824 +07:00 [INF] Route matched with {action = "GetMySubjects", controller = "TeacherVirtualClasses"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetMySubjects(Int32) on controller Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController (Project-Web-HighSchoolEducationManagement.Server).
+2026-03-12 14:03:28.836 +07:00 [INF] Route matched with {action = "GetMyClasses", controller = "TeacherVirtualClasses"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetMyClasses() on controller Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController (Project-Web-HighSchoolEducationManagement.Server).
+2026-03-12 14:03:29.094 +07:00 [WRN] The query uses the 'Distinct' operator after applying an ordering. If there are any row limiting operation used before 'Distinct' and after ordering then ordering will be used for it. Ordering(s) will be erased after 'Distinct' and results afterwards would be unordered.
+2026-03-12 14:03:29.100 +07:00 [WRN] The query uses the 'Distinct' operator after applying an ordering. If there are any row limiting operation used before 'Distinct' and after ordering then ordering will be used for it. Ordering(s) will be erased after 'Distinct' and results afterwards would be unordered.
+2026-03-12 14:03:29.151 +07:00 [INF] Executed DbCommand (18ms) [Parameters=[@teacherId='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT [v].[VirtualClassID] AS [Id], [c].[ClassName], [s].[SubjectName], [v].[MeetingUrl], [v].[StartTime], [v].[EndTime], [v].[CreatedAtUtc]
+FROM [VirtualClass] AS [v]
+INNER JOIN [Class] AS [c] ON [v].[ClassId] = [c].[ClassID]
+INNER JOIN [Subject] AS [s] ON [v].[SubjectId] = [s].[SubjectID]
+WHERE [v].[TeacherId] = @teacherId
+ORDER BY [v].[StartTime] DESC
+2026-03-12 14:03:29.254 +07:00 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[EduManagement.Application.DTOs.VirtualClass.VirtualClassListItemDto, EduManagement.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-03-12 14:03:29.263 +07:00 [INF] Executed DbCommand (13ms) [Parameters=[@teacherId='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT DISTINCT [c].[ClassID] AS [id], [c].[ClassName] AS [name], [c].[ClassYear] AS [year]
+FROM [TeacherAssignment] AS [t]
+INNER JOIN [Class] AS [c] ON [t].[ClassId] = [c].[ClassID]
+WHERE [t].[TeacherId] = @teacherId
+2026-03-12 14:03:29.281 +07:00 [INF] Executed DbCommand (12ms) [Parameters=[@teacherId='?' (DbType = Int32), @classId='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT DISTINCT [s].[SubjectID] AS [id], [s].[SubjectName] AS [name]
+FROM [TeacherAssignment] AS [t]
+INNER JOIN [Subject] AS [s] ON [t].[SubjectId] = [s].[SubjectID]
+WHERE [t].[TeacherId] = @teacherId AND [t].[ClassId] = @classId
+2026-03-12 14:03:29.323 +07:00 [INF] Executed action Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMine (Project-Web-HighSchoolEducationManagement.Server) in 479.5767ms
+2026-03-12 14:03:29.342 +07:00 [INF] Request starting HTTP/1.1 GET https://localhost:7190/api/teacher/virtual-classes - null null
+2026-03-12 14:03:29.351 +07:00 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[System.Object, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-03-12 14:03:29.374 +07:00 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[System.Object, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-03-12 14:03:29.381 +07:00 [INF] Executed endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMine (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-12 14:03:29.413 +07:00 [INF] Executed action Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMyClasses (Project-Web-HighSchoolEducationManagement.Server) in 526.1728ms
+2026-03-12 14:03:29.390 +07:00 [INF] Executing endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMine (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-12 14:03:29.481 +07:00 [INF] Executed action Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMySubjects (Project-Web-HighSchoolEducationManagement.Server) in 605.6095ms
+2026-03-12 14:03:29.531 +07:00 [INF] Executed endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMySubjects (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-12 14:03:29.492 +07:00 [INF] Executed endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMyClasses (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-12 14:03:29.439 +07:00 [INF] Request starting HTTP/1.1 GET https://localhost:7190/api/teacher/virtual-classes/classes - null null
+2026-03-12 14:03:29.497 +07:00 [INF] Route matched with {action = "GetMine", controller = "TeacherVirtualClasses"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetMine() on controller Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController (Project-Web-HighSchoolEducationManagement.Server).
+2026-03-12 14:03:29.497 +07:00 [INF] Request starting HTTP/1.1 GET https://localhost:7190/api/teacher/virtual-classes/subjects - null null
+2026-03-12 14:03:29.483 +07:00 [INF] HTTP GET /api/teacher/virtual-classes responded 200 in 844.0195 ms
+2026-03-12 14:03:29.535 +07:00 [INF] HTTP GET /api/teacher/virtual-classes/subjects responded 200 in 860.7071 ms
+2026-03-12 14:03:29.537 +07:00 [INF] HTTP GET /api/teacher/virtual-classes/classes responded 200 in 878.6584 ms
+2026-03-12 14:03:29.545 +07:00 [INF] Executing endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMyClasses (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-12 14:03:29.554 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@teacherId='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT [v].[VirtualClassID] AS [Id], [c].[ClassName], [s].[SubjectName], [v].[MeetingUrl], [v].[StartTime], [v].[EndTime], [v].[CreatedAtUtc]
+FROM [VirtualClass] AS [v]
+INNER JOIN [Class] AS [c] ON [v].[ClassId] = [c].[ClassID]
+INNER JOIN [Subject] AS [s] ON [v].[SubjectId] = [s].[SubjectID]
+WHERE [v].[TeacherId] = @teacherId
+ORDER BY [v].[StartTime] DESC
+2026-03-12 14:03:29.557 +07:00 [INF] Executing endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMySubjects (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-12 14:03:29.562 +07:00 [INF] Request finished HTTP/1.1 GET https://localhost:7190/api/teacher/virtual-classes - 200 null application/json; charset=utf-8 931.9369ms
+2026-03-12 14:03:29.566 +07:00 [INF] Request finished HTTP/1.1 GET https://localhost:7190/api/teacher/virtual-classes/subjects - 200 null application/json; charset=utf-8 934.3302ms
+2026-03-12 14:03:29.572 +07:00 [INF] Request finished HTTP/1.1 GET https://localhost:7190/api/teacher/virtual-classes/classes - 200 null application/json; charset=utf-8 941.5015ms
+2026-03-12 14:03:29.576 +07:00 [INF] Route matched with {action = "GetMyClasses", controller = "TeacherVirtualClasses"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetMyClasses() on controller Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController (Project-Web-HighSchoolEducationManagement.Server).
+2026-03-12 14:03:29.581 +07:00 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[EduManagement.Application.DTOs.VirtualClass.VirtualClassListItemDto, EduManagement.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-03-12 14:03:29.585 +07:00 [INF] Route matched with {action = "GetMySubjects", controller = "TeacherVirtualClasses"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetMySubjects(Int32) on controller Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController (Project-Web-HighSchoolEducationManagement.Server).
+2026-03-12 14:03:29.621 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@teacherId='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT DISTINCT [c].[ClassID] AS [id], [c].[ClassName] AS [name], [c].[ClassYear] AS [year]
+FROM [TeacherAssignment] AS [t]
+INNER JOIN [Class] AS [c] ON [t].[ClassId] = [c].[ClassID]
+WHERE [t].[TeacherId] = @teacherId
+2026-03-12 14:03:29.623 +07:00 [INF] Executed action Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMine (Project-Web-HighSchoolEducationManagement.Server) in 74.3649ms
+2026-03-12 14:03:29.641 +07:00 [INF] Executed DbCommand (2ms) [Parameters=[@teacherId='?' (DbType = Int32), @classId='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+SELECT DISTINCT [s].[SubjectID] AS [id], [s].[SubjectName] AS [name]
+FROM [TeacherAssignment] AS [t]
+INNER JOIN [Subject] AS [s] ON [t].[SubjectId] = [s].[SubjectID]
+WHERE [t].[TeacherId] = @teacherId AND [t].[ClassId] = @classId
+2026-03-12 14:03:29.658 +07:00 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[System.Object, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-03-12 14:03:29.661 +07:00 [INF] Executed endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMine (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-12 14:03:29.668 +07:00 [INF] HTTP GET /api/teacher/virtual-classes responded 200 in 281.7181 ms
+2026-03-12 14:03:29.666 +07:00 [INF] Executed action Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMyClasses (Project-Web-HighSchoolEducationManagement.Server) in 49.0497ms
+2026-03-12 14:03:29.665 +07:00 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[System.Object, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+2026-03-12 14:03:29.673 +07:00 [INF] Request finished HTTP/1.1 GET https://localhost:7190/api/teacher/virtual-classes - 200 null application/json; charset=utf-8 330.6653ms
+2026-03-12 14:03:29.677 +07:00 [INF] Executed endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMyClasses (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-12 14:03:29.679 +07:00 [INF] Executed action Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMySubjects (Project-Web-HighSchoolEducationManagement.Server) in 48.5192ms
+2026-03-12 14:03:29.691 +07:00 [INF] HTTP GET /api/teacher/virtual-classes/classes responded 200 in 146.8369 ms
+2026-03-12 14:03:29.693 +07:00 [INF] Executed endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.TeacherVirtualClassesController.GetMySubjects (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-12 14:03:29.699 +07:00 [INF] Request finished HTTP/1.1 GET https://localhost:7190/api/teacher/virtual-classes/classes - 200 null application/json; charset=utf-8 259.3205ms
+2026-03-12 14:03:29.703 +07:00 [INF] HTTP GET /api/teacher/virtual-classes/subjects responded 200 in 146.3359 ms
+2026-03-12 14:03:29.717 +07:00 [INF] Request finished HTTP/1.1 GET https://localhost:7190/api/teacher/virtual-classes/subjects - 200 null application/json; charset=utf-8 219.9585ms

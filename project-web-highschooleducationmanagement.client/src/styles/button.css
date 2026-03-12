@@ -1,0 +1,30 @@
+.app-btn {
+    height: 36px;
+    padding: 0 14px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.app-btn-primary {
+    background: linear-gradient(135deg, #6c6ff5, #6c47ff);
+    color: white;
+}
+
+    .app-btn-primary:hover {
+        opacity: 0.9;
+    }
+
+.app-btn-secondary {
+    background: #f3f6fb;
+    color: #1b2b41;
+}
+
+    .app-btn-secondary:hover {
+        background: #e7edf7;
+    }

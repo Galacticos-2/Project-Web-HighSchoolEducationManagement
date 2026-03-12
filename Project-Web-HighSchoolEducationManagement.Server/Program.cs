@@ -3,13 +3,16 @@ using EduManagement.Application.Common.Interfaces;
 using EduManagement.Application.Features.AdminApproval;
 using EduManagement.Application.Features.Auth;
 using EduManagement.Application.Features.Lessons;
+using EduManagement.Application.Features.VirtualClasses;
 using EduManagement.Infrastructure.Identity;
+using EduManagement.Infrastructure.Logging;
 using EduManagement.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-
+using Project_Web_HighSchoolEducationManagement.Server.Middlewares;
+using Serilog;
 namespace Project_Web_HighSchoolEducationManagement.Server
 {
     public class Program
@@ -29,7 +32,11 @@ namespace Project_Web_HighSchoolEducationManagement.Server
 
             builder.Services.AddScoped<IAppDbContext>(sp =>
                 sp.GetRequiredService<AppDbContext>());
+            SerilogConfig.Configure();
 
+            
+
+            builder.Host.UseSerilog();
             // JWT Authentication
             var jwt = builder.Configuration.GetSection("Jwt");
 
@@ -70,6 +77,8 @@ namespace Project_Web_HighSchoolEducationManagement.Server
             builder.Services.AddScoped<AdminAssignmentService>();
             builder.Services.AddScoped<StudentLessonService>();
             builder.Services.AddScoped<TeacherLessonService>();
+            builder.Services.AddScoped<TeacherVirtualClassService>();
+            builder.Services.AddScoped<StudentVirtualClassService>();
             // Controllers + Swagger
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
@@ -104,6 +113,8 @@ namespace Project_Web_HighSchoolEducationManagement.Server
             });
             builder.Services.AddScoped<EduManagement.Application.Features.Lessons.TeacherLessonService>();
             var app = builder.Build();
+            app.UseMiddleware<ExceptionMiddleware>();
+            app.UseSerilogRequestLogging();
 
             // =========================
             // Seed DB: migrate + create default admin
@@ -134,6 +145,7 @@ namespace Project_Web_HighSchoolEducationManagement.Server
             app.MapFallbackToFile("/index.html");
 
             await app.RunAsync();
+            Log.Information("Application started");
         }
     }
 }

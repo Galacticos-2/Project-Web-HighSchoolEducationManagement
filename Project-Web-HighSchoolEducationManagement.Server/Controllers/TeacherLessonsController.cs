@@ -98,4 +98,31 @@ public class TeacherLessonsController : ControllerBase
 
         return Ok(new { id = newId, message = "Đã tạo bài giảng." });
     }
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(int id, [FromForm] CreateLessonRequest meta)
+    {
+        var teacherId = GetTeacherId();
+
+        await _svc.UpdateAsync(teacherId, id, meta);
+
+        return Ok(new { message = "Đã cập nhật bài giảng." });
+    }
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var teacherId = GetTeacherId();
+
+        var relativePath = await _svc.DeleteAsync(teacherId, id);
+
+        //xóa file vật lý
+        if (!string.IsNullOrWhiteSpace(relativePath))
+        {
+            var absPath = Path.Combine(_env.WebRootPath, relativePath);
+
+            if (System.IO.File.Exists(absPath))
+                System.IO.File.Delete(absPath);
+        }
+
+        return Ok(new { message = "Đã xóa bài giảng." });
+    }
 }

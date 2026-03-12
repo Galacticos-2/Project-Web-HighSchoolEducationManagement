@@ -40,7 +40,7 @@
     border-radius: 14px;
     box-shadow: 0 14px 28px rgba(16, 58, 113, 0.12);
     padding: 8px;
-    z-index: 1000;
+    z-index: 9999; /* FIX */
 }
 
 .teacher-menu__item {
@@ -317,9 +317,15 @@ body.app-teacher-bg {
     padding: 12px 6px;
     border-bottom: 1px solid #eef2f8;
 }
-.teacher-avatar-btn {
-    background: #f1f3f5;
-    border-color: #f1f3f5;
+.user-avatar-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    border: 1px solid #e1e6ef;
+    background: #fff;
+    border-radius: 999px;
+    cursor: pointer;
 }
     .teacher-row:last-child {
         border-bottom: none;

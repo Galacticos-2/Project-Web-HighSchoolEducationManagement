@@ -92,7 +92,19 @@ public static class DbInitializer
 
         db.Admins.Add(admin);
         await db.SaveChangesAsync();
+        // ===== Seed Classes =====
+        if (!await db.Classes.AnyAsync())
+        {
+            db.Classes.AddRange(classes);
+        }
 
+        // ===== Seed Subjects =====
+        if (!await db.Subjects.AnyAsync())
+        {
+            db.Subjects.AddRange(subjects);
+        }
+
+        await db.SaveChangesAsync();
 
     }
 

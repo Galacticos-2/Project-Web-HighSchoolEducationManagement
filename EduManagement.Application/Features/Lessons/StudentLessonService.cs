@@ -66,6 +66,7 @@ namespace EduManagement.Application.Features.Lessons
                     Id = x.LessonID,
                     Title = x.LessonTitle,
                     Description = x.LessonDescription,
+                    TimeShouldLearn = x.TimeShouldLearn,
                     Status = x.Status,
                     FileName = x.FileName,
                     FileSize = x.FileSize,
