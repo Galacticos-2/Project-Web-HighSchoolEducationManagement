@@ -10,6 +10,13 @@ export const lessonsApi = {
         axiosClient.post("/api/teacher/lessons/createnewlesson", formData, {
             headers: { "Content-Type": "multipart/form-data" },
         }),
+    updateLesson: (id, formData) =>
+        axiosClient.put(`/api/teacher/lessons/${id}`, formData, {
+            headers: { "Content-Type": "multipart/form-data" },
+        }),
+
+    deleteLesson: (id) =>
+        axiosClient.delete(`/api/teacher/lessons/${id}`),
     //Download the lesson file
     download: (id) =>
         axiosClient.get(`/api/lessons/${id}/download`, { responseType: "blob" }),

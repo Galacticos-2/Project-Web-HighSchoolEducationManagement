@@ -1,7 +1,11 @@
 ﻿import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import "../styles/teacherLessons.css";
+import { Link, useNavigate } from "react-router-dom";
+import "../styles/lessons.css";
 import { lessonsApi } from "../api/lessonsApi";
+import UserActions from "../components/UserActions";
+import Brand from "../components/Brand";
+import { authStorage } from "../auth/authStorage";
+import Button from "../components/Button";
 
 const STATUSES = [
     { value: "", label: "-- Chọn trạng thái --" },
@@ -10,6 +14,9 @@ const STATUSES = [
     { value: "Hidden", label: "Ẩn" },
 ];
 
+const profile = authStorage.getProfile();
+const fullName = profile?.fullName || "Giáo viên";
+const avatarLetter = (fullName?.trim()?.[0] || "T").toUpperCase();
 function bytesToSize(bytes) {
     if (!bytes && bytes !== 0) return "";
     const sizes = ["B", "KB", "MB", "GB"];
@@ -23,10 +30,11 @@ function bytesToSize(bytes) {
 }
 
 export default function TeacherLessonsPage() {
-    
+    const navigate = useNavigate(); 
+    const [editing, setEditing] = useState(null);
 
     // filters
-    const [status, setStatus] = useState("");
+    const [status] = useState("");
     const [q, setQ] = useState("");
 
     // data
@@ -43,7 +51,31 @@ export default function TeacherLessonsPage() {
     const [timeShouldLearn, setTimeShouldLearn] = useState("");
     const [createStatus, setCreateStatus] = useState("Draft");
     const [file, setFile] = useState(null);
+    const onEdit = (item) => {
+        setEditing(item);
 
+        setTitle(item.title);
+        setDescription(item.description || "");
+        setTimeShouldLearn(item.timeShouldLearn || "");
+        setCreateStatus(item.status);
+
+        setOpen(true);
+    };
+    const onDelete = async (item) => {
+
+        if (!window.confirm("Bạn có chắc muốn xóa bài giảng này?"))
+            return;
+
+        try {
+
+            await lessonsApi.deleteLesson(item.id);
+
+            await load(paged.page);
+
+        } catch {
+            alert("Không xóa được bài giảng.");
+        }
+    };
     const load = async (page = 1) => {
         setErr("");
         setLoading(true);
@@ -65,7 +97,7 @@ export default function TeacherLessonsPage() {
 
     useEffect(() => {
         load(1);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+        // elessonint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const onReload = () => load(paged.page || 1);
@@ -77,6 +109,7 @@ export default function TeacherLessonsPage() {
 
     const closeModal = () => {
         setOpen(false);
+        setEditing(null);
         setCreateErr("");
         setTitle("");
         setDescription("");
@@ -110,7 +143,11 @@ export default function TeacherLessonsPage() {
             fd.append("Status", createStatus);
             fd.append("file", file);
 
-            await lessonsApi.createnewlesson(fd);
+            if (editing) {
+                await lessonsApi.updateLesson(editing.id, fd);
+            } else {
+                await lessonsApi.createnewlesson(fd);
+            }
 
             closeModal();
             await load(1);
@@ -144,57 +181,71 @@ export default function TeacherLessonsPage() {
     };
 
     return (
-        <div className="tl-page">
-            <div className="tl-head">
-                <div className="tl-breadcrumb">
-                    <span className="muted">Trang chủ</span> <span className="muted">›</span>{" "}
-                    <span className="muted">Học tập</span> <span className="muted">›</span>{" "}
-                    <b>Bài giảng</b>
-                </div>
+        <div className="teacher-home">
 
-                <div className="tl-title-row">
-                    <h2 className="tl-title">Bài giảng</h2>
-                    <div className="tl-actions">
-                        <button className="btn" onClick={onReload} disabled={loading}>
-                            ⟳ Tải lại
-                        </button>
-                        <button className="btn primary" onClick={() => setOpen(true)}>
-                            ＋ Thêm mới
-                        </button>
+            {/* TOPBAR */}
+            <div className="teacher-topbar">
+                <div className="teacher-topbar__inner">
+
+                    <Brand variant="teacher" />
+
+                    <UserActions
+                        variant="teacher"
+                        fullName={fullName}
+                        avatarLetter={avatarLetter}
+                        onMyAccount={() => navigate("/my-info")}
+                        onChangePassword={() => console.log("change password")}
+                        onLogout={() => {
+                            authStorage.clear();
+                            window.location.href = "/login";
+                        }}
+                    />
+
+                </div>
+            </div>
+
+            <div className="lesson-page">
+            <div className="lesson-head">
+                
+
+                <div className="lesson-title-row">
+                    <h2 className="lesson-title">Bài giảng</h2>
+                    <div className="lesson-actions">
+                            <Button
+                                variant="secondary"
+                                onClick={onReload}
+                                disabled={loading}
+                            >
+                                ⟳ Tải lại
+                            </Button>
+                            
+                            <Button onClick={() => setOpen(true)}>
+                                ＋ Thêm mới
+                            </Button>
                     </div>
                 </div>
 
-                <form className="tl-filters" onSubmit={onSearch}>
-                    <select className="tl-select" value={status} onChange={(e) => setStatus(e.target.value)}>
-                        {STATUSES.map((s) => (
-                            <option key={s.value} value={s.value}>
-                                {s.label}
-                            </option>
-                        ))}
-                    </select>
+                <form className="lesson-filters" onSubmit={onSearch}>
+                    
 
-                    <div className="tl-search">
+                    <div className="lesson-search">
                         <input
                             placeholder="Tên bài giảng"
                             value={q}
                             onChange={(e) => setQ(e.target.value)}
                         />
-                        <button className="btn" type="submit" disabled={loading}>
-                            🔎 Tìm
-                        </button>
+                            <Button type="submit" disabled={loading}>
+                                🔎 Tìm
+                            </Button>
                     </div>
 
-                    <div className="tl-back">
-                        <Link className="link" to="/teacher">
-                            ← Quay lại trang chủ giáo viên
-                        </Link>
-                    </div>
+                    
                 </form>
 
                 {err ? <div className="alert">{err}</div> : null}
             </div>
 
-            <div className="tl-body">
+            <div className="lesson-body">
                 {loading ? (
                     <div className="empty">Đang tải...</div>
                 ) : (paged.items?.length || 0) === 0 ? (
@@ -203,93 +254,173 @@ export default function TeacherLessonsPage() {
                         <div className="empty-text">Không có dữ liệu</div>
                     </div>
                 ) : (
-                    <div className="tl-list">
-                        {paged.items.map((it) => (
-                            <div className="tl-card" key={it.id}>
-                                <div className="tl-card-main">
-                                    <div className="tl-card-title">{it.title}</div>
-                                    {it.description ? <div className="tl-card-desc">{it.description}</div> : null}
-                                    <div className="tl-meta">
-                                        <span className="badge">{it.status}</span>
-                                        <span className="muted">{it.fileName}</span>
-                                        <span className="muted">• {bytesToSize(it.fileSize)}</span>
-                                    </div>
-                                </div>
+                                <div className="lesson-list">
 
-                                <div className="tl-card-actions">
-                                    <button className="btn" onClick={() => onDownload(it)}>
-                                        Tải xuống
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
+                                    <div className="lesson-table-header">
+                                        <div>STT</div>
+                                        <div>Tên</div>
+                                        <div>Mô tả</div>
+                                        <div>Thời gian</div>
+                                        <div>File</div>
+                                        <div>Trạng thái</div>
+                                        <div>Hành động</div>
+                                    </div>
+                                    {paged.items.map((it, index) => (
+                                        <div className="lesson-row" key={it.id}>
+
+                                            {/* STT */}
+                                            <div className="lesson-cell">
+                                                {(paged.page - 1) * paged.pageSize + index + 1}
+                                            </div>
+
+                                            {/* Tên */}
+                                            <div className="lesson-cell">
+                                                {it.title}
+                                            </div>
+
+                                            {/* Mô tả */}
+                                            <div className="lesson-cell lesson-desc">
+                                                {it.description}
+                                            </div>
+
+                                            {/* Thời gian */}
+                                            <div className="lesson-cell">
+                                                {it.timeShouldLearn}
+                                            </div>
+
+                                            {/* File */}
+                                            <div className="lesson-cell">
+                                                {it.fileName} • {bytesToSize(it.fileSize)}
+                                            </div>
+
+                                            {/* Trạng thái */}
+                                            <div className="lesson-cell">
+                                                <span className="status-badge">{it.status}</span>
+                                            </div>
+
+                                            {/* Action */}
+                                            <div className="lesson-actions-cell">
+
+                                                <Button onClick={() => onEdit(it)}>
+                                                    ✏ Sửa
+                                                </Button>
+
+                                                <Button onClick={() => onDelete(it)}>
+                                                    🗑 Xóa
+                                                </Button>
+
+                                                <Button onClick={() => onDownload(it)}>
+                                                    ⬇ Tải xuống
+                                                </Button>
+
+                                            </div>
+
+                                        </div>
+                                    ))}
                     </div>
                 )}
             </div>
 
             {/* Modal create */}
-            {open ? (
-                <div className="modal-backdrop" onMouseDown={closeModal}>
-                    <div className="modal" onMouseDown={(e) => e.stopPropagation()}>
-                        <div className="modal-head">
-                            <div className="modal-title">Thêm bài giảng</div>
-                            <button className="btn" onClick={closeModal}>✕</button>
-                        </div>
+                {open ? (
+                    <div className="modal-backdrop" onMouseDown={closeModal}>
+                        <div className="lesson-modal" onMouseDown={(e) => e.stopPropagation()}>
 
-                        {createErr ? <div className="alert">{createErr}</div> : null}
+                            <div className="lesson-modal-header">
+                                <h3 className="lesson-modal-title">
+                                    {editing ? "Chỉnh sửa bài giảng" : "Thêm bài giảng"}
+                                </h3>
 
-                        <form className="modal-form" onSubmit={onCreate}>
-                            <label className="field">
-                                <div className="label">Tên bài giảng *</div>
-                                <input value={title} onChange={(e) => setTitle(e.target.value)} />
-                            </label>
+                                <button className="modal-close" onClick={closeModal}>
+                                    ✕
+                                </button>
+                            </div>
+                            {createErr && <div className="alert">{createErr}</div>}
+                            <form className="lesson-modal-body" onSubmit={onCreate}>
 
-                            <label className="field">
-                                <div className="label">Mô tả</div>
-                                <textarea rows={3} value={description} onChange={(e) => setDescription(e.target.value)} />
-                            </label>
+                                <div className="form-row">
 
-                            <div className="grid-2">
-                                <label className="field">
-                                    <div className="label">Thời lượng dự kiến</div>
-                                    <input
-                                        placeholder="Ví dụ: 45 phút"
-                                        value={timeShouldLearn}
-                                        onChange={(e) => setTimeShouldLearn(e.target.value)}
+                                    <div className="form-group">
+                                        <label>Tên bài giảng *</label>
+                                        <input
+                                            type="text"
+                                            value={title}
+                                            onChange={(e) => setTitle(e.target.value)}
+                                        />
+                                    </div>
+
+                                    <div className="form-group">
+                                        <label>Trạng thái *</label>
+
+                                        <select
+                                            value={createStatus}
+                                            onChange={(e) => setCreateStatus(e.target.value)}
+                                        >
+                                            <option value="Draft">Nháp</option>
+                                            <option value="Published">Đã đăng</option>
+                                            <option value="Hidden">Ẩn</option>
+                                        </select>
+                                    </div>
+
+                                </div>
+
+                                <div className="form-group">
+                                    <label>Mô tả</label>
+                                    <textarea
+                                        rows={3}
+                                        value={description}
+                                        onChange={(e) => setDescription(e.target.value)}
                                     />
-                                </label>
+                                </div>
 
-                                <label className="field">
-                                    <div className="label">Trạng thái</div>
-                                    <select value={createStatus} onChange={(e) => setCreateStatus(e.target.value)}>
-                                        <option value="Draft">Nháp</option>
-                                        <option value="Published">Đã đăng</option>
-                                        <option value="Hidden">Ẩn</option>
-                                    </select>
-                                </label>
-                            </div>
+                                <div className="form-row">
 
-                            <label className="field">
-                                <div className="label">File (PDF/DOC/DOCX) *</div>
-                                <input
-                                    type="file"
-                                    accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                                    onChange={(e) => setFile(e.target.files?.[0] || null)}
-                                />
-                            </label>
+                                    <div className="form-group">
+                                        <label>Thời lượng dự kiến</label>
+                                        <input
+                                            placeholder="Ví dụ: 45 phút"
+                                            value={timeShouldLearn}
+                                            onChange={(e) => setTimeShouldLearn(e.target.value)}
+                                        />
+                                    </div>
 
-                            <div className="modal-actions">
-                                <button className="btn" type="button" onClick={closeModal} disabled={creating}>
-                                    Hủy
-                                </button>
-                                <button className="btn primary" type="submit" disabled={creating}>
-                                    {creating ? "Đang tạo..." : "Lưu"}
-                                </button>
-                            </div>
-                        </form>
+                                    <div className="form-group">
+                                        <label>File *</label>
+                                        <input
+                                            type="file"
+                                            accept=".pdf,.doc,.docx"
+                                            onChange={(e) => setFile(e.target.files?.[0] || null)}
+                                        />
+                                    </div>
+
+                                </div>
+
+                                <div className="lesson-modal-footer">
+
+                                    <Button
+                                        variant="secondary"
+                                        type="button"
+                                        onClick={closeModal}
+                                        disabled={creating}
+                                    >
+                                        Hủy
+                                    </Button>
+
+                                    <Button
+                                        type="submit"
+                                        disabled={creating}
+                                    >
+                                        {creating ? "Đang tạo..." : "Lưu"}
+                                    </Button>
+
+                                </div>
+
+                            </form>
+
+                        </div>
                     </div>
-                </div>
-            ) : null}
+                ) : null}
+            </div>
         </div>
     );
 }

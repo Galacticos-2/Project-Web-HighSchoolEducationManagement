@@ -11,6 +11,7 @@ import StudentLessonsPage from "./pages/StudentLessonsPage.jsx";
 import TeacherLessonsPage from "./pages/TeacherLessonsPage.jsx";
 import TeacherVirtualClassPage from "./pages/TeacherVirtualClassPage.jsx";
 import TeacherSchedulePage from "./pages/TeacherSchedulePage.jsx";
+import StudentVirtualClassPage from "./pages/StudentVirtualClassPage";
 
 export default function App() {
     return (
@@ -33,6 +34,7 @@ export default function App() {
             <Route element={<PrivateRoute allowedRoles={["Student"]} />}>
                 <Route path="/student" element={<HomePageStudent />} />
                 <Route path="/student/lessons" element={<StudentLessonsPage />} />
+                <Route path="/student/virtual-class" element={<StudentVirtualClassPage />} />
                 <Route path="/student/my-info" element={<Navigate to="/my-info" replace />} />
             </Route>
 

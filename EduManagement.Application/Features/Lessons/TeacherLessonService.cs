@@ -99,10 +99,12 @@ namespace EduManagement.Application.Features.Lessons
                     Id = x.LessonID,
                     Title = x.LessonTitle,
                     Description = x.LessonDescription,
+                    TimeShouldLearn = x.TimeShouldLearn,
                     Status = x.Status,
                     FileName = x.FileName,
                     FileSize = x.FileSize,
                     ContentType = x.ContentType,
+                    
                     CreatedAtUtc = x.CreatedAtUtc.ToString("O"),
                 })
                 .ToListAsync();
@@ -125,6 +127,42 @@ namespace EduManagement.Application.Features.Lessons
                 throw new Exception("Bạn không có quyền với bài giảng này.");
 
             return lesson;
+        }
+        //Update lesson metadata
+        public async Task UpdateAsync(int teacherId, int lessonId, CreateLessonRequest meta)
+        {
+            var lesson = await GetOwnedLessonAsync(teacherId, lessonId);
+
+            lesson.LessonTitle = meta.Title.Trim();
+
+            lesson.LessonDescription = string.IsNullOrWhiteSpace(meta.Description)
+                ? null
+                : meta.Description.Trim();
+
+            lesson.TimeShouldLearn = string.IsNullOrWhiteSpace(meta.TimeShouldLearn)
+                ? null
+                : meta.TimeShouldLearn.Trim();
+
+            lesson.Status = string.IsNullOrWhiteSpace(meta.Status)
+                ? "Draft"
+                : meta.Status.Trim();
+
+            await _db.SaveChangesAsync();
+        }
+
+
+        //Delete lesson
+        public async Task<string> DeleteAsync(int teacherId, int lessonId)
+        {
+            var lesson = await GetOwnedLessonAsync(teacherId, lessonId);
+
+            var filePath = lesson.FilePath;
+
+            _db.Lessons.Remove(lesson);
+
+            await _db.SaveChangesAsync();
+
+            return filePath; //trả path để controller xóa file
         }
     }
 }
