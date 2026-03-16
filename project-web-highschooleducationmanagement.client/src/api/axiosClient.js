@@ -32,3 +32,16 @@ axiosClient.interceptors.response.use(
         return Promise.reject(err);
     }
 );
+axiosClient.interceptors.response.use(
+    (res) => res,
+    (error) => {
+        const message =
+            error?.response?.data?.message ||
+            "Đã xảy ra lỗi.";
+
+        return Promise.reject({
+            ...error,
+            message
+        });
+    }
+);

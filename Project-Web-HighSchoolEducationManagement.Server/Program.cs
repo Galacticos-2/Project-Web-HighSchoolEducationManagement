@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using System.Text.Json;
 using EduManagement.Application.Common.Interfaces;
 using EduManagement.Application.Features.AdminApproval;
 using EduManagement.Application.Features.Auth;
@@ -80,7 +81,11 @@ namespace Project_Web_HighSchoolEducationManagement.Server
             builder.Services.AddScoped<TeacherVirtualClassService>();
             builder.Services.AddScoped<StudentVirtualClassService>();
             // Controllers + Swagger
-            builder.Services.AddControllers();
+            builder.Services.AddControllers()
+.AddJsonOptions(o =>
+{
+    o.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+});
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(c =>
             {

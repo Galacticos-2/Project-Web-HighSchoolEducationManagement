@@ -2,7 +2,7 @@
 using EduManagement.Application.DTOs.Auth;
 using EduManagement.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
-
+using EduManagement.Application.Common.Exceptions;
 namespace EduManagement.Application.Features.Auth;
 
 public class AuthService
@@ -21,21 +21,21 @@ public class AuthService
     public async Task RegisterAsync(RegisterRequest req)
     {
         if (req.Password != req.ConfirmPassword)
-            throw new Exception("Mật khẩu xác nhận không khớp.");
+            throw new ValidationException("Mật khẩu xác nhận không khớp.");
 
         var role = req.Role?.Trim();
         if (role != "Teacher" && role != "Student")
-            throw new Exception("Role không hợp lệ. Chỉ Teacher hoặc Student.");
+            throw new ValidationException("Role không hợp lệ. Chỉ Teacher hoặc Student.");
 
         // ✅ CHÈN NGAY Ở ĐÂY: Student bắt buộc chọn lớp
         if (role == "Student")
         {
             if (req.ClassId == null || req.ClassId <= 0)
-                throw new Exception("Vui lòng chọn lớp học.");
+                throw new ValidationException("Vui lòng chọn lớp học.");
 
             // nhớ: IAppDbContext phải có DbSet<Class> Classes
             var classExists = await _db.Classes.AnyAsync(c => c.ClassID == req.ClassId.Value);
-            if (!classExists) throw new Exception("Lớp học không tồn tại.");
+            if (!classExists) throw new ValidationException("Lớp học không tồn tại.");
         }
 
         // check email không được trùng ở bất kỳ bảng nào + bảng pending
@@ -45,7 +45,7 @@ public class AuthService
             await _db.Students.AnyAsync(x => x.StudentEmail == req.Email) ||
             await _db.PendingAccounts.AnyAsync(x => x.Email == req.Email);
 
-        if (exists) throw new Exception("Email đã tồn tại.");
+        if (exists) throw new ValidationException("Email đã tồn tại.");
 
         var hash = _hasher.Hash(req.Password);
 
@@ -74,7 +74,7 @@ public class AuthService
         if (admin != null)
         {
             if (!_hasher.Verify(req.Password, admin.AdminPassword))
-                throw new Exception("Sai email hoặc mật khẩu.");
+                throw new ValidationException("Sai email hoặc mật khẩu.");
 
             var (token, exp) = _jwt.CreateToken(admin.AdminID, "Admin", admin.AdminName, admin.AdminEmail);
             return new AuthResponse { AccessToken = token, ExpiresAtUtc = exp, Role = "Admin", FullName = admin.AdminName };
@@ -84,10 +84,10 @@ public class AuthService
         var teacher = await _db.Teachers.FirstOrDefaultAsync(x => x.TeacherEmail == req.Email);
         if (teacher != null)
         {
-            if (!teacher.IsApproved) throw new Exception("Tài khoản đang chờ admin duyệt.");
+            if (!teacher.IsApproved) throw new ValidationException("Tài khoản đang chờ admin duyệt.");
 
             if (!_hasher.Verify(req.Password, teacher.TeacherPassword))
-                throw new Exception("Sai email hoặc mật khẩu.");
+                throw new ValidationException("Sai email hoặc mật khẩu.");
 
             var (token, exp) = _jwt.CreateToken(teacher.TeacherID, "Teacher", teacher.TeacherName, teacher.TeacherEmail);
             return new AuthResponse { AccessToken = token, ExpiresAtUtc = exp, Role = "Teacher", FullName = teacher.TeacherName };
@@ -97,10 +97,10 @@ public class AuthService
         var student = await _db.Students.FirstOrDefaultAsync(x => x.StudentEmail == req.Email);
         if (student != null)
         {
-            if (!student.IsApproved) throw new Exception("Tài khoản đang chờ admin duyệt.");
+            if (!student.IsApproved) throw new ValidationException("Tài khoản đang chờ admin duyệt.");
 
             if (!_hasher.Verify(req.Password, student.StudentPassword))
-                throw new Exception("Sai email hoặc mật khẩu.");
+                throw new ValidationException("Sai email hoặc mật khẩu.");
 
             var (token, exp) = _jwt.CreateToken(student.StudentID, "Student", student.StudentName, student.StudentEmail);
             return new AuthResponse { AccessToken = token, ExpiresAtUtc = exp, Role = "Student", FullName = student.StudentName };
@@ -109,9 +109,9 @@ public class AuthService
         // ✅ Nếu email đang nằm trong PendingAccount thì báo đúng trạng thái
         var pending = await _db.PendingAccounts.FirstOrDefaultAsync(x => x.Email == req.Email);
         if (pending != null)
-            throw new Exception("Tài khoản đang chờ admin duyệt.");
+            throw new ValidationException("Tài khoản đang chờ admin duyệt.");
 
-        throw new Exception("Sai email hoặc mật khẩu.");
+        throw new ValidationException("Sai email hoặc mật khẩu.");
     }
 
     public async Task<UserProfileDto> GetMyProfileAsync(string role, string email)
@@ -120,7 +120,7 @@ public class AuthService
         email = email?.Trim() ?? "";
 
         if (string.IsNullOrWhiteSpace(role) || string.IsNullOrWhiteSpace(email))
-            throw new Exception("Thiếu role hoặc email trong token.");
+            throw new ValidationException("Thiếu role hoặc email trong token.");
 
         // 1) Admin
         // 1) Admin
@@ -129,7 +129,7 @@ public class AuthService
             var admin = await _db.Admins.AsNoTracking()
                 .FirstOrDefaultAsync(x => x.AdminEmail == email);
 
-            if (admin == null) throw new Exception("Không tìm thấy admin.");
+            if (admin == null) throw new NotFoundException("Không tìm thấy admin.");
 
             return new UserProfileDto
             {
@@ -148,7 +148,7 @@ public class AuthService
             var teacher = await _db.Teachers.AsNoTracking()
                 .FirstOrDefaultAsync(x => x.TeacherEmail == email);
 
-            if (teacher == null) throw new Exception("Không tìm thấy giáo viên.");
+            if (teacher == null) throw new NotFoundException("Không tìm thấy giáo viên.");
 
             // NOTE: bạn phải sửa 2 dòng dưới nếu entity Teacher của bạn đặt tên khác
             // Ví dụ: TeacherPhoneNumber, TeacherBirthDate,...
@@ -176,7 +176,7 @@ public class AuthService
             var student = await _db.Students.AsNoTracking()
                 .FirstOrDefaultAsync(x => x.StudentEmail == email);
 
-            if (student == null) throw new Exception("Không tìm thấy học sinh.");
+            if (student == null) throw new NotFoundException("Không tìm thấy học sinh.");
 
             int? phone = null;
             DateTime? birth = null;
@@ -196,7 +196,7 @@ public class AuthService
             };
         }
 
-        throw new Exception("Role không hợp lệ.");
+        throw new ValidationException("Role không hợp lệ.");
     }
 
     public async Task<UserProfileDto> UpdateProfileAsync(int userId, string role, UpdateProfileRequest req)
@@ -207,7 +207,7 @@ public class AuthService
         if (role == "Admin")
         {
             var admin = await _db.Admins.FirstOrDefaultAsync(x => x.AdminID == userId);
-            if (admin == null) throw new Exception("Không tìm thấy admin.");
+            if (admin == null) throw new NotFoundException("Không tìm thấy admin.");
 
             admin.AdminName = req.FullName;
             admin.AdminEmail = req.Email;
@@ -231,7 +231,7 @@ public class AuthService
         if (role == "Teacher")
         {
             var teacher = await _db.Teachers.FirstOrDefaultAsync(x => x.TeacherID == userId);
-            if (teacher == null) throw new Exception("Không tìm thấy giáo viên.");
+            if (teacher == null) throw new NotFoundException("Không tìm thấy giáo viên.");
 
             teacher.TeacherName = req.FullName;
             teacher.TeacherEmail = req.Email;
@@ -255,7 +255,7 @@ public class AuthService
         if (role == "Student")
         {
             var student = await _db.Students.FirstOrDefaultAsync(x => x.StudentID == userId);
-            if (student == null) throw new Exception("Không tìm thấy học sinh.");
+            if (student == null) throw new NotFoundException("Không tìm thấy học sinh.");
 
             student.StudentName = req.FullName;
             student.StudentEmail = req.Email;
@@ -275,6 +275,6 @@ public class AuthService
             };
         }
 
-        throw new Exception("Role không hợp lệ.");
+        throw new ValidationException("Role không hợp lệ.");
     }
 }

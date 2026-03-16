@@ -410,3 +410,41 @@
     background: #fdeaea;
     color: #dc2626; /* đỏ */
 }
+.current-file {
+    color: #000; /* chữ đen */
+    font-size: 14px;
+    margin-bottom: 6px;
+}
+
+    .current-file b {
+        color: #000; /* tên file đen */
+        font-weight: 600;
+    }
+.file-upload {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.file-btn {
+    background: #f3f4f6;
+    border: 1px solid #ccc;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+    .file-btn input {
+        display: none;
+    }
+
+.file-name {
+    font-size: 14px;
+    color: #000;
+}
+
+.file-note {
+    color: #777;
+    font-size: 12px;
+}

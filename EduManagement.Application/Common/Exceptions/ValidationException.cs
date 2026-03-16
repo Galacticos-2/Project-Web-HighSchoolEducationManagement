@@ -1,12 +1,12 @@
-﻿//Get all Validation Error into 1 exception
-
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Net;
 
 namespace EduManagement.Application.Common.Exceptions
 {
-    class ValidationException
+    public class ValidationException : AppException
     {
+        public ValidationException(string message)
+            : base(message, HttpStatusCode.BadRequest)
+        {
+        }
     }
 }
