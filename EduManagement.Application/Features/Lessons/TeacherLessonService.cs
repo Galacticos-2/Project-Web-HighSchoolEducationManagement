@@ -129,7 +129,14 @@ namespace EduManagement.Application.Features.Lessons
             return lesson;
         }
         //Update lesson metadata
-        public async Task UpdateAsync(int teacherId, int lessonId, CreateLessonRequest meta)
+        public async Task UpdateAsync(
+    int teacherId,
+    int lessonId,
+    CreateLessonRequest meta,
+    IFormFile? file,
+    string? storedFileName,
+    string? relativePath
+)
         {
             var lesson = await GetOwnedLessonAsync(teacherId, lessonId);
 
@@ -147,9 +154,18 @@ namespace EduManagement.Application.Features.Lessons
                 ? "Draft"
                 : meta.Status.Trim();
 
+            // nếu có file mới thì update
+            if (file != null && file.Length > 0)
+            {
+                lesson.FileName = file.FileName;
+                lesson.StoredFileName = storedFileName!;
+                lesson.FilePath = relativePath!;
+                lesson.FileSize = file.Length;
+                lesson.ContentType = file.ContentType;
+            }
+
             await _db.SaveChangesAsync();
         }
-
 
         //Delete lesson
         public async Task<string> DeleteAsync(int teacherId, int lessonId)

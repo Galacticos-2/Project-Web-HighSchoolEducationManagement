@@ -32,7 +32,7 @@ function bytesToSize(bytes) {
 export default function TeacherLessonsPage() {
     const navigate = useNavigate(); 
     const [editing, setEditing] = useState(null);
-
+    const [currentFileName, setCurrentFileName] = useState("");
     // filters
     const [status] = useState("");
     const [q, setQ] = useState("");
@@ -52,12 +52,16 @@ export default function TeacherLessonsPage() {
     const [createStatus, setCreateStatus] = useState("Draft");
     const [file, setFile] = useState(null);
     const onEdit = (item) => {
+        console.log(item);
+
         setEditing(item);
+        setCurrentFileName(item.fileName);   // thêm dòng này
 
         setTitle(item.title);
         setDescription(item.description || "");
         setTimeShouldLearn(item.timeShouldLearn || "");
         setCreateStatus(item.status);
+        setFile(null);
 
         setOpen(true);
     };
@@ -110,6 +114,7 @@ export default function TeacherLessonsPage() {
     const closeModal = () => {
         setOpen(false);
         setEditing(null);
+        setCurrentFileName(""); 
         setCreateErr("");
         setTitle("");
         setDescription("");
@@ -127,7 +132,7 @@ export default function TeacherLessonsPage() {
             return;
         }
 
-        if (!file) {
+        if (!editing && !file) {
             setCreateErr("Bạn chưa chọn file (PDF/DOC/DOCX).");
             return;
         }
@@ -141,10 +146,13 @@ export default function TeacherLessonsPage() {
             fd.append("Description", description || "");
             fd.append("TimeShouldLearn", timeShouldLearn || "");
             fd.append("Status", createStatus);
-            fd.append("file", file);
+            if (file) {
+                fd.append("file", file);
+            }
 
             if (editing) {
                 await lessonsApi.updateLesson(editing.id, fd);
+                setEditing(null);   // thêm dòng này
             } else {
                 await lessonsApi.createnewlesson(fd);
             }
@@ -160,6 +168,7 @@ export default function TeacherLessonsPage() {
             setCreateErr(typeof msg === "string" ? msg : JSON.stringify(msg));
         } finally {
             setCreating(false);
+            setCurrentFileName("");
         }
     };
     //function to download a lesson file 
@@ -302,15 +311,15 @@ export default function TeacherLessonsPage() {
                                             <div className="lesson-actions-cell">
 
                                                 <Button onClick={() => onEdit(it)}>
-                                                    ✏ Sửa
+                                                    ✏ 
                                                 </Button>
 
                                                 <Button onClick={() => onDelete(it)}>
-                                                    🗑 Xóa
+                                                    🗑 
                                                 </Button>
 
                                                 <Button onClick={() => onDownload(it)}>
-                                                    ⬇ Tải xuống
+                                                    ⬇ 
                                                 </Button>
 
                                             </div>
@@ -385,12 +394,30 @@ export default function TeacherLessonsPage() {
                                     </div>
 
                                     <div className="form-group">
-                                        <label>File *</label>
-                                        <input
-                                            type="file"
-                                            accept=".pdf,.doc,.docx"
-                                            onChange={(e) => setFile(e.target.files?.[0] || null)}
-                                        />
+                                        <label>File</label>
+
+                                        <div className="file-upload">
+                                            <label className="file-btn">
+                                                Chọn tệp
+                                                <input
+                                                    type="file"
+                                                    accept=".pdf,.doc,.docx"
+                                                    onChange={(e) => setFile(e.target.files?.[0] || null)}
+                                                />
+                                            </label>
+
+                                            <span className="file-name">
+                                                {file
+                                                    ? file.name
+                                                    : currentFileName
+                                                        ? currentFileName
+                                                        : "Không có tệp nào được chọn"}
+                                            </span>
+                                        </div>
+
+                                        <small className="file-note">
+                                            Chỉ chọn file nếu muốn thay thế file hiện tại
+                                        </small>
                                     </div>
 
                                 </div>
