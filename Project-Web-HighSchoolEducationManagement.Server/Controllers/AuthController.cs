@@ -47,4 +47,20 @@ public class AuthController : ControllerBase
         var dto = await _auth.GetMyProfileAsync(role, email);
         return Ok(dto);
     }
+
+    [Authorize]
+    [HttpPut("profile")]
+    public async Task<IActionResult> UpdateProfile(UpdateProfileRequest req)
+    {
+        var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var role =
+            User.FindFirstValue(ClaimTypes.Role) ??
+            User.FindFirstValue("role");
+
+        if (!int.TryParse(userIdStr, out var userId))
+            return Unauthorized(new { message = "Token thiếu userId." });
+
+        var dto = await _auth.UpdateProfileAsync(userId, role!, req);
+        return Ok(dto);
+    }
 }

@@ -1,9 +1,10 @@
-﻿import { useEffect, useMemo, useRef, useState } from "react";
+﻿import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { adminApi } from "../api/adminApi";
 import { authStorage } from "../auth/authStorage";
 import { classesApi } from "../api/classesApi";
 import { subjectsApi } from "../api/subjectsApi";
+
 import UserActions from "../components/UserActions";
 const ROLES = ["Student", "Teacher", "Admin"];
 
@@ -405,7 +406,7 @@ export default function AdminDashboard() {
     };
 
     // ===== Content blocks =====
-    const AccountsPage = () => (
+    const AccountsPage = React.memo(() => (
         <>
             <div
                 style={{
@@ -423,15 +424,11 @@ export default function AdminDashboard() {
                 <button
                     onClick={async () => {
                         await loadAll();
-                        await adminApi.assignTeacher({
-                            teacherId: assignTeacherId,
-                            subjectId: selectedSubject,
-                            classIds: selectedClasses
-                        });
+                        
 
                         await loadList(); // reload teacher list
 
-                        alert("Phân công thành công");
+                        
                     }}
                     disabled={loading}
                     style={{
@@ -908,7 +905,7 @@ export default function AdminDashboard() {
                 )}
             </div>
         </>
-    );
+    ));
 
     const PlaceholderPage = ({ title }) => (
         <div
@@ -931,8 +928,8 @@ export default function AdminDashboard() {
             {/* ===== Sidebar ===== */}
             <aside style={styles.sidebar}>
                 <div style={styles.brandRow}>
-                    <div style={styles.logo}>P</div>
-                    <div style={styles.brandText}>School</div>
+                    
+                    
                 </div>
 
                 {/* Profile (REAL name letter) */}
@@ -944,7 +941,7 @@ export default function AdminDashboard() {
                     </div>
                 </div>
 
-                <div style={styles.sectionTitle}>General</div>
+                <div style={styles.sectionTitle}>Chức năng</div>
 
                 <div style={{ display: "grid", gap: 8, marginTop: 8 }}>
                     <MenuItem id="accounts" label="Tài khoản" icon="👤" />

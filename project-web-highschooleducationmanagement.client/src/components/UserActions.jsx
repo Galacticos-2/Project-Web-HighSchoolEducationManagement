@@ -1,16 +1,18 @@
 ﻿import { useEffect, useMemo, useRef, useState } from "react";
-
+import "../styles/UserActions.css";
+import "../styles/myinfor.css";
 /**
  * Props:
- * - variant: "admin" | "teacher" | "student"
- * - fullName: string
- * - avatarLetter: string (optional)
- * - onMyAccount: () => void
- * - onChangePassword: () => void
- * - onLogout: () => void
- * - notifCount?: number (optional)
- * - messageCount?: number (optional)
+ * variant: "admin" | "teacher" | "student"
+ * fullName: string
+ * avatarLetter?: string
+ * onMyAccount?: () => void
+ * onChangePassword?: () => void
+ * onLogout?: () => void
+ * notifCount?: number
+ * messageCount?: number
  */
+
 export default function UserActions({
     variant = "admin",
     fullName = "User",
@@ -21,106 +23,123 @@ export default function UserActions({
     notifCount,
     messageCount,
 }) {
+
     const letter = useMemo(() => {
-        const l = avatarLetter || (fullName?.trim()?.[0] || "U");
+        const l = avatarLetter || fullName?.trim()?.[0] || "U";
         return String(l).toUpperCase();
     }, [avatarLetter, fullName]);
 
     const [open, setOpen] = useState(false);
     const wrapRef = useRef(null);
 
-    // Close dropdown when click outside + ESC
+    // close dropdown
     useEffect(() => {
-        function onDocMouseDown(e) {
+
+        function handleClickOutside(e) {
             if (!wrapRef.current) return;
-            if (!wrapRef.current.contains(e.target)) setOpen(false);
+            if (!wrapRef.current.contains(e.target)) {
+                setOpen(false);
+            }
         }
-        function onEsc(e) {
+
+        function handleEsc(e) {
             if (e.key === "Escape") setOpen(false);
         }
-        document.addEventListener("mousedown", onDocMouseDown);
-        document.addEventListener("keydown", onEsc);
+
+        document.addEventListener("mousedown", handleClickOutside);
+        document.addEventListener("keydown", handleEsc);
+
         return () => {
-            document.removeEventListener("mousedown", onDocMouseDown);
-            document.removeEventListener("keydown", onEsc);
+            document.removeEventListener("mousedown", handleClickOutside);
+            document.removeEventListener("keydown", handleEsc);
         };
+
     }, []);
 
-    const onClickMy = () => {
+    const handleMyAccount = () => {
         setOpen(false);
         onMyAccount?.();
     };
-    const onClickChangePw = () => {
+
+    const handleChangePw = () => {
         setOpen(false);
         onChangePassword?.();
     };
-    const onClickLogout = () => {
+
+    const handleLogout = () => {
         setOpen(false);
         onLogout?.();
     };
 
-    // ===== TEACHER + STUDENT: same pill UI (like your student screenshot) =====
-    if (variant === "teacher" || variant === "student") {
-        const prefix = variant; // "teacher" | "student"
+    /* =========================
+       STUDENT + TEACHER UI
+       ========================= */
 
+    if (variant !== "admin") {
         return (
-            <div className={`${prefix}-actions`}>
-                {/* optional icons (if you ever pass counts) */}
-                {typeof notifCount === "number" && (
-                    <button className={`${prefix}-icon-btn`} title="Notifications" type="button">
-                        🔔
-                        <span className={`${prefix}-badge`}>{notifCount}</span>
-                    </button>
-                )}
+            <div className="user-actions">
 
-                {typeof messageCount === "number" && (
-                    <button className={`${prefix}-icon-btn`} title="Messages" type="button">
-                        ✉️
-                        <span className={`${prefix}-badge`}>{messageCount}</span>
-                    </button>
-                )}
+                <div className="user-menu" ref={wrapRef}>
 
-                {/* user dropdown */}
-                <div className={`${prefix}-menu`} ref={wrapRef}>
                     <button
                         type="button"
-                        className={`${prefix}-avatar-btn`}
-                        onClick={() => setOpen((v) => !v)}
+                        className="user-avatar-btn"
+                        onClick={() => setOpen(v => !v)}
                         aria-haspopup="menu"
                         aria-expanded={open}
                         title={fullName}
                     >
-                        <span className={`${prefix}-avatar`}>{letter}</span>
-                        <span className={`${prefix}-name`}>{fullName}</span>
-                        <span className={`${prefix}-caret ${open ? "open" : ""}`}>▾</span>
+                        <span className="user-avatar">{letter}</span>
+
+                        <span className="user-name">{fullName}</span>
+
+                        <span className={`user-caret ${open ? "open" : ""}`}>
+                            ▾
+                        </span>
                     </button>
 
                     {open && (
-                        <div className={`${prefix}-menu__dropdown`} role="menu">
-                            <button className={`${prefix}-menu__item`} type="button" onClick={onClickMy}>
-                                <span className={`${prefix}-menu__icon`}>👤</span>
+                        <div className="user-menu-dropdown">
+
+                            <button
+                                className="user-menu-item"
+                                onClick={handleMyAccount}
+                            >
+                                <span className="user-menu-icon">👤</span>
                                 <span>Tài khoản của tôi</span>
                             </button>
 
-                            <button className={`${prefix}-menu__item`} type="button" onClick={onClickChangePw}>
-                                <span className={`${prefix}-menu__icon`}>🔑</span>
+                            <button
+                                className="user-menu-item"
+                                onClick={handleChangePw}
+                            >
+                                <span className="user-menu-icon">🔑</span>
                                 <span>Đổi mật khẩu</span>
                             </button>
 
-                            <div className={`${prefix}-menu__divider`} />
+                            <div className="user-menu-divider" />
 
-                            <button className={`${prefix}-menu__item danger`} type="button" onClick={onClickLogout}>
-                                <span className={`${prefix}-menu__icon`}>↩</span>
+                            <button
+                                className="user-menu-item danger"
+                                onClick={handleLogout}
+                            >
+                                <span className="user-menu-icon">↩</span>
                                 <span>Đăng xuất</span>
                             </button>
+
                         </div>
                     )}
+
                 </div>
+
             </div>
         );
     }
 
-    // ===== ADMIN: giữ inline look như bạn đang có =====
+    /* =========================
+       ADMIN UI
+       ========================= */
+
     const styles = {
         iconBtn: {
             width: 40,
@@ -130,8 +149,9 @@ export default function UserActions({
             background: "rgba(0,0,0,0.12)",
             color: "#fff",
             cursor: "pointer",
-            position: "relative",
+            position: "relative"
         },
+
         badge: {
             position: "absolute",
             top: 6,
@@ -144,8 +164,9 @@ export default function UserActions({
             fontSize: 11,
             display: "grid",
             placeItems: "center",
-            fontWeight: 900,
+            fontWeight: 900
         },
+
         userPill: {
             display: "flex",
             alignItems: "center",
@@ -155,9 +176,21 @@ export default function UserActions({
             border: "1px solid rgba(255,255,255,0.12)",
             background: "rgba(0,0,0,0.12)",
             color: "#fff",
-            cursor: "pointer",
-            userSelect: "none",
+            cursor: "pointer"
         },
+
+        dropdownWrap: {
+            position: "absolute",
+            right: 0,
+            top: "calc(100% + 10px)",
+            width: 220,
+            background: "#0b1220",
+            border: "1px solid rgba(255,255,255,0.12)",
+            borderRadius: 14,
+            overflow: "hidden",
+            boxShadow: "0 18px 40px rgba(0,0,0,0.35)"
+        },
+
         dropdownItem: (danger) => ({
             width: "100%",
             textAlign: "left",
@@ -169,46 +202,31 @@ export default function UserActions({
             display: "flex",
             alignItems: "center",
             gap: 10,
-            fontWeight: 700,
-        }),
-        dropdownWrap: {
-            position: "absolute",
-            right: 0,
-            top: "calc(100% + 10px)",
-            width: 220,
-            background: "#0b1220",
-            border: "1px solid rgba(255,255,255,0.12)",
-            borderRadius: 14,
-            overflow: "hidden",
-            boxShadow: "0 18px 40px rgba(0,0,0,0.35)",
-            zIndex: 60,
-        },
+            fontWeight: 700
+        })
     };
 
     return (
         <>
             {typeof notifCount === "number" && (
-                <button style={styles.iconBtn} title="Notifications" type="button">
+                <button style={styles.iconBtn}>
                     🔔
                     <span style={styles.badge}>{notifCount}</span>
                 </button>
             )}
 
             {typeof messageCount === "number" && (
-                <button style={styles.iconBtn} title="Messages" type="button">
+                <button style={styles.iconBtn}>
                     ✉️
                     <span style={styles.badge}>{messageCount}</span>
                 </button>
             )}
 
             <div ref={wrapRef} style={{ position: "relative" }}>
+
                 <button
                     style={styles.userPill}
-                    title={fullName}
-                    onClick={() => setOpen((v) => !v)}
-                    aria-haspopup="menu"
-                    aria-expanded={open}
-                    type="button"
+                    onClick={() => setOpen(v => !v)}
                 >
                     <span
                         style={{
@@ -218,35 +236,51 @@ export default function UserActions({
                             background: "rgba(255,255,255,0.18)",
                             display: "grid",
                             placeItems: "center",
-                            fontWeight: 900,
+                            fontWeight: 900
                         }}
                     >
                         {letter}
                     </span>
-                    <span style={{ fontWeight: 800 }}>{fullName}</span>
-                    <span style={{ opacity: 0.8 }}>{open ? "▴" : "▾"}</span>
+
+                    <span style={{ fontWeight: 800 }}>
+                        {fullName}
+                    </span>
+
+                    <span>
+                        {open ? "▴" : "▾"}
+                    </span>
+
                 </button>
 
                 {open && (
-                    <div role="menu" style={styles.dropdownWrap}>
-                        <button type="button" onClick={onClickMy} style={styles.dropdownItem(false)}>
-                            <span style={{ width: 22 }}>👤</span>
-                            <span>Tài khoản của tôi</span>
+                    <div style={styles.dropdownWrap}>
+
+                        <button
+                            style={styles.dropdownItem(false)}
+                            onClick={handleMyAccount}
+                        >
+                            👤 Tài khoản của tôi
                         </button>
 
-                        <button type="button" onClick={onClickChangePw} style={styles.dropdownItem(false)}>
-                            <span style={{ width: 22 }}>🔑</span>
-                            <span>Đổi mật khẩu</span>
+                        <button
+                            style={styles.dropdownItem(false)}
+                            onClick={handleChangePw}
+                        >
+                            🔑 Đổi mật khẩu
                         </button>
 
-                        <div style={{ height: 1, background: "rgba(255,255,255,0.10)" }} />
+                        <div style={{ height: 1, background: "rgba(255,255,255,0.1)" }} />
 
-                        <button type="button" onClick={onClickLogout} style={styles.dropdownItem(true)}>
-                            <span style={{ width: 22 }}>↩</span>
-                            <span>Đăng xuất</span>
+                        <button
+                            style={styles.dropdownItem(true)}
+                            onClick={handleLogout}
+                        >
+                            ↩ Đăng xuất
                         </button>
+
                     </div>
                 )}
+
             </div>
         </>
     );

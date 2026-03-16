@@ -112,10 +112,7 @@
     gap: 10px;
 }
 
-.lesson-card-actions {
-    display: flex;
-    align-items: center;
-}
+
 
 /* ===== BADGE ===== */
 
@@ -334,6 +331,7 @@
     }
 .lesson-card-actions {
     display: flex;
+    align-items: center;
     gap: 5px;
 }
 /* ===== TABLE HEADER ===== */
@@ -342,7 +340,7 @@
     display: grid;
     grid-template-columns: 60px 1.5fr 2fr 150px 1.5fr 120px 220px;
     padding: 12px 16px;
-    background: f0f0f0; /* màu header rõ hơn */
+    background: #f0f0f0; /* màu header rõ hơn */
     font-weight: 700;
     color: #000;
     border-bottom: 2px solid #000;
@@ -364,10 +362,7 @@
 
    
 
-.lesson-cell {
-    font-size: 14px;
-    color: #2b3f57;
-}
+
 
 /* actions */
 

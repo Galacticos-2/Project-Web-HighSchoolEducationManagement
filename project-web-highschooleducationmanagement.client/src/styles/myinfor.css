@@ -1,0 +1,261 @@
+﻿/* reset theme dark của teacherHome */
+
+
+.myinfo-container {
+    max-width: 1100px;
+    margin: 150px auto 0 auto;
+}
+
+/* breadcrumb */
+.myinfo-breadcrumb {
+    margin: 20px 0;
+    font-size: 14px;
+    color: #444;
+}
+
+    .myinfo-breadcrumb a {
+        color: #444;
+        text-decoration: none;
+    }
+
+    .myinfo-breadcrumb .active {
+        font-weight: 600;
+    }
+
+/* card */
+
+
+
+
+/* name */
+.myinfo-info h2 {
+    margin-bottom: 30px;
+    color: #111;
+}
+
+
+
+
+
+   
+
+    .myinfo-row .value {
+        font-weight: 500;
+        color: #111;
+    }
+.myinfo-page {
+    background: #ffffff;
+    min-height: 100vh;
+    color: #111;
+    width: 100%;
+}
+
+.myinfo-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 40px;
+}
+
+
+
+
+
+.myinfo-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 40px;
+    display: flex;
+    gap: 60px;
+    align-items: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.myinfo-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    font-weight: 700;
+    color: #555;
+}
+
+
+
+.myinfo-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px 80px;
+}
+
+.myinfo-row {
+    display: flex;
+    gap: 20px;
+}
+
+    .myinfo-row .label {
+        width: 120px;
+        color: #475467;
+    }
+
+    .myinfo-row .value {
+        font-weight: 500;
+    }
+
+
+
+    
+
+.error {
+    color: red;
+}
+.edit-btn {
+    position: absolute;
+    right: 25px;
+    top: 25px;
+    background: #2563eb;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+    .edit-btn:hover {
+        background: #1d4ed8;
+    }
+
+.myinfo-card {
+    position: relative;
+}
+
+
+
+
+    .modal-box h3 {
+        margin-bottom: 20px;
+    }
+
+
+
+    
+
+
+
+
+
+/* overlay */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+}
+
+/* modal box */
+.modal-box {
+    width: 480px;
+    background: white;
+    border-radius: 14px;
+    padding: 35px 40px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+    animation: modalFade .2s ease;
+}
+
+    /* title */
+    .modal-box h3 {
+        margin-bottom: 25px;
+        font-size: 20px;
+        font-weight: 600;
+    }
+
+
+
+    .modal-form label {
+        font-size: 14px;
+        color: #444;
+    }
+
+    
+
+/* actions */
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 25px;
+}
+
+/* buttons */
+
+
+
+
+/* animation */
+@keyframes modalFade {
+    from {
+        transform: translateY(-10px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+/* fix input bị dark theme override */
+.modal-form input {
+    background: #f5f6f8;
+    border: 1px solid #d0d5dd;
+    height: 42px;
+    border-radius: 10px;
+    padding: 0 14px;
+    font-size: 14px;
+    color: #111;
+}
+
+/* label spacing giống modal bài giảng */
+.modal-form label {
+    margin-top: 8px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* nút Hủy giống modal bài giảng */
+.cancel-btn {
+    background: #e5e7eb;
+    color: #6b7280;
+    border: none;
+    padding: 9px 18px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+/* nút Lưu giống hệ thống */
+.save-btn {
+    background: linear-gradient(135deg,#6c6ff5,#6c47ff);
+    color: white;
+    border: none;
+    padding: 9px 18px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+/* spacing form */
+.modal-form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
