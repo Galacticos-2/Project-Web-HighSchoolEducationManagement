@@ -25,9 +25,10 @@ export default function LoginPage() {
         } catch (ex) {
             const msg =
                 ex?.response?.data?.message ||
-                ex?.response?.data ||
+                ex?.response?.data?.Message ||
                 "Đăng nhập thất bại.";
-            setErr(typeof msg === "string" ? msg : JSON.stringify(msg));
+
+            setErr(msg);
         } finally {
             setLoading(false);
         }

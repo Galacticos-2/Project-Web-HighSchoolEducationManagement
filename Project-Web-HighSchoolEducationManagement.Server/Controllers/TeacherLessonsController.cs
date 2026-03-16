@@ -99,11 +99,47 @@ public class TeacherLessonsController : ControllerBase
         return Ok(new { id = newId, message = "Đã tạo bài giảng." });
     }
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, [FromForm] CreateLessonRequest meta)
+    [RequestSizeLimit(50_000_000)]
+    public async Task<IActionResult> Update(
+    int id,
+    [FromForm] CreateLessonRequest meta,
+    [FromForm] IFormFile? file
+)
     {
         var teacherId = GetTeacherId();
 
-        await _svc.UpdateAsync(teacherId, id, meta);
+        string? storedFileName = null;
+        string? relativePath = null;
+
+        if (file != null && file.Length > 0)
+        {
+            var webRoot = _env.WebRootPath;
+            if (string.IsNullOrWhiteSpace(webRoot))
+                webRoot = Path.Combine(_env.ContentRootPath, "wwwroot");
+
+            var uploadsDir = Path.Combine(webRoot, "uploads", "lessons");
+            Directory.CreateDirectory(uploadsDir);
+
+            var ext = Path.GetExtension(file.FileName);
+            storedFileName = $"{Guid.NewGuid():N}{ext}";
+
+            var absPath = Path.Combine(uploadsDir, storedFileName);
+
+            await using var stream = System.IO.File.Create(absPath);
+            await file.CopyToAsync(stream);
+
+            relativePath = Path.Combine("uploads", "lessons", storedFileName)
+                .Replace("\\", "/");
+        }
+
+        await _svc.UpdateAsync(
+            teacherId,
+            id,
+            meta,
+            file,
+            storedFileName,
+            relativePath
+        );
 
         return Ok(new { message = "Đã cập nhật bài giảng." });
     }

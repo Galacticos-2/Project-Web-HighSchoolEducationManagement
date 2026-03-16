@@ -1,12 +1,16 @@
-﻿//A kind of Exception
-
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System;
+using System.Net;
 
 namespace EduManagement.Application.Common.Exceptions
 {
-    class AppException
+    public class AppException : Exception
     {
+        public HttpStatusCode StatusCode { get; }
+
+        public AppException(string message, HttpStatusCode statusCode)
+            : base(message)
+        {
+            StatusCode = statusCode;
+        }
     }
 }

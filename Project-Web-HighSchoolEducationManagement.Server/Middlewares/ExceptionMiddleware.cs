@@ -1,5 +1,7 @@
 ﻿using System.Net;
 using System.Text.Json;
+using EduManagement.Application.Common.Exceptions;
+using EduManagement.Application.Common.Models;
 using Serilog;
 
 namespace Project_Web_HighSchoolEducationManagement.Server.Middlewares
@@ -19,21 +21,28 @@ namespace Project_Web_HighSchoolEducationManagement.Server.Middlewares
             {
                 await _next(context);
             }
-            catch (Exception ex)
+            catch (AppException ex)
             {
-                Log.Error(ex, "Unhandled exception occurred");
+                Log.Warning(ex, "Application exception");
 
-                context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                context.Response.StatusCode = (int)ex.StatusCode;
                 context.Response.ContentType = "application/json";
 
-                var response = new
-                {
-                    message = "Internal server error",
-                    detail = ex.Message
-                };
+                var response = ApiResponse.Fail(ex.Message);
 
                 var json = JsonSerializer.Serialize(response);
+                await context.Response.WriteAsync(json);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Unhandled exception");
 
+                context.Response.StatusCode = 500;
+                context.Response.ContentType = "application/json";
+
+                var response = ApiResponse.Fail("Lỗi hệ thống.");
+
+                var json = JsonSerializer.Serialize(response);
                 await context.Response.WriteAsync(json);
             }
         }
