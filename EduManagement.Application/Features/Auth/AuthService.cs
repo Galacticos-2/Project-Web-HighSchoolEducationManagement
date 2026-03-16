@@ -198,4 +198,83 @@ public class AuthService
 
         throw new Exception("Role không hợp lệ.");
     }
+
+    public async Task<UserProfileDto> UpdateProfileAsync(int userId, string role, UpdateProfileRequest req)
+    {
+        role = role?.Trim() ?? "";
+
+        // ADMIN
+        if (role == "Admin")
+        {
+            var admin = await _db.Admins.FirstOrDefaultAsync(x => x.AdminID == userId);
+            if (admin == null) throw new Exception("Không tìm thấy admin.");
+
+            admin.AdminName = req.FullName;
+            admin.AdminEmail = req.Email;
+            admin.AdminPhoneNumber = req.PhoneNumber;
+            admin.AdminBirthday = req.BirthDate;
+
+            await _db.SaveChangesAsync();
+
+            return new UserProfileDto
+            {
+                Id = admin.AdminID,
+                Role = "Admin",
+                FullName = admin.AdminName,
+                Email = admin.AdminEmail,
+                PhoneNumber = admin.AdminPhoneNumber,
+                BirthDate = admin.AdminBirthday
+            };
+        }
+
+        // TEACHER
+        if (role == "Teacher")
+        {
+            var teacher = await _db.Teachers.FirstOrDefaultAsync(x => x.TeacherID == userId);
+            if (teacher == null) throw new Exception("Không tìm thấy giáo viên.");
+
+            teacher.TeacherName = req.FullName;
+            teacher.TeacherEmail = req.Email;
+            teacher.TeacherPhoneNumber = req.PhoneNumber;
+            teacher.TeacherBirthday = req.BirthDate;
+
+            await _db.SaveChangesAsync();
+
+            return new UserProfileDto
+            {
+                Id = teacher.TeacherID,
+                Role = "Teacher",
+                FullName = teacher.TeacherName,
+                Email = teacher.TeacherEmail,
+                PhoneNumber = teacher.TeacherPhoneNumber,
+                BirthDate = teacher.TeacherBirthday
+            };
+        }
+
+        // STUDENT
+        if (role == "Student")
+        {
+            var student = await _db.Students.FirstOrDefaultAsync(x => x.StudentID == userId);
+            if (student == null) throw new Exception("Không tìm thấy học sinh.");
+
+            student.StudentName = req.FullName;
+            student.StudentEmail = req.Email;
+            student.PhoneNumber = req.PhoneNumber;
+            student.StudentBirthday = req.BirthDate;
+
+            await _db.SaveChangesAsync();
+
+            return new UserProfileDto
+            {
+                Id = student.StudentID,
+                Role = "Student",
+                FullName = student.StudentName,
+                Email = student.StudentEmail,
+                PhoneNumber = student.PhoneNumber,
+                BirthDate = student.StudentBirthday
+            };
+        }
+
+        throw new Exception("Role không hợp lệ.");
+    }
 }
