@@ -19,5 +19,8 @@ namespace EduManagement.Application.DTOs.VirtualClass
         public DateTime? EndTime { get; set; }
 
         public DateTime CreatedAtUtc { get; set; }
+
+        public int ClassId { get; set; }
+        public int SubjectId { get; set; }
     }
 }

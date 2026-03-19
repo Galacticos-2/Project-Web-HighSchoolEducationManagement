@@ -1,5 +1,8 @@
 ﻿import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { authApi } from "../api/authApi";
 import { authStorage } from "../auth/authStorage";
 
@@ -7,6 +10,21 @@ import Brand from "../components/Brand";
 import UserActions from "../components/UserActions";
 
 import "../styles/myinfor.css";
+
+const profileSchema = z.object({
+    fullName: z.string().min(1, "Vui lòng nhập họ tên"),
+    email: z.string().optional(),
+    phoneNumber: z
+        .string()
+        .optional()
+        .refine((val) => !val || /^[0-9]+$/.test(val), {
+            message: "SĐT chỉ được chứa số"
+        })
+        .refine((val) => !val || (val.length >= 9 && val.length <= 11), {
+            message: "SĐT phải có từ 9 đến 11 số"
+        }),
+    birthDate: z.string().optional()
+});
 
 export default function MyInfoPage() {
     const nav = useNavigate();
@@ -16,11 +34,19 @@ export default function MyInfoPage() {
     const [err, setErr] = useState("");
     const [openEdit, setOpenEdit] = useState(false);
 
-    const [form, setForm] = useState({
-        fullName: "",
-        email: "",
-        phoneNumber: "",
-        birthDate: ""
+    const {
+        register,
+        handleSubmit,
+        reset,
+        formState: { errors }
+    } = useForm({
+        resolver: zodResolver(profileSchema),
+        defaultValues: {
+            fullName: "",
+            email: "",
+            phoneNumber: "",
+            birthDate: ""
+        }
     });
 
     const role = profile?.role || authStorage.getProfile()?.role || "";
@@ -35,10 +61,10 @@ export default function MyInfoPage() {
 
                 setProfile(data);
 
-                setForm({
+                reset({
                     fullName: data.fullName || "",
                     email: data.email || "",
-                    phoneNumber: data.phoneNumber || "",
+                    phoneNumber: data.phoneNumber ? String(data.phoneNumber) : "",
                     birthDate: data.birthDate
                         ? data.birthDate.substring(0, 10)
                         : ""
@@ -65,7 +91,7 @@ export default function MyInfoPage() {
 
         load();
         return () => (alive = false);
-    }, [nav]);
+    }, [nav, reset]);
 
     const logout = () => {
         authStorage.clear();
@@ -76,28 +102,48 @@ export default function MyInfoPage() {
     const changePassword = () => nav("/change-password");
 
     const fullName = profile?.fullName || "";
-    const email = profile?.email || "";
+    const email = profile?.email || authStorage.getProfile()?.email || "";
     const phone = profile?.phoneNumber || "";
     const birthDate = profile?.birthDate
         ? new Date(profile.birthDate).toLocaleDateString("vi-VN")
         : "";
 
     const avatarLetter = (fullName?.trim()?.[0] || "U").toUpperCase();
-    async function handleSave() {
+    const closeEditModal = () => {
+        reset({
+            fullName: profile?.fullName || "",
+            email: profile?.email || "",
+            phoneNumber: profile?.phoneNumber ? String(profile.phoneNumber) : "",
+            birthDate: profile?.birthDate
+                ? profile.birthDate.substring(0, 10)
+                : ""
+        });
+
+        setOpenEdit(false);
+    };
+    const onSubmit = async (formData) => {
         try {
             const payload = {
-                fullName: form.fullName,
-                email: form.email,
-                phoneNumber: form.phoneNumber
-                    ? parseInt(form.phoneNumber)
+                fullName: formData.fullName,
+                phoneNumber: formData.phoneNumber
+                    ? parseInt(formData.phoneNumber, 10)
                     : null,
-                birthDate: form.birthDate || null
+                birthDate: formData.birthDate || null
             };
 
             const { data } = await authApi.updateProfile(payload);
 
             setProfile(data);
             authStorage.saveProfile(data);
+
+            reset({
+                fullName: data.fullName || "",
+                email: data.email || "",
+                phoneNumber: data.phoneNumber ? String(data.phoneNumber) : "",
+                birthDate: data.birthDate
+                    ? data.birthDate.substring(0, 10)
+                    : ""
+            });
 
             setOpenEdit(false);
         } catch (e) {
@@ -106,11 +152,10 @@ export default function MyInfoPage() {
                 "Cập nhật thất bại"
             );
         }
-    }
+    };
+
     return (
         <div className="myinfo-page">
-
-            {/* HEADER */}
             <div className="myinfo-header">
                 <Brand />
 
@@ -125,7 +170,6 @@ export default function MyInfoPage() {
             </div>
 
             <div className="myinfo-container">
-
                 {loading ? (
                     <div>Đang tải...</div>
                 ) : err ? (
@@ -133,7 +177,6 @@ export default function MyInfoPage() {
                 ) : (
                     <>
                         <div className="myinfo-card">
-
                             <button
                                 className="edit-btn"
                                 onClick={() => setOpenEdit(true)}
@@ -141,18 +184,14 @@ export default function MyInfoPage() {
                                 Chỉnh sửa
                             </button>
 
-                            {/* avatar */}
                             <div className="myinfo-avatar">
                                 {avatarLetter}
                             </div>
 
-                            {/* info */}
                             <div className="myinfo-info">
-
                                 <h2>{fullName}</h2>
 
                                 <div className="myinfo-grid">
-
                                     <Row label="Phòng ban" value="Quản trị hệ thống" />
                                     <Row label="Trạng thái" value="Hoạt động" />
 
@@ -161,96 +200,76 @@ export default function MyInfoPage() {
 
                                     <Row label="Email" value={email} />
                                     <Row label="Số điện thoại" value={phone} />
-
                                 </div>
-
                             </div>
                         </div>
 
-                        {/* MODAL EDIT */}
                         {openEdit && (
                             <div
                                 className="modal-overlay"
-                                onClick={() => setOpenEdit(false)}
+                                        onClick={closeEditModal}
                             >
                                 <div
                                     className="modal-box"
                                     onClick={(e) => e.stopPropagation()}
                                 >
-
                                     <h3>Chỉnh sửa thông tin</h3>
 
                                     <div className="modal-form">
-
                                         <label>Họ và tên</label>
                                         <input
-                                            value={form.fullName}
-                                            onChange={(e) =>
-                                                setForm({
-                                                    ...form,
-                                                    fullName: e.target.value
-                                                })
-                                            }
+                                            {...register("fullName")}
+                                            className={errors.fullName ? "input-error" : ""}
                                         />
+                                        {errors.fullName && (
+                                            <div className="field-error">
+                                                {errors.fullName.message}
+                                            </div>
+                                        )}
 
-                                        <label>Email</label>
-                                        <input
-                                            value={form.email}
-                                            onChange={(e) =>
-                                                setForm({
-                                                    ...form,
-                                                    email: e.target.value
-                                                })
-                                            }
-                                        />
+                                                <label>Email (không thể chỉnh sửa)</label>
+                                                <input
+                                                    value={profile?.email || authStorage.getProfile()?.email || ""}
+                                                    readOnly
+                                                    className="readonly-input"
+                                                />
 
                                         <label>Số điện thoại</label>
                                         <input
-                                            value={form.phoneNumber}
-                                            onChange={(e) =>
-                                                setForm({
-                                                    ...form,
-                                                    phoneNumber: e.target.value
-                                                })
-                                            }
+                                            {...register("phoneNumber")}
+                                            className={errors.phoneNumber ? "input-error" : ""}
                                         />
+                                        {errors.phoneNumber && (
+                                            <div className="field-error">
+                                                {errors.phoneNumber.message}
+                                            </div>
+                                        )}
 
                                         <label>Ngày sinh</label>
                                         <input
                                             type="date"
-                                            value={form.birthDate}
-                                            onChange={(e) =>
-                                                setForm({
-                                                    ...form,
-                                                    birthDate: e.target.value
-                                                })
-                                            }
+                                            {...register("birthDate")}
                                         />
-
                                     </div>
 
                                     <div className="modal-actions">
-
-                                        <button
-                                            className="cancel-btn"
-                                            onClick={() => setOpenEdit(false)}
-                                        >
-                                            Hủy
-                                        </button>
-
                                                 <button
-                                                    className="save-btn"
-                                                    onClick={handleSave}
+                                                    className="cancel-btn"
+                                                    onClick={closeEditModal}
                                                 >
-                                                    Lưu
+                                                    Hủy
                                                 </button>
 
+                                        <button
+                                            className="save-btn"
+                                            onClick={handleSubmit(onSubmit)}
+                                        >
+                                            Lưu
+                                        </button>
                                     </div>
-
                                 </div>
                             </div>
                         )}
-
                     </>
                 )}
             </div>

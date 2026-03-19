@@ -6,7 +6,7 @@ import UserActions from "../components/UserActions";
 import Brand from "../components/Brand";
 import { authStorage } from "../auth/authStorage";
 import Button from "../components/Button";
-
+import Pagination from "../components/Pagination";
 const STATUSES = [
     { value: "", label: "-- Chọn trạng thái --" },
     { value: "Draft", label: "Nháp" },
@@ -41,7 +41,8 @@ export default function TeacherLessonsPage() {
     const [loading, setLoading] = useState(false);
     const [err, setErr] = useState("");
     const [paged, setPaged] = useState({ items: [], page: 1, pageSize: 10, total: 0 });
-
+    const [sortBy, setSortBy] = useState("");
+    const [order, setOrder] = useState("");
     // modal create
     const [open, setOpen] = useState(false);
     const [creating, setCreating] = useState(false);
@@ -65,6 +66,11 @@ export default function TeacherLessonsPage() {
 
         setOpen(true);
     };
+    const STATUS_LABEL = {
+        Draft: "Nháp",
+        Published: "Đã đăng",
+        Hidden: "Ẩn"
+    };
     const onDelete = async (item) => {
 
         if (!window.confirm("Bạn có chắc muốn xóa bài giảng này?"))
@@ -80,7 +86,24 @@ export default function TeacherLessonsPage() {
             alert("Không xóa được bài giảng.");
         }
     };
-    const load = async (page = 1) => {
+    const onPublish = async (item) => {
+        if (!window.confirm("Đăng bài giảng này?")) return;
+
+        try {
+            const fd = new FormData();
+            fd.append("Title", item.title);
+            fd.append("Description", item.description || "");
+            fd.append("TimeShouldLearn", item.timeShouldLearn || "");
+            fd.append("Status", "Published");
+
+            await lessonsApi.updateLesson(item.id, fd);
+
+            await load(paged.page);
+        } catch {
+            alert("Không thể đăng bài giảng.");
+        }
+    };
+    const load = async (page = 1, sBy = sortBy, ord = order) => {
         setErr("");
         setLoading(true);
         try {
@@ -89,6 +112,8 @@ export default function TeacherLessonsPage() {
                 pageSize: paged.pageSize,
                 status,
                 q,
+                sortBy: sBy,
+                order: ord
             });
             setPaged(data);
         } catch (ex) {
@@ -105,7 +130,18 @@ export default function TeacherLessonsPage() {
     }, []);
 
     const onReload = () => load(paged.page || 1);
+    const toggleSort = (field) => {
+        let newOrder = "asc";
 
+        if (sortBy === field) {
+            newOrder = order === "asc" ? "desc" : "asc";
+        }
+
+        setSortBy(field);
+        setOrder(newOrder);
+
+        load(1, field, newOrder);
+    };
     const onSearch = (e) => {
         e.preventDefault();
         load(1);
@@ -267,7 +303,12 @@ export default function TeacherLessonsPage() {
 
                                     <div className="lesson-table-header">
                                         <div>STT</div>
-                                        <div>Tên</div>
+                                        <div
+                                            onClick={() => toggleSort("title")}
+                                            style={{ cursor: "pointer", userSelect: "none" }}
+                                        >
+                                            Tên {sortBy === "title" && (order === "asc" ? "↑" : "↓")}
+                                        </div>
                                         <div>Mô tả</div>
                                         <div>Thời gian</div>
                                         <div>File</div>
@@ -303,25 +344,31 @@ export default function TeacherLessonsPage() {
                                             </div>
 
                                             {/* Trạng thái */}
-                                            <div className="lesson-cell">
-                                                <span className="status-badge">{it.status}</span>
+                                            <div className="status-cell">
+
+                                                <span className="status-badge">
+                                                    {STATUS_LABEL[it.status] || it.status}
+                                                </span>
+
+                                                
+
                                             </div>
 
                                             {/* Action */}
                                             <div className="lesson-actions-cell">
+                                                <div className="actions-main">
+                                                    <div className="actions-core">
+                                                        <Button variant="secondary" onClick={() => onEdit(it)}>✏️</Button>
+                                                        <Button variant="secondary" onClick={() => onDelete(it)}>🗑</Button>
+                                                        <Button onClick={() => onDownload(it)}>⬇</Button>
+                                                    </div>
 
-                                                <Button onClick={() => onEdit(it)}>
-                                                    ✏ 
-                                                </Button>
-
-                                                <Button onClick={() => onDelete(it)}>
-                                                    🗑 
-                                                </Button>
-
-                                                <Button onClick={() => onDownload(it)}>
-                                                    ⬇ 
-                                                </Button>
-
+                                                    {it.status === "Draft" ? (
+                                                        <Button className="btn-publish" onClick={() => onPublish(it)}>
+                                                            Đăng
+                                                        </Button>
+                                                    ) : null}
+                                                </div>
                                             </div>
 
                                         </div>
@@ -329,7 +376,12 @@ export default function TeacherLessonsPage() {
                     </div>
                 )}
             </div>
-
+                <Pagination
+                    page={paged.page}
+                    pageSize={paged.pageSize}
+                    total={paged.total}
+                    onPageChange={(p) => load(p)}
+                />
             {/* Modal create */}
                 {open ? (
                     <div className="modal-backdrop" onMouseDown={closeModal}>

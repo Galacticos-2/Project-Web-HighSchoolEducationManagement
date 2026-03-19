@@ -1,4 +1,5 @@
-﻿using EduManagement.Application.Common.Interfaces;
+﻿using System.Globalization;
+using EduManagement.Application.Common.Interfaces;
 using EduManagement.Application.DTOs.Common;
 using EduManagement.Application.DTOs.Lessons;
 using EduManagement.Domain.Entities;
@@ -12,11 +13,13 @@ namespace EduManagement.Application.Features.Lessons
         public StudentLessonService(IAppDbContext db) => _db = db;
 
         public async Task<PagedResult<LessonListItemDto>> GetLessonsForStudentAsync(
-            int studentId,
-            int page,
-            int pageSize,
-            string? q
-        )
+    int studentId,
+    int page,
+    int pageSize,
+    string? q,
+    string? sortBy,
+    string? order
+)
         {
             page = page <= 0 ? 1 : page;
             pageSize = pageSize <= 0 ? 10 : Math.Min(pageSize, 100);
@@ -55,11 +58,19 @@ namespace EduManagement.Application.Features.Lessons
                 query = query.Where(x => x.LessonTitle.Contains(q) ||
                     (x.LessonDescription != null && x.LessonDescription.Contains(q)));
 
+            // SORT
+            query = (sortBy, order) switch
+            {
+                ("title", "asc") => query.OrderBy(x => x.LessonTitle),
+                ("title", "desc") => query.OrderByDescending(x => x.LessonTitle),
+
+                _ => query.OrderByDescending(x => x.LessonID)
+            };
+
             var total = await query.CountAsync();
 
             var items = await query
-                .OrderByDescending(x => x.LessonID)
-                .Skip((page - 1) * pageSize)
+                            .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .Select(x => new LessonListItemDto
                 {

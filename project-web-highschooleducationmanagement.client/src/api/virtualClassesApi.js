@@ -2,13 +2,21 @@ import { axiosClient } from "./axiosClient";
 
 export const virtualClassesApi = {
 
-    listTeacher: () =>
-        axiosClient.get("/api/teacher/virtual-classes"),
+    listTeacher: (params = {}) => {
+        const { page = 1, pageSize = 10 } = params;
+        return axiosClient.get("/api/teacher/virtual-classes", {
+            params: { page, pageSize }
+        });
+    },
 
     
 
-    listStudent: () =>
-        axiosClient.get("/api/student/virtual-classes"),
+    listStudent: (params = {}) => {
+        const { page = 1, pageSize = 10 } = params;
+        return axiosClient.get("/api/student/virtual-classes", {
+            params: { page, pageSize }
+        });
+    },
     create: (data) =>
         axiosClient.post("/api/teacher/virtual-classes", data),
 

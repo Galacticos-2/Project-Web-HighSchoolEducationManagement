@@ -12,12 +12,17 @@ namespace EduManagement.Application.Features.Lessons
 {
     public class TeacherLessonService
     {
+        private static string Normalize(string input)
+        {
+            return input.Trim().ToLower();
+        }
         private readonly IAppDbContext _db;
 
         public TeacherLessonService(IAppDbContext db) => _db = db;
 
         //Create a new lesson for the teacher, return the new lesson's ID
         public async Task<int> CreateAsync(
+
     int teacherId,
     CreateLessonRequest meta,
     IFormFile file,
@@ -27,7 +32,16 @@ namespace EduManagement.Application.Features.Lessons
         {
             if (string.IsNullOrWhiteSpace(meta.Title))
                 throw new Exception("Tên bài giảng không được trống.");
+            var normalizedTitle = Normalize(meta.Title);
 
+            var exists = await _db.Lessons
+                .AnyAsync(x =>
+                    x.TeacherId == teacherId &&
+                    x.LessonTitle.ToLower().Trim() == normalizedTitle
+                );
+
+            if (exists)
+                throw new Exception("Không được tạo 2 bài trùng nhau");
             if (file == null || file.Length <= 0)
                 throw new Exception("Bạn chưa chọn file.");
 
@@ -65,12 +79,14 @@ namespace EduManagement.Application.Features.Lessons
         }
         //Get list of lessons of the teacher with pagination, filtering by status and searching by title/description
         public async Task<PagedResult<LessonListItemDto>> GetMyLessonsAsync(
-            int teacherId,
-            int page,
-            int pageSize,
-            string? status,
-            string? q
-        )
+    int teacherId,
+    int page,
+    int pageSize,
+    string? status,
+    string? q,
+    string? sortBy,
+    string? order
+)
         {
             page = page <= 0 ? 1 : page;
             pageSize = pageSize <= 0 ? 10 : Math.Min(pageSize, 100);
@@ -78,22 +94,31 @@ namespace EduManagement.Application.Features.Lessons
             status = string.IsNullOrWhiteSpace(status) ? null : status.Trim();
             q = string.IsNullOrWhiteSpace(q) ? null : q.Trim();
 
-            var query = _db.Lessons.AsNoTracking().Where(x => x.TeacherId == teacherId);
+            var query = _db.Lessons.AsNoTracking()
+                .Where(x => x.TeacherId == teacherId);
 
             if (status != null)
                 query = query.Where(x => x.Status == status);
 
             if (q != null)
-                query = query.Where(x => x.LessonTitle.Contains(q) || (x.LessonDescription != null && x.LessonDescription.Contains(q)));
+                query = query.Where(x =>
+                    x.LessonTitle.Contains(q) ||
+                    (x.LessonDescription != null && x.LessonDescription.Contains(q)));
+
+            // ✅ SORT (đặt TRƯỚC Count + Skip)
+            query = (sortBy, order) switch
+            {
+                ("title", "asc") => query.OrderBy(x => x.LessonTitle),
+                ("title", "desc") => query.OrderByDescending(x => x.LessonTitle),
+
+                _ => query.OrderByDescending(x => x.LessonID)
+            };
 
             var total = await query.CountAsync();
 
             var items = await query
-                .OrderByDescending(x => x.LessonID)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
-
-                //Convert to DTO
                 .Select(x => new LessonListItemDto
                 {
                     Id = x.LessonID,
@@ -104,7 +129,6 @@ namespace EduManagement.Application.Features.Lessons
                     FileName = x.FileName,
                     FileSize = x.FileSize,
                     ContentType = x.ContentType,
-                    
                     CreatedAtUtc = x.CreatedAtUtc.ToString("O"),
                 })
                 .ToListAsync();
@@ -138,6 +162,17 @@ namespace EduManagement.Application.Features.Lessons
     string? relativePath
 )
         {
+            var normalizedTitle = Normalize(meta.Title);
+
+            var exists = await _db.Lessons
+                .AnyAsync(x =>
+                    x.TeacherId == teacherId &&
+                    x.LessonID != lessonId && // khi update thì không so sánh với chính nó
+                    x.LessonTitle.ToLower().Trim() == normalizedTitle
+                );
+
+            if (exists)
+                throw new Exception("Không được tạo 2 bài trùng nhau");
             var lesson = await GetOwnedLessonAsync(teacherId, lessonId);
 
             lesson.LessonTitle = meta.Title.Trim();

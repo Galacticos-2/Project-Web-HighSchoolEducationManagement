@@ -1,4 +1,5 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+﻿using System.Globalization;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using EduManagement.Application.Features.Lessons;
 using Microsoft.AspNetCore.Authorization;
@@ -35,10 +36,18 @@ public class StudentLessonsController : ControllerBase
 
     [Authorize(Roles = "Student")]
     [HttpGet("listMine")]
-    public async Task<IActionResult> List([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string? q = null)
+    public async Task<IActionResult> List(
+    [FromQuery] int page = 1,
+    [FromQuery] int pageSize = 10,
+    [FromQuery] string? q = null,
+    [FromQuery] string? sortBy = null,
+    [FromQuery] string? order = null
+)
     {
         var studentId = GetUserIdOrThrow();
-        var data = await _svc.GetLessonsForStudentAsync(studentId, page, pageSize, q);
+        var data = await _svc.GetLessonsForStudentAsync(
+    studentId, page, pageSize, q, sortBy, order
+);
         return Ok(data);
     }
 

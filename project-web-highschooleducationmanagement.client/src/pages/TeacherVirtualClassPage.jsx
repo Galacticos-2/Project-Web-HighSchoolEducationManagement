@@ -5,7 +5,7 @@ import "../styles/lessons.css";
 import { virtualClassesApi } from "../api/virtualClassesApi";
 import { classesApi } from "../api/classesApi";
 import { subjectsApi } from "../api/subjectsApi";
-
+import Pagination from "../components/Pagination";
 import UserActions from "../components/UserActions";
 import Brand from "../components/Brand";
 import { authStorage } from "../auth/authStorage";
@@ -25,7 +25,10 @@ export default function TeacherVirtualClassPage() {
     const [editingId, setEditingId] = useState(null);
     const [loading, setLoading] = useState(false);
     const [err, setErr] = useState("");
-
+    const [page, setPage] = useState(1);
+    const [pageSize] = useState(10);
+    const [total, setTotal] = useState(0);
+    
     const [open, setOpen] = useState(false);
     const [creating, setCreating] = useState(false);
     const [createErr, setCreateErr] = useState("");
@@ -36,7 +39,6 @@ export default function TeacherVirtualClassPage() {
     const [startTime, setStartTime] = useState("");
     const [endTime, setEndTime] = useState("");
 
-    // load all data
     const load = async () => {
 
         setLoading(true);
@@ -44,15 +46,17 @@ export default function TeacherVirtualClassPage() {
 
         try {
 
-            const [cRes, sRes, vcRes] = await Promise.all([
+            const [cRes, vcRes] = await Promise.all([
                 classesApi.getMine(),
-                subjectsApi.getMine(),
-                virtualClassesApi.listTeacher()
+                virtualClassesApi.listTeacher({ page, pageSize })
             ]);
 
             setClasses(Array.isArray(cRes) ? cRes : cRes.data ?? []);
-            setSubjects(Array.isArray(sRes) ? sRes : sRes.data ?? []);
-            setList(Array.isArray(vcRes) ? vcRes : vcRes.data ?? []);
+            setSubjects([]);
+
+            const data = vcRes.data ?? vcRes;
+            setList(Array.isArray(data) ? data : data.items ?? []);
+            setTotal(data.total ?? 0);
 
         } catch {
 
@@ -68,15 +72,17 @@ export default function TeacherVirtualClassPage() {
 
     useEffect(() => {
         load();
-    }, []);
+    }, [page]);
 
     const onReload = () => load();
-    const onEdit = (item) => {
 
+    const onEdit = (item) => {
+        setCreateErr("");
         setEditingId(item.id);
 
         setClassId(item.classId ?? "");
         setSubjectId(item.subjectId ?? "");
+        loadSubjects(item.classId);
         setMeetingUrl(item.meetingUrl ?? "");
 
         setStartTime(
@@ -93,6 +99,7 @@ export default function TeacherVirtualClassPage() {
 
         setOpen(true);
     };
+
     const closeModal = () => {
 
         setOpen(false);
@@ -105,6 +112,7 @@ export default function TeacherVirtualClassPage() {
         setStartTime("");
         setEndTime("");
     };
+
     const loadSubjects = async (cid) => {
 
         if (!cid) {
@@ -115,7 +123,6 @@ export default function TeacherVirtualClassPage() {
         try {
 
             const res = await subjectsApi.getMine(cid);
-
             setSubjects(Array.isArray(res) ? res : res.data ?? []);
 
         } catch {
@@ -125,54 +132,70 @@ export default function TeacherVirtualClassPage() {
         }
 
     };
+    const openCreateModal = () => {
+        setEditingId(null);
+        setCreateErr("");
+        setClassId("");
+        setSubjectId("");
+        setMeetingUrl("");
+        setStartTime("");
+        setEndTime("");
+        setSubjects([]);
+        setOpen(true);
+    };
     const onCreate = async (e) => {
-
         e.preventDefault();
+        setCreateErr("");
 
-        if (!classId || !subjectId || !meetingUrl || !startTime) {
-
+        if (!classId || !subjectId || !meetingUrl || !startTime || !endTime) {
             setCreateErr("Vui lòng nhập đầy đủ thông tin.");
             return;
+        }
 
+        const start = new Date(startTime);
+        const end = new Date(endTime);
+
+        if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+            setCreateErr("Thời gian không hợp lệ.");
+            return;
+        }
+
+        if (start >= end) {
+            setCreateErr("Thời gian bắt đầu phải nhỏ hơn thời gian kết thúc.");
+            return;
         }
 
         setCreating(true);
 
         try {
-
             const data = {
                 classId: Number(classId),
                 subjectId: Number(subjectId),
-                meetingUrl,
+                meetingUrl: meetingUrl.trim(),
                 startTime,
                 endTime
             };
 
             if (editingId) {
-
                 await virtualClassesApi.update(editingId, data);
-
             } else {
-
                 await virtualClassesApi.create(data);
-
             }
 
             closeModal();
             load();
+        } catch (error) {
+            const message =
+                error?.response?.data?.message ||
+                error?.response?.data ||
+                "Không lưu được lớp học.";
 
-        } catch {
-
-            setCreateErr("Không lưu được lớp học.");
-
+            setCreateErr(message);
         } finally {
-
             setCreating(false);
-
         }
-
     };
-
+    
     const onDelete = async (item) => {
 
         if (!window.confirm("Bạn chắc chắn muốn xóa lớp học này?"))
@@ -191,7 +214,6 @@ export default function TeacherVirtualClassPage() {
 
     };
 
-    // compute status
     const getStatus = (start, end) => {
 
         const now = new Date();
@@ -205,11 +227,115 @@ export default function TeacherVirtualClassPage() {
 
     };
 
+    let content;
+
+    if (loading) {
+        content = (
+            <div className="empty">
+                Đang tải...
+            </div>
+        );
+    } else if (list.length === 0) {
+        content = (
+            <div className="empty">
+                <div className="empty-icon">📚</div>
+                <div className="empty-text">
+                    Chưa có lớp học ảo
+                </div>
+            </div>
+        );
+    } else {
+        content = (
+            <>
+                <div className="lesson-list">
+
+                    <div className="lesson-table-header">
+                        <div>STT</div>
+                        <div>Lớp</div>
+                        <div>Môn</div>
+                        <div>Thời gian</div>
+                        <div>Link</div>
+                        <div>Trạng thái</div>
+                        <div>Hành động</div>
+                    </div>
+
+                    {list.map((it, index) => {
+                        const status = getStatus(it.startTime, it.endTime);
+
+                        return (
+                            <div className="lesson-row" key={it.id}>
+                                <div className="lesson-cell">
+                                    {(page - 1) * pageSize + index + 1}
+                                </div>
+                                <div className="lesson-cell">{it.className}</div>
+                                <div className="lesson-cell">{it.subjectName}</div>
+                                <div className="lesson-cell">
+                                    {new Date(it.startTime).toLocaleString()}
+                                </div>
+                                <div className="lesson-cell">
+                                    <span style={{ color: "#4f46e5" }}>
+                                        {it.meetingUrl}
+                                    </span>
+                                </div>
+                                <div className="lesson-cell">
+                                    <span className={`status-badge ${status === "Sắp diễn ra"
+                                        ? "status-upcoming"
+                                        : status === "Đang diễn ra"
+                                            ? "status-live"
+                                            : "status-ended"
+                                        }`}>
+                                        {status}
+                                    </span>
+                                </div>
+
+                                <div className="lesson-actions-cell">
+                                    <Button
+                                        onClick={() => {
+                                            let url = it.meetingUrl || "";
+                                            if (!url.startsWith("http")) {
+                                                url = "https://" + url;
+                                            }
+                                            window.open(url, "_blank");
+                                        }}
+                                    >
+                                        ▶ Tham gia
+                                    </Button>
+
+                                    <Button
+                                        variant="secondary"
+                                        onClick={() => onEdit(it)}
+                                    >
+                                        ✏️ Sửa
+                                    </Button>
+
+                                    <Button
+                                        variant="secondary"
+                                        onClick={() => onDelete(it)}
+                                    >
+                                        🗑 Xóa
+                                    </Button>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+
+                
+
+                <Pagination
+                    page={page}
+                    pageSize={pageSize}
+                    total={total}
+                    onPageChange={(p) => setPage(p)}
+                />
+            </>
+        );
+    }
+
     return (
 
         <div className="teacher-home">
 
-            {/* TOPBAR */}
             <div className="teacher-topbar">
                 <div className="teacher-topbar__inner">
 
@@ -250,9 +376,7 @@ export default function TeacherVirtualClassPage() {
                                 ⟳ Tải lại
                             </Button>
 
-                            <Button
-                                onClick={() => setOpen(true)}
-                            >
+                            <Button onClick={openCreateModal}>
                                 ＋ Thêm mới
                             </Button>
 
@@ -265,130 +389,10 @@ export default function TeacherVirtualClassPage() {
                 </div>
 
                 <div className="lesson-body">
-
-                    {loading ? (
-
-                        <div className="empty">
-                            Đang tải...
-                        </div>
-
-                    ) : list.length === 0 ? (
-
-                        <div className="empty">
-                            <div className="empty-icon">📚</div>
-                            <div className="empty-text">
-                                Chưa có lớp học ảo
-                            </div>
-                        </div>
-
-                    ) : (
-
-                        <div className="lesson-list">
-
-                            <div className="lesson-table-header">
-
-                                <div>STT</div>
-                                <div>Lớp</div>
-                                <div>Môn</div>
-                                <div>Thời gian</div>
-                                <div>Link</div>
-                                <div>Trạng thái</div>
-                                <div>Hành động</div>
-
-                            </div>
-
-                            {list.map((it, index) => {
-
-                                const status = getStatus(it.startTime, it.endTime);
-                                const disabled = false;
-
-                                return (
-
-                                    <div className="lesson-row" key={it.id}>
-
-                                        <div className="lesson-cell">
-                                            {index + 1}
-                                        </div>
-
-                                        <div className="lesson-cell">
-                                            {it.className}
-                                        </div>
-
-                                        <div className="lesson-cell">
-                                            {it.subjectName}
-                                        </div>
-
-                                        <div className="lesson-cell">
-                                            {new Date(it.startTime).toLocaleString()}
-                                        </div>
-                                        <div className="lesson-cell">
-                                            <span style={{ color: "#4f46e5" }}>
-                                                {it.meetingUrl}
-                                            </span>
-                                        </div>
-                                        <div className="lesson-cell">
-                                            <span
-                                                className={`status-badge ${status === "Sắp diễn ra"
-                                                        ? "status-upcoming"
-                                                        : status === "Đang diễn ra"
-                                                            ? "status-live"
-                                                            : "status-ended"
-                                                    }`}
-                                            >
-                                                {status}
-                                            </span>
-                                        </div>
-
-                                        <div className="lesson-actions-cell">
-
-                                            <Button
-                                                disabled={disabled}
-                                                onClick={() => {
-                                                    console.log("Meeting URL:", it.meetingUrl);
-
-                                                    let url = it.meetingUrl || "";
-
-                                                    if (!url.startsWith("http")) {
-                                                        url = "https://" + url;
-                                                    }
-
-                                                    console.log("Open URL:", url);
-
-                                                    window.open(url, "_blank");
-                                                }}
-                                            >
-                                                ▶ Tham gia
-                                            </Button>
-                                            <Button
-                                                variant="secondary"
-                                                onClick={() => onEdit(it)}
-                                            >
-                                                ✏️ Sửa
-                                            </Button>
-                                            <Button
-                                                variant="secondary"
-                                                onClick={() => onDelete(it)}
-                                            >
-                                                🗑 Xóa
-                                            </Button>
-
-                                        </div>
-
-                                    </div>
-
-                                );
-
-                            })}
-
-                        </div>
-
-                    )}
-
+                    {content}
                 </div>
 
             </div>
-
-            {/* CREATE MODAL */}
 
             {open && (
 
@@ -496,7 +500,7 @@ export default function TeacherVirtualClassPage() {
 
                             <div className="form-group">
 
-                                <label>Meeting URL *</label>
+                                <label>Link vào lớp *</label>
 
                                 <input
                                     value={meetingUrl}
@@ -511,28 +515,30 @@ export default function TeacherVirtualClassPage() {
 
                                 <div className="form-group">
 
-                                    <label>Start Time *</label>
+                                    <label>Thời gian bắt đầu *</label>
 
                                     <input
                                         type="datetime-local"
                                         value={startTime}
-                                        onChange={(e) =>
-                                            setStartTime(e.target.value)
-                                        }
+                                        onChange={(e) => {
+                                            setStartTime(e.target.value);
+                                            setCreateErr("");
+                                        }}
                                     />
 
                                 </div>
 
                                 <div className="form-group">
 
-                                    <label>End Time</label>
+                                    <label>Thời gian kết thúc *</label>
 
                                     <input
                                         type="datetime-local"
                                         value={endTime}
-                                        onChange={(e) =>
-                                            setEndTime(e.target.value)
-                                        }
+                                        onChange={(e) => {
+                                            setEndTime(e.target.value);
+                                            setCreateErr("");
+                                        }}
                                     />
 
                                 </div>

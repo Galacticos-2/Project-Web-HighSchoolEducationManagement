@@ -210,7 +210,7 @@ public class AuthService
             if (admin == null) throw new NotFoundException("Không tìm thấy admin.");
 
             admin.AdminName = req.FullName;
-            admin.AdminEmail = req.Email;
+            
             admin.AdminPhoneNumber = req.PhoneNumber;
             admin.AdminBirthday = req.BirthDate;
 
@@ -221,7 +221,7 @@ public class AuthService
                 Id = admin.AdminID,
                 Role = "Admin",
                 FullName = admin.AdminName,
-                Email = admin.AdminEmail,
+                
                 PhoneNumber = admin.AdminPhoneNumber,
                 BirthDate = admin.AdminBirthday
             };
@@ -234,7 +234,7 @@ public class AuthService
             if (teacher == null) throw new NotFoundException("Không tìm thấy giáo viên.");
 
             teacher.TeacherName = req.FullName;
-            teacher.TeacherEmail = req.Email;
+            
             teacher.TeacherPhoneNumber = req.PhoneNumber;
             teacher.TeacherBirthday = req.BirthDate;
 
@@ -245,7 +245,7 @@ public class AuthService
                 Id = teacher.TeacherID,
                 Role = "Teacher",
                 FullName = teacher.TeacherName,
-                Email = teacher.TeacherEmail,
+                
                 PhoneNumber = teacher.TeacherPhoneNumber,
                 BirthDate = teacher.TeacherBirthday
             };
@@ -258,7 +258,7 @@ public class AuthService
             if (student == null) throw new NotFoundException("Không tìm thấy học sinh.");
 
             student.StudentName = req.FullName;
-            student.StudentEmail = req.Email;
+            
             student.PhoneNumber = req.PhoneNumber;
             student.StudentBirthday = req.BirthDate;
 
@@ -269,7 +269,7 @@ public class AuthService
                 Id = student.StudentID,
                 Role = "Student",
                 FullName = student.StudentName,
-                Email = student.StudentEmail,
+                
                 PhoneNumber = student.PhoneNumber,
                 BirthDate = student.StudentBirthday
             };

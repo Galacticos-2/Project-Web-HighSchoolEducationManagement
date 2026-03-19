@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Security.Claims;
+using System.Text;
 using System.Text.Json;
 using EduManagement.Application.Common.Interfaces;
 using EduManagement.Application.Features.AdminApproval;
@@ -54,8 +55,11 @@ namespace Project_Web_HighSchoolEducationManagement.Server
                         ValidIssuer = jwt["Issuer"],
                         ValidAudience = jwt["Audience"],
                         IssuerSigningKey = new SymmetricSecurityKey(
-                            Encoding.UTF8.GetBytes(jwt["Key"]!))
+                            Encoding.UTF8.GetBytes(jwt["Key"]!)),
+                        NameClaimType = ClaimTypes.NameIdentifier,
+                        RoleClaimType = ClaimTypes.Role
                     };
+
                 });
 
             builder.Services.AddAuthorization();

@@ -3,8 +3,17 @@ import { axiosClient } from "./axiosClient";
 
 export const lessonsApi = {
     //Get the list of lessons of this teacher
-    listMine: ({ page = 1, pageSize = 10, status = "", q = "" }) =>
-        axiosClient.get("/api/teacher/lessons/listMine", { params: { page, pageSize, status, q } }),
+    listMine: ({
+        page = 1,
+        pageSize = 10,
+        status = "",
+        q = "",
+        sortBy = "",
+        order = ""
+    }) =>
+        axiosClient.get("/api/teacher/lessons/listMine", {
+            params: { page, pageSize, status, q, sortBy, order }
+        }),
     //Upload new lesson
     createnewlesson: (formData) =>
         axiosClient.post("/api/teacher/lessons/createnewlesson", formData, {
@@ -23,8 +32,16 @@ export const lessonsApi = {
 
 
     // student
-    listForStudent: ({ page = 1, pageSize = 10, q = "" }) =>
-        axiosClient.get("/api/student/lessons/listMine", { params: { page, pageSize, q } }),
+    listForStudent: ({
+        page = 1,
+        pageSize = 10,
+        q = "",
+        sortBy = "",
+        order = ""
+    }) =>
+        axiosClient.get("/api/student/lessons/listMine", {
+            params: { page, pageSize, q, sortBy, order }
+        }),
 
     downloadForStudent: (id) =>
         axiosClient.get(`/api/student/lessons/${id}/download`, { responseType: "blob" }),
