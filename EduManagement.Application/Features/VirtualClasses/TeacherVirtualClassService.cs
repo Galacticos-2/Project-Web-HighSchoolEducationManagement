@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using EduManagement.Application.Common.Interfaces;
 using EduManagement.Application.DTOs.VirtualClass;
 using EduManagement.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using EduManagement.Application.Common.Models;
+using EduManagement.Application.Common.Exceptions;
+
 namespace EduManagement.Application.Features.VirtualClasses
 {
     public class TeacherVirtualClassService
@@ -16,8 +20,40 @@ namespace EduManagement.Application.Features.VirtualClasses
             _db = db;
         }
 
+        private static void ValidateVirtualClassTime(CreateVirtualClassRequest req)
+        {
+            if (req.StartTime >= req.EndTime)
+                throw new ValidationException("Thời gian bắt đầu phải nhỏ hơn thời gian kết thúc.");
+        }
+
+        private async Task EnsureNoDuplicateVirtualClassAsync(
+            int teacherId,
+            CreateVirtualClassRequest req,
+            int? excludeId = null)
+        {
+            var query = _db.VirtualClasses.Where(x =>
+                x.TeacherId == teacherId &&
+                x.ClassId == req.ClassId &&
+                x.SubjectId == req.SubjectId &&
+                x.StartTime == req.StartTime &&
+                x.EndTime == req.EndTime
+            );
+
+            if (excludeId.HasValue)
+            {
+                query = query.Where(x => x.VirtualClassID != excludeId.Value);
+            }
+
+            var exists = await query.AnyAsync();
+
+            if (exists)
+                throw new ValidationException("Đã tồn tại lớp học ảo trùng lớp, môn và thời gian.");
+        }
+
         public async Task<int> CreateAsync(int teacherId, CreateVirtualClassRequest req)
         {
+            ValidateVirtualClassTime(req);
+
             var assignment = await _db.TeacherAssignments
                 .FirstOrDefaultAsync(x =>
                     x.TeacherId == teacherId &&
@@ -25,7 +61,9 @@ namespace EduManagement.Application.Features.VirtualClasses
                     x.SubjectId == req.SubjectId);
 
             if (assignment == null)
-                throw new Exception("Bạn không được phân công lớp này.");
+                throw new ValidationException("Bạn không được phân công lớp này.");
+
+            await EnsureNoDuplicateVirtualClassAsync(teacherId, req);
 
             var vc = new VirtualClass
             {
@@ -39,30 +77,59 @@ namespace EduManagement.Application.Features.VirtualClasses
 
             _db.VirtualClasses.Add(vc);
 
-            await _db.SaveChangesAsync();
+            try
+            {
+                await _db.SaveChangesAsync();
+            }
+            catch (DbUpdateException)
+            {
+                throw new ValidationException("Đã tồn tại lớp học ảo trùng lớp, môn và thời gian.");
+            }
 
             return vc.VirtualClassID;
         }
 
-        public async Task<List<VirtualClassListItemDto>> GetMineAsync(int teacherId)
+        public async Task<PagedResult<VirtualClassListItemDto>> GetMineAsync(
+            int teacherId,
+            int page,
+            int pageSize)
         {
-            return await (
+            page = page <= 0 ? 1 : page;
+            pageSize = pageSize <= 0 ? 10 : Math.Min(pageSize, 100);
+
+            var query =
                 from vc in _db.VirtualClasses
                 join c in _db.Classes on vc.ClassId equals c.ClassID
                 join s in _db.Subjects on vc.SubjectId equals s.SubjectID
                 where vc.TeacherId == teacherId
-                orderby vc.StartTime descending
                 select new VirtualClassListItemDto
                 {
                     Id = vc.VirtualClassID,
+                    ClassId = vc.ClassId,
+                    SubjectId = vc.SubjectId,
                     ClassName = c.ClassName,
                     SubjectName = s.SubjectName,
                     MeetingUrl = vc.MeetingUrl,
                     StartTime = vc.StartTime,
                     EndTime = vc.EndTime,
                     CreatedAtUtc = vc.CreatedAtUtc
-                }
-            ).ToListAsync();
+                };
+
+            var total = await query.CountAsync();
+
+            var items = await query
+                .OrderByDescending(x => x.StartTime)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return new PagedResult<VirtualClassListItemDto>
+            {
+                Page = page,
+                PageSize = pageSize,
+                Total = total,
+                Items = items
+            };
         }
 
         public async Task DeleteAsync(int teacherId, int id)
@@ -71,7 +138,7 @@ namespace EduManagement.Application.Features.VirtualClasses
                 .FirstOrDefaultAsync(x => x.VirtualClassID == id && x.TeacherId == teacherId);
 
             if (vc == null)
-                throw new Exception("Không tìm thấy lớp.");
+                throw new ValidationException("Không tìm thấy lớp.");
 
             _db.VirtualClasses.Remove(vc);
             await _db.SaveChangesAsync();
@@ -118,11 +185,13 @@ namespace EduManagement.Application.Features.VirtualClasses
 
         public async Task UpdateAsync(int teacherId, int id, CreateVirtualClassRequest req)
         {
+            ValidateVirtualClassTime(req);
+
             var vc = await _db.VirtualClasses
                 .FirstOrDefaultAsync(x => x.VirtualClassID == id && x.TeacherId == teacherId);
 
             if (vc == null)
-                throw new Exception("Không tìm thấy lớp học.");
+                throw new ValidationException("Không tìm thấy lớp học.");
 
             var assignment = await _db.TeacherAssignments
                 .FirstOrDefaultAsync(x =>
@@ -131,7 +200,9 @@ namespace EduManagement.Application.Features.VirtualClasses
                     x.SubjectId == req.SubjectId);
 
             if (assignment == null)
-                throw new Exception("Bạn không được phân công lớp này.");
+                throw new ValidationException("Bạn không được phân công lớp này.");
+
+            await EnsureNoDuplicateVirtualClassAsync(teacherId, req, id);
 
             vc.ClassId = req.ClassId;
             vc.SubjectId = req.SubjectId;
@@ -139,7 +210,14 @@ namespace EduManagement.Application.Features.VirtualClasses
             vc.StartTime = req.StartTime;
             vc.EndTime = req.EndTime;
 
-            await _db.SaveChangesAsync();
+            try
+            {
+                await _db.SaveChangesAsync();
+            }
+            catch (DbUpdateException)
+            {
+                throw new ValidationException("Đã tồn tại lớp học ảo trùng lớp, môn và thời gian.");
+            }
         }
     }
 }

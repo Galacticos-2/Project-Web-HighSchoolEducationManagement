@@ -4,6 +4,8 @@ using System.Text;
 using EduManagement.Application.Common.Interfaces;
 using EduManagement.Application.DTOs.VirtualClass;
 using Microsoft.EntityFrameworkCore;
+using EduManagement.Application.Common.Models;
+
 namespace EduManagement.Application.Features.VirtualClasses
 {
     public class StudentVirtualClassService
@@ -15,8 +17,15 @@ namespace EduManagement.Application.Features.VirtualClasses
             _db = db;
         }
 
-        public async Task<List<VirtualClassListItemDto>> GetForStudentAsync(int studentId)
+        public async Task<PagedResult<VirtualClassListItemDto>> GetForStudentAsync(
+            int studentId,
+            int page,
+            int pageSize
+        )
         {
+            page = page <= 0 ? 1 : page;
+            pageSize = pageSize <= 0 ? 10 : Math.Min(pageSize, 100);
+
             var student = await _db.Students
                 .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.StudentID == studentId);
@@ -25,16 +34,24 @@ namespace EduManagement.Application.Features.VirtualClasses
                 throw new Exception($"Student {studentId} not found");
 
             if (student.ClassId == null)
-                return new List<VirtualClassListItemDto>();
+            {
+                return new PagedResult<VirtualClassListItemDto>
+                {
+                    Page = page,
+                    PageSize = pageSize,
+                    Total = 0,
+                    
+                    Items = new List<VirtualClassListItemDto>()
+                };
+            }
 
             var classId = student.ClassId.Value;
 
-            return await (
+            var query =
                 from vc in _db.VirtualClasses
                 join c in _db.Classes on vc.ClassId equals c.ClassID
                 join s in _db.Subjects on vc.SubjectId equals s.SubjectID
                 where vc.ClassId == classId
-                orderby vc.StartTime descending
                 select new VirtualClassListItemDto
                 {
                     Id = vc.VirtualClassID,
@@ -43,8 +60,26 @@ namespace EduManagement.Application.Features.VirtualClasses
                     MeetingUrl = vc.MeetingUrl,
                     StartTime = vc.StartTime,
                     EndTime = vc.EndTime
-                }
-            ).ToListAsync();
+                };
+
+            var total = await query.CountAsync();
+
+            var items = await query
+                .OrderByDescending(x => x.StartTime)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var totalPages = (int)Math.Ceiling(total / (double)pageSize);
+
+            return new PagedResult<VirtualClassListItemDto>
+            {
+                Page = page,
+                PageSize = pageSize,
+                Total = total,
+                
+                Items = items
+            };
         }
     }
 }

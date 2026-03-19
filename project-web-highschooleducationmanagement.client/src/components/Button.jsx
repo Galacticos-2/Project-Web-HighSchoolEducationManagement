@@ -2,17 +2,16 @@ import "../styles/button.css";
 
 export default function Button({
     children,
-    onClick,
-    type = "button",
     variant = "primary",
-    disabled = false,
+    type = "button",
+    className = "",
+    ...props
 }) {
     return (
         <button
             type={type}
-            className={`app-btn app-btn-${variant}`}
-            onClick={onClick}
-            disabled={disabled}
+            className={`app-btn app-btn-${variant} ${className}`.trim()}
+            {...props}
         >
             {children}
         </button>

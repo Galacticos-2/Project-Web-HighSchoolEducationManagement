@@ -39,15 +39,28 @@ public class TeacherLessonsController : ControllerBase
 
     [HttpGet("listMine")]
     public async Task<IActionResult> List(
-        [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 10,
-        [FromQuery] string? status = null,
-        [FromQuery] string? q = null
-    )
+    [FromQuery] int page = 1,
+    [FromQuery] int pageSize = 10,
+    [FromQuery] string? status = null,
+    [FromQuery] string? q = null,
+    [FromQuery] string? sortBy = null,
+    [FromQuery] string? order = null
+)
     {
-        var teacherId = GetTeacherId();
-        var data = await _svc.GetMyLessonsAsync(teacherId, page, pageSize, status, q);
-        return Ok(data);
+        try
+        {
+            var teacherId = GetTeacherId();
+
+            var data = await _svc.GetMyLessonsAsync(
+                teacherId, page, pageSize, status, q, sortBy, order
+            );
+
+            return Ok(data);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 
     [HttpPost("createnewlesson")]
@@ -55,110 +68,126 @@ public class TeacherLessonsController : ControllerBase
     //Teacher upload a new lesson (file + metadata) on system, then save the file path and metadata to database
     public async Task<IActionResult> Create([FromForm] CreateLessonRequest meta, [FromForm] IFormFile file)
     {
-        var teacherId = GetTeacherId();
-
-        if (file == null || file.Length == 0)
-            return BadRequest(new { message = "Bạn chưa chọn file." });
-
-        // chỉ cho pdf/word (tuỳ bạn)
-        var okTypes = new[]
+        try
         {
+            var teacherId = GetTeacherId();
+
+            if (file == null || file.Length == 0)
+                return BadRequest(new { message = "Bạn chưa chọn file." });
+
+            var okTypes = new[]
+            {
             "application/pdf",
             "application/msword",
             "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
         };
-        if (!okTypes.Contains(file.ContentType))
-            return BadRequest(new { message = "Chỉ hỗ trợ PDF/DOC/DOCX." });
+            if (!okTypes.Contains(file.ContentType))
+                return BadRequest(new { message = "Chỉ hỗ trợ PDF/DOC/DOCX." });
 
-        var webRoot = _env.WebRootPath;
-        //If wwwroot folder doesn't exist, create it in content root because _env.ContentRootPath get the root path of the application
-        if (string.IsNullOrWhiteSpace(webRoot))
-        {
-            webRoot = Path.Combine(_env.ContentRootPath, "wwwroot");
+            var webRoot = _env.WebRootPath;
+            if (string.IsNullOrWhiteSpace(webRoot))
+                webRoot = Path.Combine(_env.ContentRootPath, "wwwroot");
+
+            Directory.CreateDirectory(webRoot);
+
+            var uploadsDir = Path.Combine(webRoot, "uploads", "lessons");
+            Directory.CreateDirectory(uploadsDir);
+
+            var ext = Path.GetExtension(file.FileName);
+            var storedFileName = $"{Guid.NewGuid():N}{ext}";
+            var absPath = Path.Combine(uploadsDir, storedFileName);
+
+            await using (var stream = System.IO.File.Create(absPath))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            var relativePath = Path.Combine("uploads", "lessons", storedFileName).Replace("\\", "/");
+
+            var newId = await _svc.CreateAsync(teacherId, meta, file, storedFileName, relativePath);
+
+            return Ok(new { id = newId, message = "Đã tạo bài giảng." });
         }
-
-        Directory.CreateDirectory(webRoot);
-
-        var uploadsDir = Path.Combine(webRoot, "uploads", "lessons");
-        Directory.CreateDirectory(uploadsDir);
-
-        var ext = Path.GetExtension(file.FileName);
-        //Create a random file name to avoid conflicts
-        var storedFileName = $"{Guid.NewGuid():N}{ext}";
-        var absPath = Path.Combine(uploadsDir, storedFileName);
-        //Save file to wwwroot/uploads/lessons/
-        await using (var stream = System.IO.File.Create(absPath))
+        catch (Exception ex)
         {
-            await file.CopyToAsync(stream);
+            return BadRequest(new { message = ex.Message });
         }
-        //Create relative path to save in database
-        var relativePath = Path.Combine("uploads", "lessons", storedFileName).Replace("\\", "/");
-        //Call Service to save metadata and file path to database, return new lesson id
-        var newId = await _svc.CreateAsync(teacherId, meta, file, storedFileName, relativePath);
-
-        return Ok(new { id = newId, message = "Đã tạo bài giảng." });
     }
     [HttpPut("{id}")]
     [RequestSizeLimit(50_000_000)]
+
     public async Task<IActionResult> Update(
     int id,
     [FromForm] CreateLessonRequest meta,
     [FromForm] IFormFile? file
 )
     {
-        var teacherId = GetTeacherId();
-
-        string? storedFileName = null;
-        string? relativePath = null;
-
-        if (file != null && file.Length > 0)
+        try
         {
-            var webRoot = _env.WebRootPath;
-            if (string.IsNullOrWhiteSpace(webRoot))
-                webRoot = Path.Combine(_env.ContentRootPath, "wwwroot");
+            var teacherId = GetTeacherId();
 
-            var uploadsDir = Path.Combine(webRoot, "uploads", "lessons");
-            Directory.CreateDirectory(uploadsDir);
+            string? storedFileName = null;
+            string? relativePath = null;
 
-            var ext = Path.GetExtension(file.FileName);
-            storedFileName = $"{Guid.NewGuid():N}{ext}";
+            if (file != null && file.Length > 0)
+            {
+                var webRoot = _env.WebRootPath;
+                if (string.IsNullOrWhiteSpace(webRoot))
+                    webRoot = Path.Combine(_env.ContentRootPath, "wwwroot");
 
-            var absPath = Path.Combine(uploadsDir, storedFileName);
+                var uploadsDir = Path.Combine(webRoot, "uploads", "lessons");
+                Directory.CreateDirectory(uploadsDir);
 
-            await using var stream = System.IO.File.Create(absPath);
-            await file.CopyToAsync(stream);
+                var ext = Path.GetExtension(file.FileName);
+                storedFileName = $"{Guid.NewGuid():N}{ext}";
 
-            relativePath = Path.Combine("uploads", "lessons", storedFileName)
-                .Replace("\\", "/");
+                var absPath = Path.Combine(uploadsDir, storedFileName);
+
+                await using var stream = System.IO.File.Create(absPath);
+                await file.CopyToAsync(stream);
+
+                relativePath = Path.Combine("uploads", "lessons", storedFileName)
+                    .Replace("\\", "/");
+            }
+
+            await _svc.UpdateAsync(
+                teacherId,
+                id,
+                meta,
+                file,
+                storedFileName,
+                relativePath
+            );
+
+            return Ok(new { message = "Đã cập nhật bài giảng." });
         }
-
-        await _svc.UpdateAsync(
-            teacherId,
-            id,
-            meta,
-            file,
-            storedFileName,
-            relativePath
-        );
-
-        return Ok(new { message = "Đã cập nhật bài giảng." });
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var teacherId = GetTeacherId();
-
-        var relativePath = await _svc.DeleteAsync(teacherId, id);
-
-        //xóa file vật lý
-        if (!string.IsNullOrWhiteSpace(relativePath))
+        try
         {
-            var absPath = Path.Combine(_env.WebRootPath, relativePath);
+            var teacherId = GetTeacherId();
 
-            if (System.IO.File.Exists(absPath))
-                System.IO.File.Delete(absPath);
+            var relativePath = await _svc.DeleteAsync(teacherId, id);
+
+            if (!string.IsNullOrWhiteSpace(relativePath))
+            {
+                var absPath = Path.Combine(_env.WebRootPath, relativePath);
+
+                if (System.IO.File.Exists(absPath))
+                    System.IO.File.Delete(absPath);
+            }
+
+            return Ok(new { message = "Đã xóa bài giảng." });
         }
-
-        return Ok(new { message = "Đã xóa bài giảng." });
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 }

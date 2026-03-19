@@ -81,7 +81,9 @@ public class AppDbContext : DbContext, IAppDbContext
             .HasMaxLength(100)
             .IsRequired();
         modelBuilder.Entity<VirtualClass>().ToTable("VirtualClass").HasKey(x => x.VirtualClassID);
-
+        modelBuilder.Entity<VirtualClass>()
+    .HasIndex(x => new { x.TeacherId, x.ClassId, x.SubjectId, x.StartTime, x.EndTime })
+    .IsUnique();
         modelBuilder.Entity<VirtualClass>()
             .HasOne(x => x.Teacher)
             .WithMany()

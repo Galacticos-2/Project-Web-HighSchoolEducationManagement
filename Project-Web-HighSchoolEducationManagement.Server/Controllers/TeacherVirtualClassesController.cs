@@ -29,18 +29,16 @@ public class TeacherVirtualClassesController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetMine()
+    public async Task<IActionResult> GetMine(
+    [FromQuery] int page = 1,
+    [FromQuery] int pageSize = 10
+)
     {
-        try
-        {
-            var teacherId = GetTeacherId();
-            var data = await _svc.GetMineAsync(teacherId);
-            return Ok(data);
-        }
-        catch (Exception ex)
-        {
-            return Ok(ex.ToString());
-        }
+        var teacherId = GetTeacherId();
+
+        var data = await _svc.GetMineAsync(teacherId, page, pageSize);
+
+        return Ok(data);
     }
     [HttpGet("debug")]
     public IActionResult Debug()
@@ -48,16 +46,25 @@ public class TeacherVirtualClassesController : ControllerBase
         return Ok(User.Claims.Select(c => new { c.Type, c.Value }));
     }
     [HttpPost]
+   
     public async Task<IActionResult> Create(CreateVirtualClassRequest req)
     {
-        var teacherId = GetTeacherId();
+        try
+        {
+            var teacherId = GetTeacherId();
 
-        var id = await _svc.CreateAsync(teacherId, req);
+            var id = await _svc.CreateAsync(teacherId, req);
 
-        return Ok(new { id });
+            return Ok(new { id });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 
     [HttpDelete("{id}")]
+    
     public async Task<IActionResult> Delete(int id)
     {
         try
@@ -70,7 +77,7 @@ public class TeacherVirtualClassesController : ControllerBase
         }
         catch (Exception ex)
         {
-            return BadRequest(ex.Message);
+            return BadRequest(new { message = ex.Message });
         }
     }
 
@@ -95,6 +102,7 @@ public class TeacherVirtualClassesController : ControllerBase
     }
 
     [HttpPut("{id}")]
+    
     public async Task<IActionResult> Update(int id, CreateVirtualClassRequest req)
     {
         try
@@ -107,7 +115,7 @@ public class TeacherVirtualClassesController : ControllerBase
         }
         catch (Exception ex)
         {
-            return BadRequest(ex.Message);
+            return BadRequest(new { message = ex.Message });
         }
     }
 }

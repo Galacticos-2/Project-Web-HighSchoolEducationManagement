@@ -31,20 +31,16 @@ namespace Project_Web_HighSchoolEducationManagement.Server.Controllers
         }
 
         [HttpGet]
-        [HttpGet]
-        public async Task<IActionResult> GetMine()
+        public async Task<IActionResult> GetMine(
+    [FromQuery] int page = 1,
+    [FromQuery] int pageSize = 10
+)
         {
-            try
-            {
-                var studentId = GetStudentId();
-                var data = await _svc.GetForStudentAsync(studentId);
+            var studentId = GetStudentId();
 
-                return Ok(data);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            var data = await _svc.GetForStudentAsync(studentId, page, pageSize);
+
+            return Ok(data);
         }
 
 
