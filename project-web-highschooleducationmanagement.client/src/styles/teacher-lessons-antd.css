@@ -1,0 +1,61 @@
+.teacher-lessons-antd-page {
+    min-height: 100vh;
+    background: #f5f7fb;
+    padding: 24px;
+}
+
+.teacher-lessons-antd-card {
+    border-radius: 16px;
+    border: 1px solid #e7eaf0;
+    box-shadow: 0 10px 22px rgba(16, 58, 113, 0.06);
+}
+
+.teacher-lessons-antd-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.teacher-lessons-antd-toolbar {
+    margin-bottom: 16px;
+}
+
+.teacher-lessons-antd-error {
+    margin-bottom: 16px;
+    background: #fff3f2;
+    border: 1px solid #ffd0cc;
+    color: #7a271a;
+    padding: 10px 12px;
+    border-radius: 12px;
+}
+
+.teacher-lessons-antd-card .ant-table-wrapper {
+    margin-top: 8px;
+}
+
+.teacher-lessons-antd-card .ant-table {
+    border-radius: 12px;
+}
+
+.teacher-lessons-antd-card .ant-table-container {
+    border-radius: 12px;
+}
+
+.teacher-lessons-antd-card .ant-tag {
+    border-radius: 999px;
+    padding-inline: 10px;
+    font-weight: 600;
+}
+
+@media (max-width: 768px) {
+    .teacher-lessons-antd-page {
+        padding: 16px;
+    }
+
+    .teacher-lessons-antd-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}

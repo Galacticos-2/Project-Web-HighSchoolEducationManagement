@@ -10,4 +10,5 @@ public class AuthResponse
     public DateTime ExpiresAtUtc { get; set; }
     public string Role { get; set; } = default!;
     public string FullName { get; set; } = default!;
+    public string? AvatarURL { get; set; }
 }

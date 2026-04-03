@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using EduManagement.Application.Common.Interfaces;
+﻿using EduManagement.Application.Common.Interfaces;
 using EduManagement.Application.DTOs.Common;
 using EduManagement.Application.DTOs.Lessons;
 using EduManagement.Domain.Entities;
@@ -12,26 +9,31 @@ namespace EduManagement.Application.Features.Lessons
 {
     public class TeacherLessonService
     {
+        private readonly IAppDbContext _db;
+        private readonly INotificationService _notificationService;
+
+        public TeacherLessonService(IAppDbContext db, INotificationService notificationService)
+        {
+            _db = db;
+            _notificationService = notificationService;
+        }
+
         private static string Normalize(string input)
         {
             return input.Trim().ToLower();
         }
-        private readonly IAppDbContext _db;
 
-        public TeacherLessonService(IAppDbContext db) => _db = db;
-
-        //Create a new lesson for the teacher, return the new lesson's ID
         public async Task<int> CreateAsync(
-
-    int teacherId,
-    CreateLessonRequest meta,
-    IFormFile file,
-    string storedFileName,
-    string relativePath
-)
+            int teacherId,
+            CreateLessonRequest meta,
+            IFormFile file,
+            string storedFileName,
+            string relativePath
+        )
         {
             if (string.IsNullOrWhiteSpace(meta.Title))
                 throw new Exception("Tên bài giảng không được trống.");
+
             var normalizedTitle = Normalize(meta.Title);
 
             var exists = await _db.Lessons
@@ -42,10 +44,10 @@ namespace EduManagement.Application.Features.Lessons
 
             if (exists)
                 throw new Exception("Không được tạo 2 bài trùng nhau");
+
             if (file == null || file.Length <= 0)
                 throw new Exception("Bạn chưa chọn file.");
 
-            // Lấy lớp + môn mà teacher được assign
             var assignment = await _db.TeacherAssignments
                 .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.TeacherId == teacherId);
@@ -57,13 +59,11 @@ namespace EduManagement.Application.Features.Lessons
             {
                 LessonTitle = meta.Title.Trim(),
                 LessonDescription = string.IsNullOrWhiteSpace(meta.Description) ? null : meta.Description.Trim(),
-                TimeShouldLearn = string.IsNullOrWhiteSpace(meta.TimeShouldLearn) ? null : meta.TimeShouldLearn.Trim(),
+                TimeShouldLearn = NormalizeMinutes(meta.TimeShouldLearn),
                 Status = string.IsNullOrWhiteSpace(meta.Status) ? "Draft" : meta.Status.Trim(),
-
                 TeacherId = teacherId,
                 ClassId = assignment.ClassId,
                 SubjectId = assignment.SubjectId,
-
                 FileName = file.FileName,
                 StoredFileName = storedFileName,
                 FilePath = relativePath,
@@ -71,22 +71,27 @@ namespace EduManagement.Application.Features.Lessons
                 ContentType = file.ContentType,
                 CreatedAtUtc = DateTime.UtcNow
             };
-            //Save to database
+
             _db.Lessons.Add(lesson);
             await _db.SaveChangesAsync();
 
+            if (lesson.Status.Equals("Published", StringComparison.OrdinalIgnoreCase))
+            {
+                await _notificationService.CreateLessonUploadNotificationsAsync(lesson);
+            }
+
             return lesson.LessonID;
         }
-        //Get list of lessons of the teacher with pagination, filtering by status and searching by title/description
+
         public async Task<PagedResult<LessonListItemDto>> GetMyLessonsAsync(
-    int teacherId,
-    int page,
-    int pageSize,
-    string? status,
-    string? q,
-    string? sortBy,
-    string? order
-)
+            int teacherId,
+            int page,
+            int pageSize,
+            string? status,
+            string? q,
+            string? sortBy,
+            string? order
+        )
         {
             page = page <= 0 ? 1 : page;
             pageSize = pageSize <= 0 ? 10 : Math.Min(pageSize, 100);
@@ -101,16 +106,20 @@ namespace EduManagement.Application.Features.Lessons
                 query = query.Where(x => x.Status == status);
 
             if (q != null)
-                query = query.Where(x =>
-                    x.LessonTitle.Contains(q) ||
-                    (x.LessonDescription != null && x.LessonDescription.Contains(q)));
+                query = query.Where(x => x.LessonTitle.ToLower().Contains(q.ToLower()));
 
-            // ✅ SORT (đặt TRƯỚC Count + Skip)
-            query = (sortBy, order) switch
+            query = (sortBy?.Trim(), order?.Trim().ToLower()) switch
             {
                 ("title", "asc") => query.OrderBy(x => x.LessonTitle),
                 ("title", "desc") => query.OrderByDescending(x => x.LessonTitle),
-
+                ("description", "asc") => query.OrderBy(x => x.LessonDescription),
+                ("description", "desc") => query.OrderByDescending(x => x.LessonDescription),
+                ("timeShouldLearn", "asc") => query.OrderBy(x => x.TimeShouldLearn),
+                ("timeShouldLearn", "desc") => query.OrderByDescending(x => x.TimeShouldLearn),
+                ("status", "asc") => query.OrderBy(x => x.Status),
+                ("status", "desc") => query.OrderByDescending(x => x.Status),
+                ("fileName", "asc") => query.OrderBy(x => x.FileName),
+                ("fileName", "desc") => query.OrderByDescending(x => x.FileName),
                 _ => query.OrderByDescending(x => x.LessonID)
             };
 
@@ -141,7 +150,7 @@ namespace EduManagement.Application.Features.Lessons
                 Items = items
             };
         }
-        //Get a lesson by ID, only if it belongs to the teacher
+
         public async Task<Lesson> GetOwnedLessonAsync(int teacherId, int lessonId)
         {
             var lesson = await _db.Lessons.FirstOrDefaultAsync(x => x.LessonID == lessonId)
@@ -152,44 +161,40 @@ namespace EduManagement.Application.Features.Lessons
 
             return lesson;
         }
-        //Update lesson metadata
+
         public async Task UpdateAsync(
-    int teacherId,
-    int lessonId,
-    CreateLessonRequest meta,
-    IFormFile? file,
-    string? storedFileName,
-    string? relativePath
-)
+            int teacherId,
+            int lessonId,
+            CreateLessonRequest meta,
+            IFormFile? file,
+            string? storedFileName,
+            string? relativePath
+        )
         {
             var normalizedTitle = Normalize(meta.Title);
 
             var exists = await _db.Lessons
                 .AnyAsync(x =>
                     x.TeacherId == teacherId &&
-                    x.LessonID != lessonId && // khi update thì không so sánh với chính nó
+                    x.LessonID != lessonId &&
                     x.LessonTitle.ToLower().Trim() == normalizedTitle
                 );
 
             if (exists)
                 throw new Exception("Không được tạo 2 bài trùng nhau");
+
             var lesson = await GetOwnedLessonAsync(teacherId, lessonId);
 
             lesson.LessonTitle = meta.Title.Trim();
+            lesson.LessonDescription = string.IsNullOrWhiteSpace(meta.Description) ? null : meta.Description.Trim();
+            lesson.TimeShouldLearn = NormalizeMinutes(meta.TimeShouldLearn);
 
-            lesson.LessonDescription = string.IsNullOrWhiteSpace(meta.Description)
-                ? null
-                : meta.Description.Trim();
-
-            lesson.TimeShouldLearn = string.IsNullOrWhiteSpace(meta.TimeShouldLearn)
-                ? null
-                : meta.TimeShouldLearn.Trim();
+            var wasPublished = string.Equals(lesson.Status, "Published", StringComparison.OrdinalIgnoreCase);
 
             lesson.Status = string.IsNullOrWhiteSpace(meta.Status)
                 ? "Draft"
                 : meta.Status.Trim();
 
-            // nếu có file mới thì update
             if (file != null && file.Length > 0)
             {
                 lesson.FileName = file.FileName;
@@ -200,20 +205,40 @@ namespace EduManagement.Application.Features.Lessons
             }
 
             await _db.SaveChangesAsync();
+
+            var isPublishedNow = string.Equals(lesson.Status, "Published", StringComparison.OrdinalIgnoreCase);
+
+            if (!wasPublished && isPublishedNow)
+            {
+                await _notificationService.CreateLessonUploadNotificationsAsync(lesson);
+            }
         }
 
-        //Delete lesson
         public async Task<string> DeleteAsync(int teacherId, int lessonId)
         {
             var lesson = await GetOwnedLessonAsync(teacherId, lessonId);
 
             var filePath = lesson.FilePath;
-
             _db.Lessons.Remove(lesson);
-
             await _db.SaveChangesAsync();
 
-            return filePath; //trả path để controller xóa file
+            return filePath;
+        }
+
+        private static string? NormalizeMinutes(string? value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return null;
+
+            var trimmed = value.Trim();
+
+            if (!int.TryParse(trimmed, out var minutes))
+                throw new Exception("Thời lượng dự kiến chỉ được nhập số.");
+
+            if (minutes <= 0)
+                throw new Exception("Thời lượng dự kiến phải lớn hơn 0.");
+
+            return minutes.ToString();
         }
     }
 }

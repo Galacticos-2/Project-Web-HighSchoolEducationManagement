@@ -1,0 +1,228 @@
+2026-03-21 22:26:10.724 +07:00 [INF] Executed DbCommand (33ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT 1
+2026-03-21 22:26:10.790 +07:00 [INF] Acquiring an exclusive lock for migration application. See https://aka.ms/efcore-docs-migrations-lock for more information if this takes too long.
+2026-03-21 22:26:10.823 +07:00 [INF] Executed DbCommand (27ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+DECLARE @result int;
+EXEC @result = sp_getapplock @Resource = '__EFMigrationsLock', @LockOwner = 'Session', @LockMode = 'Exclusive';
+SELECT @result
+2026-03-21 22:26:10.890 +07:00 [INF] Executed DbCommand (5ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL
+BEGIN
+    CREATE TABLE [__EFMigrationsHistory] (
+        [MigrationId] nvarchar(150) NOT NULL,
+        [ProductVersion] nvarchar(32) NOT NULL,
+        CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY ([MigrationId])
+    );
+END;
+2026-03-21 22:26:10.910 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT 1
+2026-03-21 22:26:10.916 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT OBJECT_ID(N'[__EFMigrationsHistory]');
+2026-03-21 22:26:10.924 +07:00 [INF] Executed DbCommand (3ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT [MigrationId], [ProductVersion]
+FROM [__EFMigrationsHistory]
+ORDER BY [MigrationId];
+2026-03-21 22:26:10.938 +07:00 [INF] No migrations were applied. The database is already up to date.
+2026-03-21 22:26:10.944 +07:00 [INF] Executed DbCommand (3ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+DECLARE @result int;
+EXEC @result = sp_releaseapplock @Resource = '__EFMigrationsLock', @LockOwner = 'Session';
+SELECT @result
+2026-03-21 22:26:11.451 +07:00 [INF] Executed DbCommand (114ms) [Parameters=[@cls_ClassName='?' (Size = 100)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [c].[ClassID], [c].[ClassName], [c].[ClassYear]
+FROM [Class] AS [c]
+WHERE [c].[ClassName] = @cls_ClassName
+2026-03-21 22:26:11.619 +07:00 [INF] Executed DbCommand (2ms) [Parameters=[@cls_ClassName='?' (Size = 100)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [c].[ClassID], [c].[ClassName], [c].[ClassYear]
+FROM [Class] AS [c]
+WHERE [c].[ClassName] = @cls_ClassName
+2026-03-21 22:26:11.638 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@cls_ClassName='?' (Size = 100)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [c].[ClassID], [c].[ClassName], [c].[ClassYear]
+FROM [Class] AS [c]
+WHERE [c].[ClassName] = @cls_ClassName
+2026-03-21 22:26:11.644 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@cls_ClassName='?' (Size = 100)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [c].[ClassID], [c].[ClassName], [c].[ClassYear]
+FROM [Class] AS [c]
+WHERE [c].[ClassName] = @cls_ClassName
+2026-03-21 22:26:11.650 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@cls_ClassName='?' (Size = 100)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [c].[ClassID], [c].[ClassName], [c].[ClassYear]
+FROM [Class] AS [c]
+WHERE [c].[ClassName] = @cls_ClassName
+2026-03-21 22:26:11.657 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@cls_ClassName='?' (Size = 100)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [c].[ClassID], [c].[ClassName], [c].[ClassYear]
+FROM [Class] AS [c]
+WHERE [c].[ClassName] = @cls_ClassName
+2026-03-21 22:26:11.664 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@cls_ClassName='?' (Size = 100)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [c].[ClassID], [c].[ClassName], [c].[ClassYear]
+FROM [Class] AS [c]
+WHERE [c].[ClassName] = @cls_ClassName
+2026-03-21 22:26:11.672 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@cls_ClassName='?' (Size = 100)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [c].[ClassID], [c].[ClassName], [c].[ClassYear]
+FROM [Class] AS [c]
+WHERE [c].[ClassName] = @cls_ClassName
+2026-03-21 22:26:11.679 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@cls_ClassName='?' (Size = 100)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [c].[ClassID], [c].[ClassName], [c].[ClassYear]
+FROM [Class] AS [c]
+WHERE [c].[ClassName] = @cls_ClassName
+2026-03-21 22:26:11.684 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@cls_ClassName='?' (Size = 100)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [c].[ClassID], [c].[ClassName], [c].[ClassYear]
+FROM [Class] AS [c]
+WHERE [c].[ClassName] = @cls_ClassName
+2026-03-21 22:26:11.688 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@cls_ClassName='?' (Size = 100)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [c].[ClassID], [c].[ClassName], [c].[ClassYear]
+FROM [Class] AS [c]
+WHERE [c].[ClassName] = @cls_ClassName
+2026-03-21 22:26:11.693 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@cls_ClassName='?' (Size = 100)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [c].[ClassID], [c].[ClassName], [c].[ClassYear]
+FROM [Class] AS [c]
+WHERE [c].[ClassName] = @cls_ClassName
+2026-03-21 22:26:11.697 +07:00 [INF] Executed DbCommand (0ms) [Parameters=[@cls_ClassName='?' (Size = 100)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [c].[ClassID], [c].[ClassName], [c].[ClassYear]
+FROM [Class] AS [c]
+WHERE [c].[ClassName] = @cls_ClassName
+2026-03-21 22:26:11.706 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@cls_ClassName='?' (Size = 100)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [c].[ClassID], [c].[ClassName], [c].[ClassYear]
+FROM [Class] AS [c]
+WHERE [c].[ClassName] = @cls_ClassName
+2026-03-21 22:26:11.710 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@cls_ClassName='?' (Size = 100)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [c].[ClassID], [c].[ClassName], [c].[ClassYear]
+FROM [Class] AS [c]
+WHERE [c].[ClassName] = @cls_ClassName
+2026-03-21 22:26:11.781 +07:00 [INF] Executed DbCommand (3ms) [Parameters=[@subject_SubjectName='?' (Size = 100)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [s].[SubjectID], [s].[SubjectName]
+FROM [Subject] AS [s]
+WHERE [s].[SubjectName] = @subject_SubjectName
+2026-03-21 22:26:11.795 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@subject_SubjectName='?' (Size = 100)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [s].[SubjectID], [s].[SubjectName]
+FROM [Subject] AS [s]
+WHERE [s].[SubjectName] = @subject_SubjectName
+2026-03-21 22:26:11.799 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@subject_SubjectName='?' (Size = 100)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [s].[SubjectID], [s].[SubjectName]
+FROM [Subject] AS [s]
+WHERE [s].[SubjectName] = @subject_SubjectName
+2026-03-21 22:26:11.804 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@subject_SubjectName='?' (Size = 100)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [s].[SubjectID], [s].[SubjectName]
+FROM [Subject] AS [s]
+WHERE [s].[SubjectName] = @subject_SubjectName
+2026-03-21 22:26:11.808 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[@subject_SubjectName='?' (Size = 100)], CommandType='"Text"', CommandTimeout='30']
+SELECT TOP(1) [s].[SubjectID], [s].[SubjectName]
+FROM [Subject] AS [s]
+WHERE [s].[SubjectName] = @subject_SubjectName
+2026-03-21 22:26:11.840 +07:00 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM [Admin] AS [a]) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END
+2026-03-21 22:26:12.067 +07:00 [INF] User profile is available. Using 'C:\Users\admin\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2026-03-21 22:26:12.749 +07:00 [INF] Now listening on: https://localhost:7190
+2026-03-21 22:26:12.751 +07:00 [INF] Now listening on: http://localhost:5170
+2026-03-21 22:26:12.755 +07:00 [INF] Application started. Press Ctrl+C to shut down.
+2026-03-21 22:26:12.757 +07:00 [INF] Hosting environment: Development
+2026-03-21 22:26:12.758 +07:00 [INF] Content root path: D:\CV\Project-Web-HighSchoolEducationManagement\Project-Web-HighSchoolEducationManagement.Server
+2026-03-21 22:26:14.262 +07:00 [INF] Request starting HTTP/2 GET https://localhost:7190/swagger/index.html - null null
+2026-03-21 22:26:14.570 +07:00 [INF] HTTP GET /swagger/index.html responded 200 in 159.1565 ms
+2026-03-21 22:26:14.587 +07:00 [INF] Request starting HTTP/2 GET https://localhost:7190/_vs/browserLink - null null
+2026-03-21 22:26:14.594 +07:00 [INF] Request finished HTTP/2 GET https://localhost:7190/swagger/index.html - 200 null text/html;charset=utf-8 339.2856ms
+2026-03-21 22:26:14.665 +07:00 [INF] Request finished HTTP/2 GET https://localhost:7190/_vs/browserLink - 200 null text/javascript; charset=UTF-8 78.4011ms
+2026-03-21 22:26:14.688 +07:00 [INF] Request starting HTTP/2 GET https://localhost:7190/swagger/v1/swagger.json - null null
+2026-03-21 22:26:14.919 +07:00 [INF] HTTP GET /swagger/v1/swagger.json responded 200 in 222.5181 ms
+2026-03-21 22:26:14.926 +07:00 [INF] Request finished HTTP/2 GET https://localhost:7190/swagger/v1/swagger.json - 200 null application/json;charset=utf-8 238.475ms
+2026-03-21 22:26:16.675 +07:00 [INF] No SPA development server running at https://localhost:31028 found.
+2026-03-21 22:26:27.737 +07:00 [INF] SPA development server running at 'https://localhost:31028'
+2026-03-21 22:26:47.882 +07:00 [INF] Request starting HTTP/1.1 GET https://localhost:31028/api/classes - null null
+2026-03-21 22:26:51.850 +07:00 [INF] Executing endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.ClassesController.GetAll (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-21 22:26:51.888 +07:00 [INF] Route matched with {action = "GetAll", controller = "Classes"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetAll() on controller Project_Web_HighSchoolEducationManagement.Server.Controllers.ClassesController (Project-Web-HighSchoolEducationManagement.Server).
+2026-03-21 22:26:51.949 +07:00 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT [c].[ClassID] AS [id], [c].[ClassName] AS [name], [c].[ClassYear] AS [year]
+FROM [Class] AS [c]
+ORDER BY [c].[ClassName]
+2026-03-21 22:26:51.967 +07:00 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[<>f__AnonymousType1`3[[System.Int32, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], Project-Web-HighSchoolEducationManagement.Server, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-03-21 22:26:52.008 +07:00 [INF] Executed action Project_Web_HighSchoolEducationManagement.Server.Controllers.ClassesController.GetAll (Project-Web-HighSchoolEducationManagement.Server) in 113.2095ms
+2026-03-21 22:26:52.011 +07:00 [INF] Executed endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.ClassesController.GetAll (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-21 22:26:52.014 +07:00 [INF] HTTP GET /api/classes responded 200 in 4122.8276 ms
+2026-03-21 22:26:52.029 +07:00 [INF] Request starting HTTP/1.1 GET https://localhost:31028/api/classes - null null
+2026-03-21 22:26:52.037 +07:00 [INF] Request finished HTTP/1.1 GET https://localhost:31028/api/classes - 200 null application/json; charset=utf-8 4155.1403ms
+2026-03-21 22:26:52.039 +07:00 [INF] Executing endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.ClassesController.GetAll (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-21 22:26:52.064 +07:00 [INF] Route matched with {action = "GetAll", controller = "Classes"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetAll() on controller Project_Web_HighSchoolEducationManagement.Server.Controllers.ClassesController (Project-Web-HighSchoolEducationManagement.Server).
+2026-03-21 22:26:52.179 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT [c].[ClassID] AS [id], [c].[ClassName] AS [name], [c].[ClassYear] AS [year]
+FROM [Class] AS [c]
+ORDER BY [c].[ClassName]
+2026-03-21 22:26:52.183 +07:00 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[<>f__AnonymousType1`3[[System.Int32, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], Project-Web-HighSchoolEducationManagement.Server, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-03-21 22:26:52.185 +07:00 [INF] Executed action Project_Web_HighSchoolEducationManagement.Server.Controllers.ClassesController.GetAll (Project-Web-HighSchoolEducationManagement.Server) in 116.9509ms
+2026-03-21 22:26:52.187 +07:00 [INF] Executed endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.ClassesController.GetAll (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-21 22:26:52.188 +07:00 [INF] HTTP GET /api/classes responded 200 in 149.5270 ms
+2026-03-21 22:26:52.191 +07:00 [INF] Request finished HTTP/1.1 GET https://localhost:31028/api/classes - 200 null application/json; charset=utf-8 162.0561ms
+2026-03-21 22:26:52.197 +07:00 [INF] Request starting HTTP/1.1 GET https://localhost:31028/api/classes - null null
+2026-03-21 22:26:52.210 +07:00 [INF] Executing endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.ClassesController.GetAll (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-21 22:26:52.213 +07:00 [INF] Route matched with {action = "GetAll", controller = "Classes"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetAll() on controller Project_Web_HighSchoolEducationManagement.Server.Controllers.ClassesController (Project-Web-HighSchoolEducationManagement.Server).
+2026-03-21 22:26:52.220 +07:00 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT [c].[ClassID] AS [id], [c].[ClassName] AS [name], [c].[ClassYear] AS [year]
+FROM [Class] AS [c]
+ORDER BY [c].[ClassName]
+2026-03-21 22:26:52.224 +07:00 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[<>f__AnonymousType1`3[[System.Int32, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], Project-Web-HighSchoolEducationManagement.Server, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-03-21 22:26:52.228 +07:00 [INF] Executed action Project_Web_HighSchoolEducationManagement.Server.Controllers.ClassesController.GetAll (Project-Web-HighSchoolEducationManagement.Server) in 12.9869ms
+2026-03-21 22:26:52.231 +07:00 [INF] Executed endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.ClassesController.GetAll (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-21 22:26:52.236 +07:00 [INF] HTTP GET /api/classes responded 200 in 30.2395 ms
+2026-03-21 22:26:52.239 +07:00 [INF] Request finished HTTP/1.1 GET https://localhost:31028/api/classes - 200 null application/json; charset=utf-8 42.2785ms
+2026-03-21 22:26:52.240 +07:00 [INF] Request starting HTTP/1.1 GET https://localhost:31028/api/classes - null null
+2026-03-21 22:26:52.249 +07:00 [INF] Executing endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.ClassesController.GetAll (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-21 22:26:52.252 +07:00 [INF] Route matched with {action = "GetAll", controller = "Classes"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetAll() on controller Project_Web_HighSchoolEducationManagement.Server.Controllers.ClassesController (Project-Web-HighSchoolEducationManagement.Server).
+2026-03-21 22:26:52.264 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT [c].[ClassID] AS [id], [c].[ClassName] AS [name], [c].[ClassYear] AS [year]
+FROM [Class] AS [c]
+ORDER BY [c].[ClassName]
+2026-03-21 22:26:52.268 +07:00 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[<>f__AnonymousType1`3[[System.Int32, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], Project-Web-HighSchoolEducationManagement.Server, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-03-21 22:26:52.270 +07:00 [INF] Executed action Project_Web_HighSchoolEducationManagement.Server.Controllers.ClassesController.GetAll (Project-Web-HighSchoolEducationManagement.Server) in 9.2148ms
+2026-03-21 22:26:52.272 +07:00 [INF] Executed endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.ClassesController.GetAll (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-21 22:26:52.274 +07:00 [INF] HTTP GET /api/classes responded 200 in 25.4524 ms
+2026-03-21 22:26:52.277 +07:00 [INF] Request finished HTTP/1.1 GET https://localhost:31028/api/classes - 200 null application/json; charset=utf-8 36.806ms
+2026-03-21 22:38:20.784 +07:00 [INF] Request starting HTTP/1.1 GET https://localhost:31028/api/classes - null null
+2026-03-21 22:38:20.798 +07:00 [INF] Executing endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.ClassesController.GetAll (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-21 22:38:20.800 +07:00 [INF] Route matched with {action = "GetAll", controller = "Classes"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetAll() on controller Project_Web_HighSchoolEducationManagement.Server.Controllers.ClassesController (Project-Web-HighSchoolEducationManagement.Server).
+2026-03-21 22:38:20.901 +07:00 [INF] Executed DbCommand (16ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT [c].[ClassID] AS [id], [c].[ClassName] AS [name], [c].[ClassYear] AS [year]
+FROM [Class] AS [c]
+ORDER BY [c].[ClassName]
+2026-03-21 22:38:20.912 +07:00 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[<>f__AnonymousType1`3[[System.Int32, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], Project-Web-HighSchoolEducationManagement.Server, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-03-21 22:38:20.920 +07:00 [INF] Executed action Project_Web_HighSchoolEducationManagement.Server.Controllers.ClassesController.GetAll (Project-Web-HighSchoolEducationManagement.Server) in 116.4376ms
+2026-03-21 22:38:20.922 +07:00 [INF] Executed endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.ClassesController.GetAll (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-21 22:38:20.923 +07:00 [INF] HTTP GET /api/classes responded 200 in 127.2237 ms
+2026-03-21 22:38:20.940 +07:00 [INF] Request finished HTTP/1.1 GET https://localhost:31028/api/classes - 200 null application/json; charset=utf-8 155.8827ms
+2026-03-21 22:38:20.969 +07:00 [INF] Request starting HTTP/1.1 GET https://localhost:31028/api/classes - null null
+2026-03-21 22:38:20.978 +07:00 [INF] Executing endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.ClassesController.GetAll (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-21 22:38:20.982 +07:00 [INF] Route matched with {action = "GetAll", controller = "Classes"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetAll() on controller Project_Web_HighSchoolEducationManagement.Server.Controllers.ClassesController (Project-Web-HighSchoolEducationManagement.Server).
+2026-03-21 22:38:20.988 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT [c].[ClassID] AS [id], [c].[ClassName] AS [name], [c].[ClassYear] AS [year]
+FROM [Class] AS [c]
+ORDER BY [c].[ClassName]
+2026-03-21 22:38:20.992 +07:00 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[<>f__AnonymousType1`3[[System.Int32, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], Project-Web-HighSchoolEducationManagement.Server, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-03-21 22:38:20.995 +07:00 [INF] Executed action Project_Web_HighSchoolEducationManagement.Server.Controllers.ClassesController.GetAll (Project-Web-HighSchoolEducationManagement.Server) in 8.7604ms
+2026-03-21 22:38:20.996 +07:00 [INF] Executed endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.ClassesController.GetAll (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-21 22:38:20.998 +07:00 [INF] HTTP GET /api/classes responded 200 in 20.3113 ms
+2026-03-21 22:38:21.001 +07:00 [INF] Request finished HTTP/1.1 GET https://localhost:31028/api/classes - 200 null application/json; charset=utf-8 31.987ms
+2026-03-21 22:43:06.984 +07:00 [INF] Request starting HTTP/1.1 GET https://localhost:31028/api/classes - null null
+2026-03-21 22:43:07.004 +07:00 [INF] Executing endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.ClassesController.GetAll (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-21 22:43:07.012 +07:00 [INF] Route matched with {action = "GetAll", controller = "Classes"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetAll() on controller Project_Web_HighSchoolEducationManagement.Server.Controllers.ClassesController (Project-Web-HighSchoolEducationManagement.Server).
+2026-03-21 22:43:07.024 +07:00 [INF] Executed DbCommand (4ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT [c].[ClassID] AS [id], [c].[ClassName] AS [name], [c].[ClassYear] AS [year]
+FROM [Class] AS [c]
+ORDER BY [c].[ClassName]
+2026-03-21 22:43:07.033 +07:00 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[<>f__AnonymousType1`3[[System.Int32, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], Project-Web-HighSchoolEducationManagement.Server, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-03-21 22:43:07.038 +07:00 [INF] Executed action Project_Web_HighSchoolEducationManagement.Server.Controllers.ClassesController.GetAll (Project-Web-HighSchoolEducationManagement.Server) in 19.2353ms
+2026-03-21 22:43:07.054 +07:00 [INF] Executed endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.ClassesController.GetAll (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-21 22:43:07.055 +07:00 [INF] Request starting HTTP/1.1 GET https://localhost:31028/api/classes - null null
+2026-03-21 22:43:07.056 +07:00 [INF] HTTP GET /api/classes responded 200 in 53.2683 ms
+2026-03-21 22:43:07.065 +07:00 [INF] Executing endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.ClassesController.GetAll (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-21 22:43:07.068 +07:00 [INF] Request finished HTTP/1.1 GET https://localhost:31028/api/classes - 200 null application/json; charset=utf-8 83.9758ms
+2026-03-21 22:43:07.070 +07:00 [INF] Route matched with {action = "GetAll", controller = "Classes"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetAll() on controller Project_Web_HighSchoolEducationManagement.Server.Controllers.ClassesController (Project-Web-HighSchoolEducationManagement.Server).
+2026-03-21 22:43:07.077 +07:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT [c].[ClassID] AS [id], [c].[ClassName] AS [name], [c].[ClassYear] AS [year]
+FROM [Class] AS [c]
+ORDER BY [c].[ClassName]
+2026-03-21 22:43:07.080 +07:00 [INF] Executing OkObjectResult, writing value of type 'System.Collections.Generic.List`1[[<>f__AnonymousType1`3[[System.Int32, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.String, System.Private.CoreLib, Version=10.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]], Project-Web-HighSchoolEducationManagement.Server, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+2026-03-21 22:43:07.082 +07:00 [INF] Executed action Project_Web_HighSchoolEducationManagement.Server.Controllers.ClassesController.GetAll (Project-Web-HighSchoolEducationManagement.Server) in 6.539ms
+2026-03-21 22:43:07.084 +07:00 [INF] Executed endpoint 'Project_Web_HighSchoolEducationManagement.Server.Controllers.ClassesController.GetAll (Project-Web-HighSchoolEducationManagement.Server)'
+2026-03-21 22:43:07.085 +07:00 [INF] HTTP GET /api/classes responded 200 in 19.8216 ms
+2026-03-21 22:43:07.087 +07:00 [INF] Request finished HTTP/1.1 GET https://localhost:31028/api/classes - 200 null application/json; charset=utf-8 32.0761ms

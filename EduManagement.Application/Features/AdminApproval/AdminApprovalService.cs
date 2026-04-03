@@ -9,14 +9,14 @@ namespace EduManagement.Application.Features.AdminApproval;
 
 public class AdminApprovalService
 {
-    private readonly IAppDbContext _db;
-    public AdminApprovalService(IAppDbContext db) => _db = db;
+    private readonly IUnitOfWork _uow;
+    public AdminApprovalService(IUnitOfWork uow) => _uow = uow;
 
     public async Task<List<PendingAccountDto>> GetPendingAsync()
     {
         return await (
-            from p in _db.PendingAccounts.AsNoTracking()
-            join c in _db.Classes.AsNoTracking() on p.ClassId equals c.ClassID into gj
+            from p in _uow.PendingAccounts.Query().AsNoTracking()
+            join c in _uow.Classes.Query().AsNoTracking() on p.ClassId equals c.ClassID into gj
             from c in gj.DefaultIfEmpty()
             orderby p.CreatedAtUtc descending
             select new PendingAccountDto
@@ -28,7 +28,6 @@ public class AdminApprovalService
                 BirthDate = p.BirthDate,
                 PhoneNumber = p.PhoneNumber,
                 IsApproved = false,
-
                 ClassId = p.ClassId,
                 ClassName = c != null ? c.ClassName : null
             }
@@ -36,14 +35,14 @@ public class AdminApprovalService
     }
     public async Task ApproveAsync(int pendingId)
     {
-        var p = await _db.PendingAccounts.FirstOrDefaultAsync(x => x.PendingAccountID == pendingId)
+        var p = await _uow.PendingAccounts.FirstOrDefaultAsync(x => x.PendingAccountID == pendingId)
             ?? throw new Exception("Không tìm thấy đơn đăng ký.");
 
         var role = (p.Role ?? "").Trim();
 
         if (role == "Teacher")
         {
-            _db.Teachers.Add(new Teacher
+            await _uow.Teachers.AddAsync(new Teacher
             {
                 TeacherName = p.FullName,
                 TeacherBirthday = p.BirthDate,
@@ -59,10 +58,10 @@ public class AdminApprovalService
                 throw new Exception("Đơn đăng ký học sinh thiếu thông tin lớp.");
 
             // (khuyến nghị) check lớp tồn tại
-            var classExists = await _db.Classes.AnyAsync(c => c.ClassID == p.ClassId.Value);
+            var classExists = await _uow.Classes.AnyAsync(c => c.ClassID == p.ClassId.Value);
             if (!classExists) throw new Exception("Lớp học không tồn tại.");
 
-            _db.Students.Add(new Student
+            await _uow.Students.AddAsync(new Student
             {
                 StudentName = p.FullName,
                 StudentBirthday = p.BirthDate,
@@ -80,27 +79,27 @@ public class AdminApprovalService
             throw new Exception("Role không hợp lệ.");
         }
 
-        _db.PendingAccounts.Remove(p);
-        await _db.SaveChangesAsync();
+        _uow.PendingAccounts.Remove(p);
+        await _uow.SaveChangesAsync();
     }
 
     public async Task RejectAsync(int pendingId)
     {
-        var p = await _db.PendingAccounts.FirstOrDefaultAsync(x => x.PendingAccountID == pendingId)
+        var p = await _uow.PendingAccounts.FirstOrDefaultAsync(x => x.PendingAccountID == pendingId)
             ?? throw new Exception("Không tìm thấy đơn đăng ký.");
 
-        _db.PendingAccounts.Remove(p);
-        await _db.SaveChangesAsync();
+        _uow.PendingAccounts.Remove(p);
+        await _uow.SaveChangesAsync();
     }
 
     public async Task<AdminDashboardSummaryDto> GetSummaryAsync()
     {
         return new AdminDashboardSummaryDto
         {
-            AdminCount = await _db.Admins.CountAsync(),
-            TeacherCount = await _db.Teachers.CountAsync(),
-            StudentCount = await _db.Students.CountAsync(),
-            PendingCount = await _db.PendingAccounts.CountAsync(),
+            AdminCount = await _uow.Admins.CountAsync(),
+            TeacherCount = await _uow.Teachers.CountAsync(),
+            StudentCount = await _uow.Students.CountAsync(),
+            PendingCount = await _uow.PendingAccounts.CountAsync(),
         };
     }
 
@@ -118,7 +117,7 @@ public class AdminApprovalService
 
         if (role == UserRole.Admin)
         {
-            var query = _db.Admins.AsNoTracking();
+            var query = _uow.Admins.Query().AsNoTracking();
 
             if (q != null)
                 query = query.Where(x => x.AdminName.Contains(q) || x.AdminEmail.Contains(q));
@@ -135,7 +134,7 @@ public class AdminApprovalService
                     Id = x.AdminID,
                     FullName = x.AdminName,
                     Email = x.AdminEmail,
-                    PhoneNumber = x.AdminPhoneNumber == null ? "" : x.AdminPhoneNumber.ToString(),
+                    PhoneNumber = x.AdminPhoneNumber ?? "",
                     IsApproved = null
                 })
                 .ToListAsync();
@@ -151,7 +150,7 @@ public class AdminApprovalService
 
         if (role == UserRole.Teacher)
         {
-            var query = _db.Teachers.AsNoTracking();
+            var query = _uow.Teachers.Query().AsNoTracking();
 
             if (q != null)
                 query = query.Where(x => x.TeacherName.Contains(q) || x.TeacherEmail.Contains(q));
@@ -168,23 +167,23 @@ public class AdminApprovalService
                     Id = x.TeacherID,
                     FullName = x.TeacherName,
                     Email = x.TeacherEmail,
-                    PhoneNumber = x.TeacherPhoneNumber == null ? "" : x.TeacherPhoneNumber.ToString(),
+                    PhoneNumber = x.TeacherPhoneNumber ?? "",
                     IsApproved = x.IsApproved,
 
-                    AssignedClasses = _db.TeacherAssignments
-                        .Where(a => a.TeacherId == x.TeacherID)
-                        .Join(
-                            _db.Classes,
+                    AssignedClasses = _uow.TeacherAssignments.Query()
+    .Where(a => a.TeacherId == x.TeacherID)
+    .Join(
+        _uow.Classes.Query(),
                             a => a.ClassId,
                             c => c.ClassID,
                             (a, c) => c.ClassName
                         )
                         .Distinct()
                         .ToList(),
-                    AssignedSubjects = _db.TeacherAssignments
-                        .Where(a => a.TeacherId == x.TeacherID)
-                        .Join(
-                            _db.Subjects,
+                    AssignedSubjects = _uow.TeacherAssignments.Query()
+    .Where(a => a.TeacherId == x.TeacherID)
+    .Join(
+        _uow.Subjects.Query(),
                             a => a.SubjectId,
                             s => s.SubjectID,
                             (a, s) => s.SubjectName
@@ -207,9 +206,9 @@ public class AdminApprovalService
         if (role == UserRole.Student)
         {
             var query =
-                from s in _db.Students.AsNoTracking()
-                join c in _db.Classes.AsNoTracking() on s.ClassId equals c.ClassID into gj
-                from c in gj.DefaultIfEmpty()
+    from s in _uow.Students.Query().AsNoTracking()
+    join c in _uow.Classes.Query().AsNoTracking() on s.ClassId equals c.ClassID into gj
+    from c in gj.DefaultIfEmpty()
                 select new { s, c };
 
             if (q != null)
@@ -227,7 +226,7 @@ public class AdminApprovalService
                     Id = x.s.StudentID,
                     FullName = x.s.StudentName,
                     Email = x.s.StudentEmail,
-                    PhoneNumber = x.s.PhoneNumber == null ? "" : x.s.PhoneNumber.ToString(),
+                    PhoneNumber = x.s.PhoneNumber ?? "",
                     IsApproved = x.s.IsApproved,
 
                     ClassId = x.s.ClassId,

@@ -1,7 +1,7 @@
 ﻿// src/pages/HomePageTeacher.jsx
 import Brand from "../components/Brand";
 import { useNavigate } from "react-router-dom";
-import { authStorage } from "../auth/authStorage";
+import { useAuth } from "../context/useAuth";
 import "../styles/teacherHome.css";
 import UserActions from "../components/UserActions";
 /* =========================
@@ -86,10 +86,11 @@ function SearchIcon() {
 export default function HomePageTeacher() {
     const nav = useNavigate();
 
-    const profile = authStorage.getProfile();
+    const { profile, clearAuthState } = useAuth();
+
     const fullName = profile?.fullName || "Giáo viên";
-    
     const avatarLetter = (fullName?.trim()?.[0] || "G").toUpperCase();
+    const avatarURL = profile?.avatarURL || "";
 
     
 
@@ -105,7 +106,7 @@ export default function HomePageTeacher() {
 
     const onChangePassword = () => nav("/teacher/change-password");
     const onLogout = () => {
-        authStorage.clear();
+        clearAuthState();
         nav("/login", { replace: true });
     };
 
@@ -121,6 +122,7 @@ export default function HomePageTeacher() {
                         variant="teacher"
                         fullName={fullName}
                         avatarLetter={avatarLetter}
+                        avatarURL={avatarURL}
                         onMyAccount={onMyAccount}
                         onChangePassword={onChangePassword}
                         onLogout={onLogout}

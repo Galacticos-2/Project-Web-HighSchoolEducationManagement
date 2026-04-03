@@ -13,7 +13,7 @@ public class PendingAccountDto
     public string FullName { get; set; } = default!;
     public string Email { get; set; } = default!;
     public DateTime? BirthDate { get; set; }
-    public int? PhoneNumber { get; set; }
+    public string? PhoneNumber { get; set; }
 
     public bool IsApproved { get; set; }
     public int? ClassId { get; set; }

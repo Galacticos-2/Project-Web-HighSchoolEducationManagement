@@ -8,7 +8,7 @@ using System.Text;
 using EduManagement.Application.Common.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-
+//Generate jwt token for authenticated users, include user id, role, full name and email in the token claims
 namespace EduManagement.Infrastructure.Identity;
 
 public class JwtTokenService : IJwtTokenService

@@ -11,8 +11,9 @@ public class Teacher
     public DateTime? TeacherBirthday { get; set; }
     public string TeacherEmail { get; set; } = default!;
     public string TeacherPassword { get; set; } = default!; //lưu Hash
-    public int? TeacherPhoneNumber { get; set; }
+    public string? TeacherPhoneNumber { get; set; }
 
     //admin phải duyệt thì mới xài được
-    public bool IsApproved { get; set; } = false; 
+    public bool IsApproved { get; set; } = false;
+    public string? AvatarURL { get; set; }
 }

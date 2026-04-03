@@ -12,9 +12,11 @@ import TeacherLessonsPage from "./pages/TeacherLessonsPage.jsx";
 import TeacherVirtualClassPage from "./pages/TeacherVirtualClassPage.jsx";
 import TeacherSchedulePage from "./pages/TeacherSchedulePage.jsx";
 import StudentVirtualClassPage from "./pages/StudentVirtualClassPage";
-
+import StudentSchedulePage from "./pages/StudentSchedulePage";
+import { NotificationProvider } from "./context/NotificationProvider";
 export default function App() {
     return (
+        <NotificationProvider>
         <Routes>
             {/* public */}
             <Route path="/login" element={<LoginPage />} />
@@ -36,6 +38,7 @@ export default function App() {
                 <Route path="/student/lessons" element={<StudentLessonsPage />} />
                 <Route path="/student/virtual-class" element={<StudentVirtualClassPage />} />
                 <Route path="/student/my-info" element={<Navigate to="/my-info" replace />} />
+                <Route path="/student/schedule" element={<StudentSchedulePage />} />
             </Route>
 
             {/* TEACHER only */}
@@ -55,6 +58,7 @@ export default function App() {
 
             {/* not found */}
             <Route path="*" element={<Navigate to="/login" replace />} />
-        </Routes>
+            </Routes>
+        </NotificationProvider>
     );
 }

@@ -11,8 +11,9 @@ public class Student
     public DateTime? StudentBirthday { get; set; }
     public string StudentEmail { get; set; } = default!;
     public string StudentPassword { get; set; } = default!; // lưu HASH
-    public int? PhoneNumber { get; set; }
+    public string? PhoneNumber { get; set; }
     public bool IsApproved { get; set; } = false;
     public int? ClassId { get; set; }
     public Class? Class { get; set; }
+    public string? AvatarURL { get; set; }
 }

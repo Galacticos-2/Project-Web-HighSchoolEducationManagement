@@ -48,8 +48,13 @@ namespace EduManagement.Infrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<int?>("AdminPhoneNumber")
-                        .HasColumnType("int");
+                    b.Property<string>("AdminPhoneNumber")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("AvatarURL")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.HasKey("AdminID");
 
@@ -140,7 +145,6 @@ namespace EduManagement.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("TimeShouldLearn")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("LessonID");
@@ -150,6 +154,102 @@ namespace EduManagement.Infrastructure.Migrations
                     b.HasIndex("SubjectId");
 
                     b.ToTable("Lesson", (string)null);
+                });
+
+            modelBuilder.Entity("EduManagement.Domain.Entities.Notification", b =>
+                {
+                    b.Property<int>("NotificationID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("NotificationID"));
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DedupKey")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("NavigationUrl")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<DateTime?>("ReadAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ReceiverRole")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int>("ReceiverUserId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ReminderMinutesBefore")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("SourceId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SourceType")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("NotificationID");
+
+                    b.HasIndex("DedupKey")
+                        .IsUnique();
+
+                    b.HasIndex("ReceiverRole", "ReceiverUserId", "IsRead", "CreatedAtUtc");
+
+                    b.ToTable("Notification", (string)null);
+                });
+
+            modelBuilder.Entity("EduManagement.Domain.Entities.NotificationSetting", b =>
+                {
+                    b.Property<int>("NotificationSettingID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("NotificationSettingID"));
+
+                    b.Property<bool>("LessonUploadEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ReminderOffsetsCsv")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("VirtualClassReminderEnabled")
+                        .HasColumnType("bit");
+
+                    b.HasKey("NotificationSettingID");
+
+                    b.ToTable("NotificationSetting", (string)null);
                 });
 
             modelBuilder.Entity("EduManagement.Domain.Entities.PendingAccount", b =>
@@ -184,8 +284,9 @@ namespace EduManagement.Infrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<int?>("PhoneNumber")
-                        .HasColumnType("int");
+                    b.Property<string>("PhoneNumber")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("Role")
                         .IsRequired()
@@ -208,6 +309,10 @@ namespace EduManagement.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("StudentID"));
 
+                    b.Property<string>("AvatarURL")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
                     b.Property<int?>("ClassId")
                         .HasColumnType("int");
 
@@ -216,8 +321,9 @@ namespace EduManagement.Infrastructure.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(false);
 
-                    b.Property<int?>("PhoneNumber")
-                        .HasColumnType("int");
+                    b.Property<string>("PhoneNumber")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<DateTime?>("StudentBirthday")
                         .HasColumnType("datetime2");
@@ -247,6 +353,41 @@ namespace EduManagement.Infrastructure.Migrations
                     b.ToTable("Student", (string)null);
                 });
 
+            modelBuilder.Entity("EduManagement.Domain.Entities.StudentSubjectColor", b =>
+                {
+                    b.Property<int>("StudentSubjectColorID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("StudentSubjectColorID"));
+
+                    b.Property<string>("ColorHex")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("StudentId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SubjectId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("StudentSubjectColorID");
+
+                    b.HasIndex("SubjectId");
+
+                    b.HasIndex("StudentId", "SubjectId")
+                        .IsUnique();
+
+                    b.ToTable("StudentSubjectColor", (string)null);
+                });
+
             modelBuilder.Entity("EduManagement.Domain.Entities.Subject", b =>
                 {
                     b.Property<int>("SubjectID")
@@ -273,6 +414,10 @@ namespace EduManagement.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TeacherID"));
 
+                    b.Property<string>("AvatarURL")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
                     b.Property<bool>("IsApproved")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
@@ -296,8 +441,9 @@ namespace EduManagement.Infrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<int?>("TeacherPhoneNumber")
-                        .HasColumnType("int");
+                    b.Property<string>("TeacherPhoneNumber")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.HasKey("TeacherID");
 
@@ -338,6 +484,41 @@ namespace EduManagement.Infrastructure.Migrations
                     b.ToTable("TeacherAssignment", (string)null);
                 });
 
+            modelBuilder.Entity("EduManagement.Domain.Entities.TeacherClassColor", b =>
+                {
+                    b.Property<int>("TeacherClassColorID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TeacherClassColorID"));
+
+                    b.Property<int>("ClassId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ColorHex")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("TeacherId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("TeacherClassColorID");
+
+                    b.HasIndex("ClassId");
+
+                    b.HasIndex("TeacherId", "ClassId")
+                        .IsUnique();
+
+                    b.ToTable("TeacherClassColor", (string)null);
+                });
+
             modelBuilder.Entity("EduManagement.Domain.Entities.VirtualClass", b =>
                 {
                     b.Property<int>("VirtualClassID")
@@ -352,14 +533,23 @@ namespace EduManagement.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("EndTime")
+                    b.Property<int>("DayOfWeek")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("EndTime")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("MeetingUrl")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("Period")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("StartTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("StudyDate")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("SubjectId")
@@ -374,7 +564,7 @@ namespace EduManagement.Infrastructure.Migrations
 
                     b.HasIndex("SubjectId");
 
-                    b.HasIndex("TeacherId", "ClassId", "SubjectId", "StartTime", "EndTime")
+                    b.HasIndex("TeacherId", "ClassId", "SubjectId", "StudyDate", "Period")
                         .IsUnique();
 
                     b.ToTable("VirtualClass", (string)null);
@@ -409,6 +599,25 @@ namespace EduManagement.Infrastructure.Migrations
                     b.Navigation("Class");
                 });
 
+            modelBuilder.Entity("EduManagement.Domain.Entities.StudentSubjectColor", b =>
+                {
+                    b.HasOne("EduManagement.Domain.Entities.Student", "Student")
+                        .WithMany()
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("EduManagement.Domain.Entities.Subject", "Subject")
+                        .WithMany()
+                        .HasForeignKey("SubjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Student");
+
+                    b.Navigation("Subject");
+                });
+
             modelBuilder.Entity("EduManagement.Domain.Entities.TeacherAssignment", b =>
                 {
                     b.HasOne("EduManagement.Domain.Entities.Class", "Class")
@@ -432,6 +641,25 @@ namespace EduManagement.Infrastructure.Migrations
                     b.Navigation("Class");
 
                     b.Navigation("Subject");
+
+                    b.Navigation("Teacher");
+                });
+
+            modelBuilder.Entity("EduManagement.Domain.Entities.TeacherClassColor", b =>
+                {
+                    b.HasOne("EduManagement.Domain.Entities.Class", "Class")
+                        .WithMany()
+                        .HasForeignKey("ClassId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("EduManagement.Domain.Entities.Teacher", "Teacher")
+                        .WithMany()
+                        .HasForeignKey("TeacherId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Class");
 
                     b.Navigation("Teacher");
                 });

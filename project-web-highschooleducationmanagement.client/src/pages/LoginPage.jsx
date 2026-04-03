@@ -1,24 +1,92 @@
-﻿import { useState } from "react";
+﻿import { useState, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { authApi } from "../api/authApi";
 import { authStorage } from "../auth/authStorage";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useAuth } from "../context/useAuth";
+/* =========================
+   VALIDATION SCHEMA
+========================= */
+const loginSchema = z.object({
+    email: z
+        .string()
+        .min(1, "Vui lòng nhập email")
+        .email("Email không hợp lệ"),
+    password: z
+        .string()
+        .min(1, "Vui lòng nhập mật khẩu")
+});
+const diffItems = [
+    {
+        title: "Đầy đủ, toàn trình",
+        icon: "🖥️",
+        desc: "Tích hợp quản lý học tập, kiểm tra đánh giá, lớp học trực tuyến, thông báo và tương tác trên cùng một hệ thống."
+    },
+    {
+        title: "Đơn giản, dễ sử dụng",
+        icon: "📅",
+        desc: "Giao diện trực quan, thao tác nhanh, phù hợp với cán bộ quản lý, giáo viên, học sinh và phụ huynh."
+    },
+    {
+        title: "Đáp ứng quy chuẩn",
+        icon: "📋",
+        desc: "Thiết kế bám sát nhu cầu vận hành trường học, hỗ trợ quy trình quản lý và giảng dạy thực tế."
+    },
+    {
+        title: "Tính hệ thống",
+        icon: "⚙️",
+        desc: "Các module liên kết chặt chẽ, dữ liệu đồng bộ, giúp quản lý thống nhất và hạn chế thao tác rời rạc."
+    },
+    {
+        title: "Liên tục cập nhật",
+        icon: "📄",
+        desc: "Tính năng được cải tiến thường xuyên để phù hợp với nhu cầu vận hành và chuyển đổi số trong giáo dục."
+    },
+    {
+        title: "Công nghệ tiên tiến",
+        icon: "🌐",
+        desc: "Ứng dụng công nghệ web hiện đại, tối ưu hiệu năng, bảo mật và khả năng mở rộng lâu dài."
+    }
+];
 
 export default function LoginPage() {
     const nav = useNavigate();
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
     const [showPw, setShowPw] = useState(false);
     const [err, setErr] = useState("");
     const [loading, setLoading] = useState(false);
-
-    const onSubmit = async (e) => {
-        e.preventDefault();
+    const { refreshProfile } = useAuth();
+    const {
+        register,
+        handleSubmit,
+        
+        formState: { errors }
+    } = useForm({
+        resolver: zodResolver(loginSchema),
+        defaultValues: {
+            email: "",
+            password: ""
+        }
+    });
+    const emailField = register("email");
+    const passwordField = register("password");
+    const passwordRef = useRef(null);
+    const onSubmit = async (formData) => {
         setErr("");
         setLoading(true);
+
         try {
-            const { data } = await authApi.login({ email, password });
+            const { data } = await authApi.login({
+                email: formData.email,
+                password: formData.password
+            });
+
             authStorage.saveLogin(data);
-            authStorage.setEmail(email);
+            authStorage.setEmail(formData.email);
+
+            await refreshProfile();
+
             if (data.role === "Admin") nav("/admin", { replace: true });
             else if (data.role === "Teacher") nav("/teacher", { replace: true });
             else nav("/student", { replace: true });
@@ -26,6 +94,7 @@ export default function LoginPage() {
             const msg =
                 ex?.response?.data?.message ||
                 ex?.response?.data?.Message ||
+                ex?.response?.data ||
                 "Đăng nhập thất bại.";
 
             setErr(msg);
@@ -36,7 +105,6 @@ export default function LoginPage() {
 
     return (
         <div className="k12-page">
-            {/* Header */}
             <header className="k12-header">
                 <div className="k12-header-inner">
                     <Link to="/" className="k12-brand" aria-label="HocOnline Home">
@@ -45,21 +113,17 @@ export default function LoginPage() {
                     </Link>
 
                     <nav className="k12-nav">
-                        <a href="#home">TRANG CHỦ</a>
+                       
                         <a href="#about">GIỚI THIỆU</a>
                         <a href="#diff">ĐIỂM KHÁC BIỆT</a>
                         <a href="#features">TÍNH NĂNG</a>
                         <a href="#feedback">PHẢN HỒI</a>
                     </nav>
-
-                    
                 </div>
             </header>
 
-            {/* Hero */}
             <main className="k12-hero" id="login">
                 <div className="k12-hero-inner k12-hero-2col">
-                    {/* LEFT: text only */}
                     <section className="k12-left">
                         <h1 className="k12-title">
                             Nền tảng Trường học số <br />
@@ -73,13 +137,12 @@ export default function LoginPage() {
                         </p>
                     </section>
 
-                    {/* RIGHT: login card only */}
                     <section className="k12-rightForm">
                         <div className="k12-card">
-                            <form onSubmit={onSubmit}>
+                            <form onSubmit={handleSubmit(onSubmit)}>
                                 <div className="k12-field">
                                     <label className="k12-label">Email</label>
-                                    <div className="k12-inputWrap">
+                                    <div className={`k12-inputWrap ${errors.email ? "k12-inputWrap-error" : ""}`}>
                                         <span className="k12-icon" aria-hidden="true">
                                             <svg viewBox="0 0 24 24" width="18" height="18">
                                                 <path
@@ -88,19 +151,26 @@ export default function LoginPage() {
                                                 />
                                             </svg>
                                         </span>
+
                                         <input
+                                            {...emailField}
                                             className="k12-input"
-                                            value={email}
-                                            onChange={(e) => setEmail(e.target.value)}
                                             placeholder="Nhập email..."
                                             autoComplete="email"
                                         />
                                     </div>
+
+                                    {errors.email && (
+                                        <div className="k12-fieldError">{errors.email.message}</div>
+                                    )}
                                 </div>
 
                                 <div className="k12-field">
                                     <label className="k12-label">Mật khẩu</label>
-                                    <div className="k12-inputWrap">
+                                    <div
+                                        className={`k12-inputWrap ${!errors.email && errors.password ? "k12-inputWrap-error" : ""
+                                            }`}
+                                    >
                                         <span className="k12-icon" aria-hidden="true">
                                             <svg viewBox="0 0 24 24" width="18" height="18">
                                                 <path
@@ -111,9 +181,12 @@ export default function LoginPage() {
                                         </span>
 
                                         <input
+                                            {...passwordField}
+                                            ref={(el) => {
+                                                passwordField.ref(el);
+                                                passwordRef.current = el;
+                                            }}
                                             className="k12-input"
-                                            value={password}
-                                            onChange={(e) => setPassword(e.target.value)}
                                             type={showPw ? "text" : "password"}
                                             placeholder="Nhập mật khẩu..."
                                             autoComplete="current-password"
@@ -142,6 +215,10 @@ export default function LoginPage() {
                                             )}
                                         </button>
                                     </div>
+
+                                    {!errors.email && errors.password && (
+                                        <div className="k12-fieldError">{errors.password.message}</div>
+                                    )}
                                 </div>
 
                                 {err && <div className="k12-error">{err}</div>}
@@ -169,13 +246,43 @@ export default function LoginPage() {
                     </section>
                 </div>
             </main>
+            <section className="k12-diff-section" id="diff">
+                <div className="k12-diff-container">
+                    <h2 className="k12-diff-title">Điểm khác biệt của hệ thống</h2>
+                    <p className="k12-diff-subtitle">
+                        Tích hợp tất cả tính năng của một hệ thống quản lý học tập trực tuyến và
+                        kiểm tra, đánh giá trực tuyến cho mọi đối tượng
+                        (từ cán bộ quản lý đến giáo viên và học sinh)
+                    </p>
 
+                    <div className="k12-diff-grid">
+                        {diffItems.map((item) => (
+                            <div className="k12-diff-card" key={item.title}>
+                                <div className="k12-diff-card-inner">
+                                    <div className="k12-diff-front">
+                                        <div className="k12-diff-icon">{item.icon}</div>
+                                        <h3>{item.title}</h3>
+                                    </div>
+
+                                    <div className="k12-diff-back">
+                                        <h3>{item.title}</h3>
+                                        <p>{item.desc}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
             <style>{css}</style>
         </div>
     );
 }
 
 const css = `
+  html{
+    scroll-behavior: smooth;
+  }
   :root{
     --k12-blue1:#0b6bb5;
     --k12-blue2:#158bd6;
@@ -186,7 +293,15 @@ const css = `
     --k12-yellow2:#ffb648;
     --k12-border: rgba(15,23,42,.12);
   }
-
+  input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px white inset !important;
+  box-shadow: 0 0 0 1000px white inset !important;
+  -webkit-text-fill-color: #0f172a !important;
+  transition: background-color 9999s ease-in-out 0s;
+}
   .k12-page{
     min-height: 100vh;
     background: #fff;
@@ -194,7 +309,6 @@ const css = `
     font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
   }
 
-  /* Header */
   .k12-header{
     position: sticky;
     top: 0;
@@ -240,29 +354,11 @@ const css = `
   }
   .k12-nav a:hover{ opacity: 1; }
 
-  .k12-header-actions{
-    display:flex;
-    gap: 10px;
-    align-items:center;
-  }
-  .k12-pill{
-    text-decoration:none;
-    color: white;
-    background: #0b4f86;
-    padding: 10px 14px;
-    border-radius: 999px;
-    font-weight: 800;
-    font-size: 13px;
-    box-shadow: 0 6px 18px rgba(2,6,23,.12);
-  }
-
-  /* Hero */
   .k12-hero{
     background: radial-gradient(1200px 600px at 10% 10%, var(--k12-blue2), var(--k12-blue1));
     padding: 44px 16px 56px;
   }
 
-  /* ✅ 2 cột: trái chữ - phải form */
   .k12-hero-inner.k12-hero-2col{
     max-width: 1200px;
     margin: 0 auto;
@@ -288,7 +384,7 @@ const css = `
 
   .k12-rightForm{
     display:flex;
-    justify-content: flex-end;  /* ✅ form nằm bên phải */
+    justify-content: flex-end;
   }
 
   .k12-card{
@@ -324,6 +420,15 @@ const css = `
     box-shadow: 0 0 0 4px rgba(11,79,134,0.14);
   }
 
+  .k12-inputWrap-error{
+    border-color: #dc2626 !important;
+    box-shadow: none !important;
+  }
+  .k12-inputWrap-error:focus-within{
+    border-color: #dc2626 !important;
+    box-shadow: 0 0 0 4px rgba(220,38,38,0.12) !important;
+  }
+
   .k12-icon{
     width: 34px;
     height: 34px;
@@ -351,6 +456,13 @@ const css = `
     border-radius: 10px;
   }
   .k12-eye:hover{ background: rgba(2,6,23,0.04); }
+
+  .k12-fieldError{
+    margin-top: 6px;
+    color: #dc2626;
+    font-size: 13px;
+    font-weight: 700;
+  }
 
   .k12-error{
     margin: 12px 0 12px;
@@ -416,7 +528,6 @@ const css = `
     padding: 0;
   }
 
-  /* Responsive */
   @media (max-width: 980px){
     .k12-hero-inner.k12-hero-2col{
       grid-template-columns: 1fr;
@@ -432,5 +543,160 @@ const css = `
   @media (max-width: 520px){
     .k12-title{ font-size: 30px; }
     .k12-card{ padding: 14px; }
+  }
+    #login,
+  #diff,
+  #about,
+  #features,
+  #feedback{
+    scroll-margin-top: 90px;
+  }
+    .k12-diff-section{
+  background: #eef3f7;
+  padding: 40px 16px 50px; /* giảm mạnh */
+}
+
+  .k12-diff-container{
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+
+  .k12-diff-title{
+  margin: 0 0 8px;
+  text-align: center;
+  color: #123b68;
+  font-size: 34px; /* ↓ từ 52 */
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+.k12-diff-subtitle{
+  max-width: 780px;
+  margin: 0 auto 28px; /* ↓ */
+  text-align: center;
+  color: #6b7280;
+  font-size: 14px; /* ↓ */
+  line-height: 1.5;
+}
+
+  .k12-diff-grid{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px 22px; /* ↓ */
+}
+
+  .k12-diff-card{
+  perspective: 1000px;
+  min-height: 180px; /* ↓ từ 250 */
+}
+
+
+  .k12-diff-card-inner{
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 180px;
+    transition: transform .65s ease, box-shadow .35s ease;
+    transform-style: preserve-3d;
+  }
+
+  .k12-diff-card:hover .k12-diff-card-inner{
+    transform: rotateY(180deg) translateY(-8px);
+  }
+
+  .k12-diff-front,
+  .k12-diff-back{
+    position: absolute;
+    inset: 0;
+    border-radius: 18px;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    background: #fff;
+    border: 1px solid rgba(15,23,42,.06);
+    box-shadow: 0 10px 28px rgba(15,23,42,.06);
+    padding: 18px 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .k12-diff-front h3,
+  .k12-diff-back h3{
+    margin: 0;
+    text-align: center;
+    color: #123b68;
+    font-size: 24px;
+    font-weight: 700;
+  }
+
+  .k12-diff-front{
+    gap: 22px;
+  }
+
+  .k12-diff-icon{
+    width: 60px;
+    height: 60px;
+    border-radius: 14px;
+    display: grid;
+    place-items: center;
+    font-size: 28px;
+    background: linear-gradient(180deg, #eef7ff, #d9ecff);
+    box-shadow: inset 0 0 0 1px rgba(21,139,214,.12);
+  }
+
+  .k12-diff-back{
+    transform: rotateY(180deg);
+    background: linear-gradient(180deg, #158bd6, #0b6bb5);
+    color: #fff;
+    align-items: flex-start;
+    justify-content: center;
+  }
+
+  .k12-diff-back h3{
+    color: #fff;
+    text-align: left;
+    margin-bottom: 14px;
+  }
+
+  .k12-diff-back p{
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.5;
+    color: rgba(255,255,255,.95);
+  }
+
+  .k12-diff-card:hover .k12-diff-front,
+  .k12-diff-card:hover .k12-diff-back{
+    box-shadow: 0 18px 38px rgba(11,79,134,.18);
+  }
+    @media (max-width: 1100px){
+    .k12-diff-grid{
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .k12-diff-title{
+      font-size: 42px;
+    }
+  }
+
+  @media (max-width: 680px){
+    .k12-diff-grid{
+      grid-template-columns: 1fr;
+    }
+
+    .k12-diff-title{
+      font-size: 32px;
+    }
+
+    .k12-diff-subtitle{
+      font-size: 15px;
+      margin-bottom: 32px;
+    }
+
+    .k12-diff-card,
+    .k12-diff-card-inner{
+      min-height: 220px;
+    }
   }
 `;

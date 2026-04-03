@@ -2,7 +2,7 @@
 import { useNavigate } from "react-router-dom";
 import { authStorage } from "../auth/authStorage";
 import { BRANDING } from "../config/branding";
-
+import "../styles/Brand.css";
 const getHomePathByRole = (role) => {
     switch (role) {
         case "Teacher":

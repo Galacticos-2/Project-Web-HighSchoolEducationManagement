@@ -3,7 +3,7 @@ using EduManagement.Application.DTOs.Auth;
 using EduManagement.Application.Features.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
+using Microsoft.AspNetCore.Http;
 namespace Project_Web_HighSchoolEducationManagement.Server.Controllers;
 
 [ApiController]
@@ -11,7 +11,12 @@ namespace Project_Web_HighSchoolEducationManagement.Server.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly AuthService _auth;
-    public AuthController(AuthService auth) => _auth = auth;
+    private readonly IWebHostEnvironment _env;
+    public AuthController(AuthService auth, IWebHostEnvironment env)
+    {
+        _auth = auth;
+        _env = env;
+    }
 
     [HttpPost("register")]
     public async Task<IActionResult> Register(RegisterRequest req)
@@ -61,6 +66,25 @@ public class AuthController : ControllerBase
             return Unauthorized(new { message = "Token thiếu userId." });
 
         var dto = await _auth.UpdateProfileAsync(userId, role!, req);
+        return Ok(dto);
+    }
+
+    [Authorize]
+    [HttpPost("upload-avatar")]
+    public async Task<IActionResult> UploadAvatar(IFormFile file)
+    {
+        var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var role =
+            User.FindFirstValue(ClaimTypes.Role) ??
+            User.FindFirstValue("role");
+
+        if (!int.TryParse(userIdStr, out var userId))
+            return Unauthorized(new { message = "Token thiếu userId." });
+
+        if (file == null)
+            return BadRequest(new { message = "Không tìm thấy file upload." });
+
+        var dto = await _auth.UploadAvatarAsync(userId, role!, file, _env.WebRootPath);
         return Ok(dto);
     }
 }

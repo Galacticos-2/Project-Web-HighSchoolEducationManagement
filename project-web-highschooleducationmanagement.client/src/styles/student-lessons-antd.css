@@ -1,0 +1,54 @@
+.student-lessons-antd-page {
+    min-height: 100vh;
+    background: #f5f7fb;
+    padding: 24px;
+}
+
+.student-lessons-antd-card {
+    border-radius: 16px;
+    box-shadow: 0 10px 22px rgba(16, 58, 113, 0.06);
+}
+
+.student-lessons-antd-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.student-lessons-antd-toolbar {
+    margin-bottom: 16px;
+}
+
+.student-lessons-antd-error {
+    margin-bottom: 16px;
+    background: #fff3f2;
+    border: 1px solid #ffd0cc;
+    color: #7a271a;
+    padding: 10px 12px;
+    border-radius: 12px;
+}
+
+.student-lessons-antd-card .ant-table-wrapper {
+    overflow: hidden;
+}
+
+.student-lessons-antd-card .ant-table {
+    border-radius: 12px;
+}
+
+.student-lessons-antd-card .ant-tag {
+    font-weight: 600;
+}
+
+@media (max-width: 768px) {
+    .student-lessons-antd-page {
+        padding: 16px;
+    }
+
+    .student-lessons-antd-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}

@@ -6,5 +6,15 @@ export const authApi = {
     // ✅ NEW: lấy profile của user đang đăng nhập
     getMe: () => axiosClient.get("/api/auth/me"),
     updateProfile: (data) => axiosClient.put("/api/auth/profile", data),
+    uploadAvatar: (file, onUploadProgress) => {
+        const formData = new FormData();
+        formData.append("file", file);
 
+        return axiosClient.post("/api/auth/upload-avatar", formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+            onUploadProgress,
+        });
+    },
 };
