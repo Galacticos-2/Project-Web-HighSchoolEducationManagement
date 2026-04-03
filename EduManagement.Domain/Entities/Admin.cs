@@ -11,9 +11,9 @@ public class Admin
     public DateTime? AdminBirthday { get; set; }
     public string AdminEmail { get; set; } = default!; 
     public string AdminPassword { get; set; } = default!; //lưu Hash
-    public int? AdminPhoneNumber { get; set; }
+    public string? AdminPhoneNumber { get; set; }
 
     // (Tùy chọn) duyệt tài khoản admin thường luôn true
     // public bool IsApproved { get; set; } = true;
-
+    public string? AvatarURL { get; set; }
 }

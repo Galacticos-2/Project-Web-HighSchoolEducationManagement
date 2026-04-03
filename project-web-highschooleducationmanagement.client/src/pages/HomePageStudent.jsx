@@ -1,10 +1,10 @@
 ﻿// src/pages/HomePageStudent.jsx
 import Brand from "../components/Brand";
 import { useNavigate } from "react-router-dom";
-import { authStorage } from "../auth/authStorage";
+import { useAuth } from "../context/useAuth";
 import "../styles/studentHome.css";
 import UserActions from "../components/UserActions";
-
+import Footer from "../components/Footer";
 /* =========================
    ICONS (SVG) - same style
    ========================= */
@@ -71,78 +71,84 @@ function IconCalendar() {
 export default function HomePageStudent() {
     const nav = useNavigate();
 
-    const profile = authStorage.getProfile();
+    const { profile, clearAuthState } = useAuth();
+
     const fullName = profile?.fullName || "Học sinh";
     const avatarLetter = (fullName?.trim()?.[0] || "H").toUpperCase();
-
+    const avatarURL = profile?.avatarURL || "";
     const onTile = (path) => nav(path);
 
     // ===== Menu actions =====
     const onMyAccount = () => nav("/my-info"); // nếu bạn tách riêng student: đổi thành "/student/my-info"
     const onChangePassword = () => nav("/student/change-password");
     const onLogout = () => {
-        authStorage.clear();
+        clearAuthState();
         nav("/login", { replace: true });
     };
 
     return (
-        <div className="student-home">
-            {/* Top bar */}
-            <div className="student-topbar">
-                <div className="student-topbar__inner">
-                    <Brand />
+        <>
+            <div className="student-home">
+                {/* Top bar */}
+                <div className="student-topbar">
+                    <div className="student-topbar__inner">
+                        <Brand />
 
-                    <UserActions
-                        variant="student"
-                        fullName={fullName}
-                        avatarLetter={avatarLetter}
-                        onMyAccount={onMyAccount}
-                        onChangePassword={onChangePassword}
-                        onLogout={onLogout}
-                    />
-                </div>
-            </div>
-
-            {/* Content */}
-            <div className="student-content">
-                <div className="student-content__inner">
-                    <div className="student-section">
-                        <div className="student-tiles">
-                            <div className="student-tile" role="button" tabIndex={0} onClick={() => onTile("/student/lessons")}>
-                                <div className="student-tile__icon">
-                                    <IconBook />
-                                </div>
-                                <div>
-                                    <div className="student-tile__title">Bài giảng</div>
-                                    <p className="student-tile__desc">Bài giảng trực tuyến để tự học</p>
-                                </div>
-                            </div>
-
-                            <div className="student-tile" role="button" tabIndex={0} onClick={() => onTile("/student/virtual-class")}>
-                                <div className="student-tile__icon">
-                                    <IconVirtualClass />
-                                </div>
-                                <div>
-                                    <div className="student-tile__title">Lớp học ảo</div>
-                                    <p className="student-tile__desc">Tham gia lớp học ảo tương tác trực tuyến</p>
-                                </div>
-                            </div>
-
-                            <div className="student-tile" role="button" tabIndex={0} onClick={() => onTile("/student/schedule")}>
-                                <div className="student-tile__icon">
-                                    <IconCalendar />
-                                </div>
-                                <div>
-                                    <div className="student-tile__title">Thời khóa biểu</div>
-                                    <p className="student-tile__desc">Xem thời khóa biểu, lịch học</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* chỗ này sau có thể thêm module khác */}
+                        <UserActions
+                            variant="student"
+                            fullName={fullName}
+                            avatarLetter={avatarLetter}
+                            onMyAccount={onMyAccount}
+                            onChangePassword={onChangePassword}
+                            onLogout={onLogout}
+                            avatarURL={avatarURL}
+                        />
                     </div>
                 </div>
+
+                {/* Content */}
+                <div className="student-content">
+                    <div className="student-content__inner">
+                        <div className="student-section">
+                            <div className="student-tiles">
+                                <div className="student-tile" role="button" tabIndex={0} onClick={() => onTile("/student/lessons")}>
+                                    <div className="student-tile__icon">
+                                        <IconBook />
+                                    </div>
+                                    <div>
+                                        <div className="student-tile__title">Bài giảng</div>
+                                        <p className="student-tile__desc">Bài giảng trực tuyến để tự học</p>
+                                    </div>
+                                </div>
+
+                                <div className="student-tile" role="button" tabIndex={0} onClick={() => onTile("/student/virtual-class")}>
+                                    <div className="student-tile__icon">
+                                        <IconVirtualClass />
+                                    </div>
+                                    <div>
+                                        <div className="student-tile__title">Lớp học ảo</div>
+                                        <p className="student-tile__desc">Tham gia lớp học ảo tương tác trực tuyến</p>
+                                    </div>
+                                </div>
+
+                                <div className="student-tile" role="button" tabIndex={0} onClick={() => onTile("/student/schedule")}>
+                                    <div className="student-tile__icon">
+                                        <IconCalendar />
+                                    </div>
+                                    <div>
+                                        <div className="student-tile__title">Thời khóa biểu</div>
+                                        <p className="student-tile__desc">Xem thời khóa biểu, lịch học</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* chỗ này sau có thể thêm module khác */}
+                        </div>
+                    </div>
+                </div>
+                <Footer />
             </div>
-        </div>
+           
+        </>
     );
 }

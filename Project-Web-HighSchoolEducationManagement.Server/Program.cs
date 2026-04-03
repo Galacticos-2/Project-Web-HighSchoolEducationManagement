@@ -9,12 +9,19 @@ using EduManagement.Application.Features.VirtualClasses;
 using EduManagement.Infrastructure.Identity;
 using EduManagement.Infrastructure.Logging;
 using EduManagement.Infrastructure.Persistence;
+using EduManagement.Infrastructure.Persistence.Repositories;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Project_Web_HighSchoolEducationManagement.Server.BackgroundServices;
+using Project_Web_HighSchoolEducationManagement.Server.Hubs;
 using Project_Web_HighSchoolEducationManagement.Server.Middlewares;
+using Project_Web_HighSchoolEducationManagement.Server.Services;
 using Serilog;
+using EduManagement.Infrastructure.Persistence.Repositories;
 namespace Project_Web_HighSchoolEducationManagement.Server
 {
     public class Program
@@ -36,7 +43,8 @@ namespace Project_Web_HighSchoolEducationManagement.Server
                 sp.GetRequiredService<AppDbContext>());
             SerilogConfig.Configure();
 
-            
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
             builder.Host.UseSerilog();
             // JWT Authentication
@@ -46,6 +54,22 @@ namespace Project_Web_HighSchoolEducationManagement.Server
                 .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
+                    options.Events = new JwtBearerEvents
+                    {
+                        OnMessageReceived = context =>
+                        {
+                            var accessToken = context.Request.Query["access_token"];
+
+                            var path = context.HttpContext.Request.Path;
+                            if (!string.IsNullOrEmpty(accessToken) &&
+                                path.StartsWithSegments("/hubs/notifications"))
+                            {
+                                context.Token = accessToken;
+                            }
+
+                            return Task.CompletedTask;
+                        }
+                    };
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidateIssuer = true,
@@ -63,7 +87,9 @@ namespace Project_Web_HighSchoolEducationManagement.Server
                 });
 
             builder.Services.AddAuthorization();
-
+            builder.Services.AddControllers()
+    .AddFluentValidation(fv =>
+        fv.RegisterValidatorsFromAssemblyContaining<Program>());
             // CORS (cho React dev)
             builder.Services.AddCors(options =>
             {
@@ -72,7 +98,14 @@ namespace Project_Web_HighSchoolEducationManagement.Server
                           .AllowAnyMethod()
                           .SetIsOriginAllowed(_ => true));
             });
+            builder.Services.AddHttpContextAccessor();
+            builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
+            builder.Services.AddScoped<INotificationService, NotificationService>();
+
+            builder.Services.AddSignalR();
+
+            builder.Services.AddHostedService<VirtualClassReminderBackgroundService>();
             // Dependency Injection
             builder.Services.AddScoped<IPasswordHasher, BcryptPasswordHasher>();
             builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
@@ -120,7 +153,7 @@ namespace Project_Web_HighSchoolEducationManagement.Server
                     }
                 });
             });
-            builder.Services.AddScoped<EduManagement.Application.Features.Lessons.TeacherLessonService>();
+            
             var app = builder.Build();
             app.UseMiddleware<ExceptionMiddleware>();
             app.UseSerilogRequestLogging();
@@ -151,6 +184,7 @@ namespace Project_Web_HighSchoolEducationManagement.Server
             app.UseAuthorization();
 
             app.MapControllers();
+            app.MapHub<NotificationHub>("/hubs/notifications");
             app.MapFallbackToFile("/index.html");
 
             await app.RunAsync();

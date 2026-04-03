@@ -1,0 +1,26 @@
+﻿.teacher-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    position: relative;
+}
+
+.teacher-brand__logo img {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+}
+
+.teacher-brand__name {
+    font-weight: 800;
+    font-size: 20px;
+    color: #1b2b41;
+    letter-spacing: 0.5px;
+}
+
+.teacher-brand::after {
+    content: none;
+}

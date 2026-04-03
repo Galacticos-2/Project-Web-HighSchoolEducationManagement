@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace EduManagement.Application.Common.Interfaces
+﻿namespace EduManagement.Application.Common.Interfaces
 {
-    interface ICurrentUserService
+    public interface ICurrentUserService
     {
+        int? UserId { get; }
+        string? Role { get; }
+        string? FullName { get; }
+        bool IsAuthenticated { get; }
     }
 }

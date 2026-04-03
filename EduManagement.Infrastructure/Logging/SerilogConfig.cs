@@ -6,6 +6,7 @@ namespace EduManagement.Infrastructure.Logging
 {
     public static class SerilogConfig
     {
+        //Log ra 4 thông tin: Fatal, Information, Warning, Error
         public static void Configure()
         {
             Log.Logger = new LoggerConfiguration()

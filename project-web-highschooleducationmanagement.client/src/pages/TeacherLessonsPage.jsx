@@ -1,22 +1,55 @@
-﻿import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import "../styles/lessons.css";
+﻿import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+    Button,
+    Form,
+    Input,
+    Modal,
+    Select,
+    Space,
+    Table,
+    Tag,
+    Typography,
+    Upload,
+    message,
+    Popconfirm,
+    Card,
+} from "antd";
+import {
+    ReloadOutlined,
+    PlusOutlined,
+    SearchOutlined,
+    EditOutlined,
+    DeleteOutlined,
+    DownloadOutlined,
+    UploadOutlined,
+} from "@ant-design/icons";
+
 import { lessonsApi } from "../api/lessonsApi";
 import UserActions from "../components/UserActions";
 import Brand from "../components/Brand";
-import { authStorage } from "../auth/authStorage";
-import Button from "../components/Button";
-import Pagination from "../components/Pagination";
-const STATUSES = [
-    { value: "", label: "-- Chọn trạng thái --" },
+import { useAuth } from "../context/useAuth";
+import "../styles/teacher-lessons-antd.css";
+
+const { Title, Text } = Typography;
+const { Search } = Input;
+const { TextArea } = Input;
+
+const STATUS_OPTIONS = [
     { value: "Draft", label: "Nháp" },
     { value: "Published", label: "Đã đăng" },
     { value: "Hidden", label: "Ẩn" },
 ];
 
-const profile = authStorage.getProfile();
-const fullName = profile?.fullName || "Giáo viên";
-const avatarLetter = (fullName?.trim()?.[0] || "T").toUpperCase();
+const STATUS_LABEL = {
+    Draft: "Nháp",
+    Published: "Đã đăng",
+    Hidden: "Ẩn",
+};
+
+
+
+
 function bytesToSize(bytes) {
     if (!bytes && bytes !== 0) return "";
     const sizes = ["B", "KB", "MB", "GB"];
@@ -30,94 +63,61 @@ function bytesToSize(bytes) {
 }
 
 export default function TeacherLessonsPage() {
-    const navigate = useNavigate(); 
-    const [editing, setEditing] = useState(null);
-    const [currentFileName, setCurrentFileName] = useState("");
-    // filters
-    const [status] = useState("");
-    const [q, setQ] = useState("");
-
-    // data
-    const [loading, setLoading] = useState(false);
-    const [err, setErr] = useState("");
-    const [paged, setPaged] = useState({ items: [], page: 1, pageSize: 10, total: 0 });
-    const [sortBy, setSortBy] = useState("");
-    const [order, setOrder] = useState("");
-    // modal create
-    const [open, setOpen] = useState(false);
-    const [creating, setCreating] = useState(false);
-    const [createErr, setCreateErr] = useState("");
+    const navigate = useNavigate();
+   
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [timeShouldLearn, setTimeShouldLearn] = useState("");
     const [createStatus, setCreateStatus] = useState("Draft");
-    const [file, setFile] = useState(null);
-    const onEdit = (item) => {
-        console.log(item);
+    const [loading, setLoading] = useState(false);
+    const [err, setErr] = useState("");
+    const [q, setQ] = useState("");
+    const { profile, clearAuthState } = useAuth();
+    const fullName = profile?.fullName || "Giáo viên";
+    const avatarLetter = (fullName?.trim()?.[0] || "T").toUpperCase();
+    const avatarURL = profile?.avatarURL || "";
+    const [paged, setPaged] = useState({
+        items: [],
+        page: 1,
+        pageSize: 10,
+        total: 0,
+    });
 
-        setEditing(item);
-        setCurrentFileName(item.fileName);   // thêm dòng này
+    const [sortBy, setSortBy] = useState("");
+    const [order, setOrder] = useState("");
 
-        setTitle(item.title);
-        setDescription(item.description || "");
-        setTimeShouldLearn(item.timeShouldLearn || "");
-        setCreateStatus(item.status);
-        setFile(null);
+    const [open, setOpen] = useState(false);
+    const [creating, setCreating] = useState(false);
+    const [editing, setEditing] = useState(null);
+    const [currentFileName, setCurrentFileName] = useState("");
+    const [selectedFile, setSelectedFile] = useState(null);
 
-        setOpen(true);
-    };
-    const STATUS_LABEL = {
-        Draft: "Nháp",
-        Published: "Đã đăng",
-        Hidden: "Ẩn"
-    };
-    const onDelete = async (item) => {
-
-        if (!window.confirm("Bạn có chắc muốn xóa bài giảng này?"))
-            return;
-
-        try {
-
-            await lessonsApi.deleteLesson(item.id);
-
-            await load(paged.page);
-
-        } catch {
-            alert("Không xóa được bài giảng.");
-        }
-    };
-    const onPublish = async (item) => {
-        if (!window.confirm("Đăng bài giảng này?")) return;
-
-        try {
-            const fd = new FormData();
-            fd.append("Title", item.title);
-            fd.append("Description", item.description || "");
-            fd.append("TimeShouldLearn", item.timeShouldLearn || "");
-            fd.append("Status", "Published");
-
-            await lessonsApi.updateLesson(item.id, fd);
-
-            await load(paged.page);
-        } catch {
-            alert("Không thể đăng bài giảng.");
-        }
-    };
-    const load = async (page = 1, sBy = sortBy, ord = order) => {
+    const load = async (
+        page = 1,
+        pageSize = paged.pageSize,
+        sBy = sortBy,
+        ord = order,
+        keyword = q
+    ) => {
         setErr("");
         setLoading(true);
+
         try {
             const { data } = await lessonsApi.listMine({
                 page,
-                pageSize: paged.pageSize,
-                status,
-                q,
+                pageSize,
+                q: keyword,
                 sortBy: sBy,
-                order: ord
+                order: ord,
             });
+
             setPaged(data);
         } catch (ex) {
-            const msg = ex?.response?.data?.message || ex?.response?.data || "Không tải được danh sách bài giảng.";
+            const msg =
+                ex?.response?.data?.message ||
+                ex?.response?.data ||
+                ex?.message ||
+                "Không tải được danh sách bài giảng.";
             setErr(typeof msg === "string" ? msg : JSON.stringify(msg));
         } finally {
             setLoading(false);
@@ -126,92 +126,139 @@ export default function TeacherLessonsPage() {
 
     useEffect(() => {
         load(1);
-        // elessonint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
-
-    const onReload = () => load(paged.page || 1);
-    const toggleSort = (field) => {
-        let newOrder = "asc";
-
-        if (sortBy === field) {
-            newOrder = order === "asc" ? "desc" : "asc";
-        }
-
-        setSortBy(field);
-        setOrder(newOrder);
-
-        load(1, field, newOrder);
-    };
-    const onSearch = (e) => {
-        e.preventDefault();
-        load(1);
-    };
 
     const closeModal = () => {
         setOpen(false);
         setEditing(null);
-        setCurrentFileName(""); 
-        setCreateErr("");
+        setCurrentFileName("");
+        setSelectedFile(null);
         setTitle("");
         setDescription("");
         setTimeShouldLearn("");
         setCreateStatus("Draft");
-        setFile(null);
     };
 
-    const onCreate = async (e) => {
-        e.preventDefault();
-        setCreateErr("");
+    const onReload = () => load(paged.page, paged.pageSize);
 
-        if (!title.trim()) {
-            setCreateErr("Tên bài giảng không được trống.");
-            return;
+    const onSearch = (value) => {
+        setQ(value);
+        load(1, paged.pageSize, sortBy, order, value);
+    };
+
+    const onEdit = (item) => {
+        setEditing(item);
+        setCurrentFileName(item.fileName || "");
+        setSelectedFile(null);
+
+        setTitle(item.title || "");
+        setDescription(item.description || "");
+        setTimeShouldLearn(normalizeMinutesInput(item.timeShouldLearn || ""));
+        setCreateStatus(item.status || "Draft");
+
+        setOpen(true);
+    };
+    function normalizeMinutesInput(value) {
+        return (value || "").replace(/\D/g, "");
+    }
+
+    function formatMinutes(value) {
+        const normalized = normalizeMinutesInput(value);
+        if (!normalized) return "-";
+        return `${normalized} phút`;
+    }
+    const onCreateNew = () => {
+        setEditing(null);
+        setCurrentFileName("");
+        setSelectedFile(null);
+        setTitle("");
+        setDescription("");
+        setTimeShouldLearn("");
+        setCreateStatus("Draft");
+        setOpen(true);
+    };
+
+    const onDelete = async (item) => {
+        try {
+            await lessonsApi.deleteLesson(item.id);
+            message.success("Đã xóa bài giảng.");
+            await load(paged.page, paged.pageSize);
+        } catch {
+            message.error("Không xóa được bài giảng.");
         }
+    };
 
-        if (!editing && !file) {
-            setCreateErr("Bạn chưa chọn file (PDF/DOC/DOCX).");
-            return;
-        }
-
-        setCreating(true);
-
+    const onPublish = async (item) => {
         try {
             const fd = new FormData();
+            fd.append("Title", item.title);
+            fd.append("Description", item.description || "");
+            fd.append("TimeShouldLearn", normalizeMinutesInput(item.timeShouldLearn || ""));
+            fd.append("Status", "Published");
 
+            await lessonsApi.updateLesson(item.id, fd);
+            message.success("Đã đăng bài giảng.");
+            await load(paged.page, paged.pageSize);
+        } catch {
+            message.error("Không thể đăng bài giảng.");
+        }
+    };
+
+    const onSubmit = async () => {
+        if (!title.trim()) {
+            message.error("Tên bài giảng không được trống.");
+            return;
+        }
+
+        if (!editing && !selectedFile) {
+            message.error("Bạn chưa chọn file (PDF/DOC/DOCX).");
+            return;
+        }
+
+        try {
+            const normalizedMinutes = normalizeMinutesInput(timeShouldLearn);
+            setCreating(true);
+
+            const fd = new FormData();
             fd.append("Title", title.trim());
             fd.append("Description", description || "");
-            fd.append("TimeShouldLearn", timeShouldLearn || "");
-            fd.append("Status", createStatus);
-            if (file) {
-                fd.append("file", file);
+            fd.append("TimeShouldLearn", normalizedMinutes || "");
+            fd.append("Status", createStatus || "Draft");
+
+            if (selectedFile) {
+                fd.append("file", selectedFile);
             }
 
             if (editing) {
                 await lessonsApi.updateLesson(editing.id, fd);
-                setEditing(null);   // thêm dòng này
+                message.success("Cập nhật bài giảng thành công.");
             } else {
                 await lessonsApi.createnewlesson(fd);
+                message.success("Tạo bài giảng thành công.");
             }
 
             closeModal();
-            await load(1);
+            await load(1, paged.pageSize);
         } catch (ex) {
             const msg =
                 ex?.response?.data?.message ||
                 ex?.response?.data ||
-                "Tạo bài giảng thất bại.";
+                ex?.message ||
+                "Lưu bài giảng thất bại.";
 
-            setCreateErr(typeof msg === "string" ? msg : JSON.stringify(msg));
+            message.error(typeof msg === "string" ? msg : JSON.stringify(msg));
         } finally {
             setCreating(false);
-            setCurrentFileName("");
         }
     };
-    //function to download a lesson file 
+
     const onDownload = async (item) => {
         try {
             const res = await lessonsApi.download(item.id);
-            const blob = new Blob([res.data], { type: item.contentType || "application/octet-stream" });
+            const blob = new Blob([res.data], {
+                type: item.contentType || "application/octet-stream",
+            });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement("a");
             a.href = url;
@@ -221,284 +268,366 @@ export default function TeacherLessonsPage() {
             a.remove();
             window.URL.revokeObjectURL(url);
         } catch {
-            alert("Không tải được file.");
+            message.error("Không tải được file.");
         }
     };
 
+    const handleTableChange = (pagination, filters, sorter) => {
+        const current = pagination.current || 1;
+        const size = pagination.pageSize || paged.pageSize;
+
+        let nextSortBy = "";
+        let nextOrder = "";
+
+        if (!Array.isArray(sorter) && sorter?.field && sorter?.order) {
+            nextSortBy = sorter.field;
+            nextOrder = sorter.order === "ascend" ? "asc" : "desc";
+        }
+
+        setSortBy(nextSortBy);
+        setOrder(nextOrder);
+
+        load(current, size, nextSortBy, nextOrder);
+    };
+
+    const columns = useMemo(() => [
+        {
+            title: "STT",
+            key: "stt",
+            width: 80,
+            align: "center",
+            render: (_, __, index) =>
+                (paged.page - 1) * paged.pageSize + index + 1,
+        },
+        {
+            title: "Tên",
+            dataIndex: "title",
+            key: "title",
+            sorter: true,
+            sortOrder: sortBy === "title" ? (order === "asc" ? "ascend" : "descend") : null,
+            ellipsis: true,
+        },
+        {
+            title: "Mô tả",
+            dataIndex: "description",
+            key: "description",
+            sorter: true,
+            sortOrder:
+                sortBy === "description"
+                    ? order === "asc"
+                        ? "ascend"
+                        : "descend"
+                    : null,
+            ellipsis: true,
+            render: (value) => value || "-",
+        },
+        {
+            title: "Thời gian",
+            dataIndex: "timeShouldLearn",
+            key: "timeShouldLearn",
+            sorter: true,
+            sortOrder:
+                sortBy === "timeShouldLearn"
+                    ? order === "asc"
+                        ? "ascend"
+                        : "descend"
+                    : null,
+            width: 160,
+            render: (value) => formatMinutes(value),
+        },
+        {
+            title: "File",
+            key: "fileName",
+            sorter: true,
+            sortOrder:
+                sortBy === "fileName"
+                    ? order === "asc"
+                        ? "ascend"
+                        : "descend"
+                    : null,
+            width: 260,
+            render: (_, record) => (
+                <span>
+                    {record.fileName} • {bytesToSize(record.fileSize)}
+                </span>
+            ),
+        },
+        {
+            title: "Trạng thái",
+            dataIndex: "status",
+            key: "status",
+            width: 140,
+            sorter: true,
+            sortOrder:
+                sortBy === "status"
+                    ? order === "asc"
+                        ? "ascend"
+                        : "descend"
+                    : null,
+            align: "center",
+            render: (status) => {
+                let color = "default";
+                if (status === "Published") color = "blue";
+                if (status === "Draft") color = "gold";
+                if (status === "Hidden") color = "default";
+
+                return <Tag color={color}>{STATUS_LABEL[status] || status}</Tag>;
+            },
+        },
+        {
+            title: "Hành động",
+            key: "actions",
+            width: 220,
+            align: "center",
+            render: (_, record) => (
+                <Space wrap>
+                    <Button
+                        icon={<EditOutlined />}
+                        onClick={() => onEdit(record)}
+                    />
+                    <Popconfirm
+                        title="Xóa bài giảng"
+                        description="Bạn có chắc muốn xóa bài giảng này?"
+                        okText="Xóa"
+                        cancelText="Hủy"
+                        onConfirm={() => onDelete(record)}
+                    >
+                        <Button danger icon={<DeleteOutlined />} />
+                    </Popconfirm>
+                    <Button
+                        type="primary"
+                        icon={<DownloadOutlined />}
+                        onClick={() => onDownload(record)}
+                    />
+                    {record.status === "Draft" && (
+                        <Popconfirm
+                            title="Đăng bài giảng"
+                            description="Bạn có muốn đăng bài giảng này không?"
+                            okText="Đăng"
+                            cancelText="Hủy"
+                            onConfirm={() => onPublish(record)}
+                        >
+                            <Button type="primary">Đăng</Button>
+                        </Popconfirm>
+                    )}
+                </Space>
+            ),
+        },
+    ], [paged.page, paged.pageSize, sortBy, order]);
+
     return (
         <div className="teacher-home">
+            
 
-            {/* TOPBAR */}
             <div className="teacher-topbar">
                 <div className="teacher-topbar__inner">
-
                     <Brand variant="teacher" />
 
                     <UserActions
                         variant="teacher"
                         fullName={fullName}
                         avatarLetter={avatarLetter}
+                        avatarURL={avatarURL}
                         onMyAccount={() => navigate("/my-info")}
                         onChangePassword={() => console.log("change password")}
                         onLogout={() => {
-                            authStorage.clear();
-                            window.location.href = "/login";
+                            clearAuthState();
+                            navigate("/login", { replace: true });
                         }}
                     />
-
                 </div>
             </div>
 
-            <div className="lesson-page">
-            <div className="lesson-head">
-                
+            <div className="teacher-lessons-antd-page">
+                <Card className="teacher-lessons-antd-card">
+                    <div className="teacher-lessons-antd-header">
+                        <Title level={2} style={{ margin: 0 }}>
+                            Bài giảng
+                        </Title>
 
-                <div className="lesson-title-row">
-                    <h2 className="lesson-title">Bài giảng</h2>
-                    <div className="lesson-actions">
+                        <Space>
                             <Button
-                                variant="secondary"
+                                icon={<ReloadOutlined />}
                                 onClick={onReload}
-                                disabled={loading}
+                                loading={loading}
                             >
-                                ⟳ Tải lại
+                                Tải lại
                             </Button>
-                            
-                            <Button onClick={() => setOpen(true)}>
-                                ＋ Thêm mới
+
+                            <Button
+                                type="primary"
+                                icon={<PlusOutlined />}
+                                onClick={onCreateNew}
+                            >
+                                Thêm mới
                             </Button>
+                        </Space>
                     </div>
-                </div>
 
-                <form className="lesson-filters" onSubmit={onSearch}>
-                    
-
-                    <div className="lesson-search">
-                        <input
+                    <div className="teacher-lessons-antd-toolbar">
+                        <Search
+                            allowClear
                             placeholder="Tên bài giảng"
+                            enterButton={<><SearchOutlined /> Tìm</>}
+                            size="large"
                             value={q}
                             onChange={(e) => setQ(e.target.value)}
+                            onSearch={onSearch}
                         />
-                            <Button type="submit" disabled={loading}>
-                                🔎 Tìm
-                            </Button>
                     </div>
 
-                    
-                </form>
-
-                {err ? <div className="alert">{err}</div> : null}
-            </div>
-
-            <div className="lesson-body">
-                {loading ? (
-                    <div className="empty">Đang tải...</div>
-                ) : (paged.items?.length || 0) === 0 ? (
-                    <div className="empty">
-                        <div className="empty-icon">📄</div>
-                        <div className="empty-text">Không có dữ liệu</div>
-                    </div>
-                ) : (
-                                <div className="lesson-list">
-
-                                    <div className="lesson-table-header">
-                                        <div>STT</div>
-                                        <div
-                                            onClick={() => toggleSort("title")}
-                                            style={{ cursor: "pointer", userSelect: "none" }}
-                                        >
-                                            Tên {sortBy === "title" && (order === "asc" ? "↑" : "↓")}
-                                        </div>
-                                        <div>Mô tả</div>
-                                        <div>Thời gian</div>
-                                        <div>File</div>
-                                        <div>Trạng thái</div>
-                                        <div>Hành động</div>
-                                    </div>
-                                    {paged.items.map((it, index) => (
-                                        <div className="lesson-row" key={it.id}>
-
-                                            {/* STT */}
-                                            <div className="lesson-cell">
-                                                {(paged.page - 1) * paged.pageSize + index + 1}
-                                            </div>
-
-                                            {/* Tên */}
-                                            <div className="lesson-cell">
-                                                {it.title}
-                                            </div>
-
-                                            {/* Mô tả */}
-                                            <div className="lesson-cell lesson-desc">
-                                                {it.description}
-                                            </div>
-
-                                            {/* Thời gian */}
-                                            <div className="lesson-cell">
-                                                {it.timeShouldLearn}
-                                            </div>
-
-                                            {/* File */}
-                                            <div className="lesson-cell">
-                                                {it.fileName} • {bytesToSize(it.fileSize)}
-                                            </div>
-
-                                            {/* Trạng thái */}
-                                            <div className="status-cell">
-
-                                                <span className="status-badge">
-                                                    {STATUS_LABEL[it.status] || it.status}
-                                                </span>
-
-                                                
-
-                                            </div>
-
-                                            {/* Action */}
-                                            <div className="lesson-actions-cell">
-                                                <div className="actions-main">
-                                                    <div className="actions-core">
-                                                        <Button variant="secondary" onClick={() => onEdit(it)}>✏️</Button>
-                                                        <Button variant="secondary" onClick={() => onDelete(it)}>🗑</Button>
-                                                        <Button onClick={() => onDownload(it)}>⬇</Button>
-                                                    </div>
-
-                                                    {it.status === "Draft" ? (
-                                                        <Button className="btn-publish" onClick={() => onPublish(it)}>
-                                                            Đăng
-                                                        </Button>
-                                                    ) : null}
-                                                </div>
-                                            </div>
-
-                                        </div>
-                                    ))}
-                    </div>
-                )}
-            </div>
-                <Pagination
-                    page={paged.page}
-                    pageSize={paged.pageSize}
-                    total={paged.total}
-                    onPageChange={(p) => load(p)}
-                />
-            {/* Modal create */}
-                {open ? (
-                    <div className="modal-backdrop" onMouseDown={closeModal}>
-                        <div className="lesson-modal" onMouseDown={(e) => e.stopPropagation()}>
-
-                            <div className="lesson-modal-header">
-                                <h3 className="lesson-modal-title">
-                                    {editing ? "Chỉnh sửa bài giảng" : "Thêm bài giảng"}
-                                </h3>
-
-                                <button className="modal-close" onClick={closeModal}>
-                                    ✕
-                                </button>
-                            </div>
-                            {createErr && <div className="alert">{createErr}</div>}
-                            <form className="lesson-modal-body" onSubmit={onCreate}>
-
-                                <div className="form-row">
-
-                                    <div className="form-group">
-                                        <label>Tên bài giảng *</label>
-                                        <input
-                                            type="text"
-                                            value={title}
-                                            onChange={(e) => setTitle(e.target.value)}
-                                        />
-                                    </div>
-
-                                    <div className="form-group">
-                                        <label>Trạng thái *</label>
-
-                                        <select
-                                            value={createStatus}
-                                            onChange={(e) => setCreateStatus(e.target.value)}
-                                        >
-                                            <option value="Draft">Nháp</option>
-                                            <option value="Published">Đã đăng</option>
-                                            <option value="Hidden">Ẩn</option>
-                                        </select>
-                                    </div>
-
-                                </div>
-
-                                <div className="form-group">
-                                    <label>Mô tả</label>
-                                    <textarea
-                                        rows={3}
-                                        value={description}
-                                        onChange={(e) => setDescription(e.target.value)}
-                                    />
-                                </div>
-
-                                <div className="form-row">
-
-                                    <div className="form-group">
-                                        <label>Thời lượng dự kiến</label>
-                                        <input
-                                            placeholder="Ví dụ: 45 phút"
-                                            value={timeShouldLearn}
-                                            onChange={(e) => setTimeShouldLearn(e.target.value)}
-                                        />
-                                    </div>
-
-                                    <div className="form-group">
-                                        <label>File</label>
-
-                                        <div className="file-upload">
-                                            <label className="file-btn">
-                                                Chọn tệp
-                                                <input
-                                                    type="file"
-                                                    accept=".pdf,.doc,.docx"
-                                                    onChange={(e) => setFile(e.target.files?.[0] || null)}
-                                                />
-                                            </label>
-
-                                            <span className="file-name">
-                                                {file
-                                                    ? file.name
-                                                    : currentFileName
-                                                        ? currentFileName
-                                                        : "Không có tệp nào được chọn"}
-                                            </span>
-                                        </div>
-
-                                        <small className="file-note">
-                                            Chỉ chọn file nếu muốn thay thế file hiện tại
-                                        </small>
-                                    </div>
-
-                                </div>
-
-                                <div className="lesson-modal-footer">
-
-                                    <Button
-                                        variant="secondary"
-                                        type="button"
-                                        onClick={closeModal}
-                                        disabled={creating}
-                                    >
-                                        Hủy
-                                    </Button>
-
-                                    <Button
-                                        type="submit"
-                                        disabled={creating}
-                                    >
-                                        {creating ? "Đang tạo..." : "Lưu"}
-                                    </Button>
-
-                                </div>
-
-                            </form>
-
+                    {err ? (
+                        <div className="teacher-lessons-antd-error">
+                            {err}
                         </div>
-                    </div>
-                ) : null}
+                    ) : null}
+
+                    <Table
+                        rowKey="id"
+                        
+                        loading={loading}
+                        columns={columns}
+                        dataSource={paged.items || []}
+                        onChange={handleTableChange}
+                        pagination={{
+                            current: paged.page,
+                            pageSize: paged.pageSize,
+                            total: paged.total,
+                            showSizeChanger: true,
+                            pageSizeOptions: ["5", "10", "20", "50"],
+                            showTotal: (total, range) =>
+                                `${range[0]}-${range[1]} / ${total} bài giảng`,
+                        }}
+                        locale={{
+                            emptyText: "Không có dữ liệu",
+                        }}
+                        scroll={{ x: 1100 }}
+                    />
+                </Card>
+
+                <Modal
+                    title={editing ? "Chỉnh sửa bài giảng" : "Thêm bài giảng"}
+                    open={open}
+                    onCancel={closeModal}
+                    onOk={onSubmit}
+                    confirmLoading={creating}
+                    okText="Lưu"
+                    cancelText="Hủy"
+                    destroyOnHidden
+                    centered
+                    width={640}
+                    maskClosable={false}
+                    styles={{
+                        body: {
+                            maxHeight: "calc(100vh - 220px)",
+                            overflowY: "auto",
+                            paddingRight: 8,
+                        },
+                    }}
+                >
+                    <Form layout="vertical">
+                        <Form.Item
+                            label="Tên bài giảng"
+                            required
+                            validateStatus={!title.trim() && creating ? "error" : ""}
+                            help={!title.trim() && creating ? "Tên bài giảng không được trống." : ""}
+                        >
+                            <Input
+                                placeholder="Nhập tên bài giảng"
+                                value={title}
+                                onChange={(e) => setTitle(e.target.value)}
+                            />
+                        </Form.Item>
+
+                        <Form.Item label="Trạng thái" required>
+                            <Select
+                                value={createStatus}
+                                options={STATUS_OPTIONS}
+                                placeholder="Chọn trạng thái"
+                                onChange={setCreateStatus}
+                            />
+                        </Form.Item>
+
+                        <Form.Item label="Mô tả">
+                            <TextArea
+                                rows={4}
+                                placeholder="Nhập mô tả"
+                                value={description}
+                                onChange={(e) => setDescription(e.target.value)}
+                            />
+                        </Form.Item>
+
+                        <Form.Item label="Thời lượng dự kiến">
+                            <Space.Compact style={{ width: "100%" }}>
+                                <Input
+                                    inputMode="numeric"
+                                    placeholder="Ví dụ: 45"
+                                    value={timeShouldLearn}
+                                    onChange={(e) =>
+                                        setTimeShouldLearn(normalizeMinutesInput(e.target.value))
+                                    }
+                                    maxLength={4}
+                                />
+                                <Button disabled>phút</Button>
+                            </Space.Compact>
+                        </Form.Item>
+
+                        <Form.Item label="File bài giảng">
+                            <Upload
+                                beforeUpload={(file) => {
+                                    const allowedExtensions = [".pdf", ".doc", ".docx"];
+                                    const lowerName = file.name.toLowerCase();
+                                    const isValid = allowedExtensions.some((ext) =>
+                                        lowerName.endsWith(ext)
+                                    );
+
+                                    if (!isValid) {
+                                        message.error("Chỉ hỗ trợ file PDF/DOC/DOCX.");
+                                        return Upload.LIST_IGNORE;
+                                    }
+
+                                    setSelectedFile(file);
+                                    return false;
+                                }}
+                                maxCount={1}
+                                onRemove={() => {
+                                    setSelectedFile(null);
+                                }}
+                                fileList={
+                                    selectedFile
+                                        ? [
+                                            {
+                                                uid: "-1",
+                                                name: selectedFile.name,
+                                                status: "done",
+                                            },
+                                        ]
+                                        : []
+                                }
+                            >
+                                <Button icon={<UploadOutlined />}>Chọn tệp</Button>
+                            </Upload>
+
+                            <div style={{ marginTop: 8 }}>
+                                <Text type="secondary">
+                                    {selectedFile
+                                        ? `Đã chọn: ${selectedFile.name}`
+                                        : currentFileName
+                                            ? `File hiện tại: ${currentFileName}`
+                                            : "Chưa có tệp nào được chọn"}
+                                </Text>
+                            </div>
+
+                            {editing ? (
+                                <div style={{ marginTop: 6 }}>
+                                    <Text type="secondary">
+                                        Chỉ chọn file nếu muốn thay thế file hiện tại.
+                                    </Text>
+                                </div>
+                            ) : null}
+                        </Form.Item>
+                    </Form>
+                </Modal>
             </div>
         </div>
     );

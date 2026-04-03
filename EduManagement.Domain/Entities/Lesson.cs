@@ -12,7 +12,7 @@ namespace EduManagement.Domain.Entities
         public int LessonID { get; set; }
         public string LessonTitle { get; set; } = default!;
         public string LessonDescription { get; set; } = default!;
-        public string TimeShouldLearn { get; set; } = default!;
+        public string? TimeShouldLearn { get; set; }
 
         // Gắn theo nghiệp vụ
         public int TeacherId { get; set; }               // lấy từ JWT (sub)

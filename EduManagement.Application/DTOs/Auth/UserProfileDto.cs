@@ -8,6 +8,7 @@ public class UserProfileDto
     public string Email { get; set; } = "";
 
     // optional
-    public int? PhoneNumber { get; set; }
+    public string? PhoneNumber { get; set; }
     public DateTime? BirthDate { get; set; }
+    public string? AvatarURL { get; set; }
 }

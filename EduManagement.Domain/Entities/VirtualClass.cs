@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace EduManagement.Domain.Entities
+﻿namespace EduManagement.Domain.Entities
 {
     public class VirtualClass
     {
@@ -10,7 +6,9 @@ namespace EduManagement.Domain.Entities
 
         public int TeacherId { get; set; }
         public Teacher? Teacher { get; set; }
+        public DateTime StartTime { get; set; }
 
+        public DateTime? EndTime { get; set; }
         public int ClassId { get; set; }
         public Class? Class { get; set; }
 
@@ -19,9 +17,13 @@ namespace EduManagement.Domain.Entities
 
         public string MeetingUrl { get; set; } = default!;
 
-        public DateTime StartTime { get; set; }
+        public DateTime StudyDate { get; set; }
+        // 2 = T2, 3 = T3 ... 7 = T7
+        public int DayOfWeek { get; set; }
 
-        public DateTime EndTime { get; set; }
+        public int Period { get; set; }
+
+        
 
         public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
     }

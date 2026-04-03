@@ -18,21 +18,81 @@ import {
 } from "react-icons/fi";
 
 /* =========================
-   VALIDATION SCHEMA
+   PHONE HELPERS
 ========================= */
 
+const vnPhoneRegex = /^(?:0|84|\+84)(?:3|5|7|8|9)\d{8}$/;
+
+const normalizePhoneInput = (value) =>
+    (value || "").replace(/[\s.\-()]/g, "");
+
+const buildFullPhone = (countryCode, phoneNumber) => {
+    const raw = normalizePhoneInput(phoneNumber);
+
+    if (!raw) return "";
+
+    return `${countryCode}${raw}`;
+};
+
+/* =========================
+   VALIDATION SCHEMA
+========================= */
+const calculateAge = (birthDateString) => {
+    if (!birthDateString) return null;
+
+    const today = new Date();
+    const dob = new Date(birthDateString);
+
+    if (Number.isNaN(dob.getTime())) return null;
+
+    let age = today.getFullYear() - dob.getFullYear();
+    const monthDiff = today.getMonth() - dob.getMonth();
+
+    if (
+        monthDiff < 0 ||
+        (monthDiff === 0 && today.getDate() < dob.getDate())
+    ) {
+        age--;
+    }
+
+    return age;
+};
 const schema = z
     .object({
         fullName: z.string().min(1, "Vui lòng nhập họ tên"),
 
-        birthDate: z.string().min(1, "Vui lòng chọn ngày sinh"),
+        birthDate: z
+            .string()
+            .min(1, "Vui lòng chọn ngày sinh")
+            .refine((value) => {
+                const dob = new Date(value);
+                return !Number.isNaN(dob.getTime());
+            }, {
+                message: "Ngày sinh không hợp lệ"
+            })
+            .refine((value) => {
+                const dob = new Date(value);
+                const today = new Date();
+                dob.setHours(0, 0, 0, 0);
+                today.setHours(0, 0, 0, 0);
+                return dob <= today;
+            }, {
+                message: "Ngày sinh không được lớn hơn ngày hiện tại"
+            })
+            .refine((value) => {
+                const age = calculateAge(value);
+                return age !== null && age >= 14 && age <= 65;
+            }, {
+                message: "Tuổi phải từ 14 đến 65"
+            }),
 
         phoneNumber: z
             .string()
             .min(1, "Vui lòng nhập SĐT")
-            .regex(/^[0-9]+$/, "SĐT chỉ được chứa số")
-            .min(9, "SĐT phải có ít nhất 9 số")
-            .max(11, "SĐT tối đa 11 số"),
+            .transform((value) => normalizePhoneInput(value))
+            .refine((value) => /^\d+$/.test(value), {
+                message: "Phần số điện thoại chỉ được chứa số"
+            }),
 
         email: z
             .string()
@@ -40,11 +100,8 @@ const schema = z
             .email("Email không hợp lệ"),
 
         role: z.enum(["Student", "Teacher"]),
-
         classId: z.string().optional(),
-
         password: z.string().min(6, "Mật khẩu tối thiểu 6 ký tự"),
-
         confirmPassword: z.string()
     })
     .refine((data) => data.password === data.confirmPassword, {
@@ -73,7 +130,7 @@ export default function RegisterPage() {
 
     const [err, setErr] = useState("");
     const [loading, setLoading] = useState(false);
-
+    const [countryCode, setCountryCode] = useState("+84");
     const {
         register,
         handleSubmit,
@@ -114,14 +171,24 @@ export default function RegisterPage() {
     /* =========================
        SUBMIT
     ========================= */
+    
 
+    const todayStr = new Date().toISOString().split("T")[0];
     const onSubmit = async (data) => {
         setErr("");
         setLoading(true);
 
         try {
+            const fullPhone = buildFullPhone(countryCode, data.phoneNumber);
+
+            if (!vnPhoneRegex.test(fullPhone)) {
+                setErr("SĐT không hợp lệ. Chỉ chấp nhận số di động Việt Nam");
+                return;
+            }
+
             const payload = {
                 ...data,
+                phoneNumber: fullPhone,
                 birthDate: data.birthDate
                     ? `${data.birthDate}T00:00:00`
                     : null,
@@ -134,7 +201,6 @@ export default function RegisterPage() {
             await authApi.register(payload);
 
             nav("/login", { replace: true });
-
         } catch (ex) {
             const msg =
                 ex?.response?.data?.message ||
@@ -150,14 +216,10 @@ export default function RegisterPage() {
     return (
         <div className="auth-page">
             <div className="auth-card">
-
                 <h2 className="title">Đăng ký</h2>
 
                 <form onSubmit={handleSubmit(onSubmit)} className="auth-form">
-
                     <div className="grid-2">
-
-                        {/* FULL NAME */}
                         <div className="field">
                             <label>Họ tên *</label>
 
@@ -177,7 +239,6 @@ export default function RegisterPage() {
                             )}
                         </div>
 
-                        {/* BIRTHDATE */}
                         <div className="field">
                             <label>Ngày sinh *</label>
 
@@ -185,6 +246,7 @@ export default function RegisterPage() {
                                 <FiCalendar className="input-icon" />
                                 <input
                                     type="date"
+                                    max={todayStr}
                                     {...register("birthDate")}
                                     className={errors.birthDate ? "input-error" : ""}
                                 />
@@ -197,15 +259,26 @@ export default function RegisterPage() {
                             )}
                         </div>
 
-                        {/* PHONE */}
                         <div className="field">
                             <label>SĐT *</label>
 
-                            <div className="input-wrap">
-                                <FiPhone className="input-icon" />
+                            <div className={`phone-group ${errors.phoneNumber ? "phone-group-error" : ""}`}>
+                                <div className="phone-code-wrap">
+                                    <FiPhone className="phone-code-icon" />
+                                    <select
+                                        className="phone-code"
+                                        value={countryCode}
+                                        onChange={(e) => setCountryCode(e.target.value)}
+                                    >
+                                        <option value="+84">+84</option>
+                                        <option value="84">84</option>
+                                        <option value="0">0</option>
+                                    </select>
+                                </div>
+
                                 <input
                                     {...register("phoneNumber")}
-                                    placeholder="Nhập số điện thoại..."
+                                    placeholder="94344xxxx"
                                     className={errors.phoneNumber ? "input-error" : ""}
                                 />
                             </div>
@@ -217,7 +290,6 @@ export default function RegisterPage() {
                             )}
                         </div>
 
-                        {/* EMAIL */}
                         <div className="field">
                             <label>Email *</label>
 
@@ -237,7 +309,6 @@ export default function RegisterPage() {
                             )}
                         </div>
 
-                        {/* ROLE */}
                         <div className="field">
                             <label>Vai trò *</label>
                             <select {...register("role")}>
@@ -246,7 +317,6 @@ export default function RegisterPage() {
                             </select>
                         </div>
 
-                        {/* CLASS */}
                         {role === "Student" && (
                             <div className="field">
                                 <label>Lớp học *</label>
@@ -256,9 +326,7 @@ export default function RegisterPage() {
                                     className={errors.classId ? "input-error" : ""}
                                 >
                                     <option value="">
-                                        {loadingClasses
-                                            ? "Đang tải..."
-                                            : "Chọn lớp"}
+                                        {loadingClasses ? "Đang tải..." : "Chọn lớp"}
                                     </option>
 
                                     {classes.map((c) => (
@@ -276,7 +344,6 @@ export default function RegisterPage() {
                             </div>
                         )}
 
-                        {/* PASSWORD */}
                         <div className="field">
                             <label>Mật khẩu *</label>
 
@@ -306,7 +373,6 @@ export default function RegisterPage() {
                             )}
                         </div>
 
-                        {/* CONFIRM PASSWORD */}
                         <div className="field">
                             <label>Xác nhận mật khẩu *</label>
 
@@ -335,7 +401,6 @@ export default function RegisterPage() {
                                 </div>
                             )}
                         </div>
-
                     </div>
 
                     {err && <div className="error">{err}</div>}
@@ -347,7 +412,6 @@ export default function RegisterPage() {
                     <div className="footer">
                         Đã có tài khoản? <Link to="/login">Đăng nhập</Link>
                     </div>
-
                 </form>
             </div>
         </div>

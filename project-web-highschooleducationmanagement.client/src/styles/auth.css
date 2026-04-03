@@ -170,3 +170,95 @@
     height: 18px;
     color: #666;
 }
+.phone-group {
+    display: grid;
+    grid-template-columns: 86px 1fr; /* giảm 10px so với 96px */
+    width: 100%;
+    align-items: stretch;
+    gap: 0;
+}
+
+.phone-code-wrap {
+    position: relative;
+    width: 100%;
+}
+
+.phone-code-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #8c8c8c;
+    font-size: 15px;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.phone-code {
+    width: 100%;
+    height: 38px;
+    border: 1px solid #d9d9d9;
+    border-right: none;
+    border-radius: 8px 0 0 8px;
+    padding: 0 8px 0 46px;
+    font-size: 14px;
+    background: #fff;
+    box-sizing: border-box;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.phone-group input {
+    width: 100%;
+    height: 38px;
+    border: 1px solid #d9d9d9;
+    border-radius: 0 8px 8px 0;
+    padding: 0 12px;
+    font-size: 14px;
+    background: #fff;
+    box-sizing: border-box;
+    margin: 0;
+    transition: all 0.2s ease;
+}
+
+    /* Hover giống Ant */
+    .phone-code:hover,
+    .phone-group input:hover {
+        border-color: #4096ff;
+    }
+
+    /* Focus giống Ant */
+    .phone-code:focus,
+    .phone-group input:focus {
+        outline: none;
+        border-color: #4096ff;
+        box-shadow: 0 0 0 2px rgba(5, 145, 255, 0.1);
+        position: relative;
+        z-index: 1;
+    }
+
+        /* Để đường nối giữa 2 ô đẹp hơn khi focus */
+        .phone-code:focus + input,
+        .phone-group input:focus {
+            position: relative;
+            z-index: 2;
+        }
+
+    /* Placeholder nhẹ hơn */
+    .phone-group input::placeholder {
+        color: #bfbfbf;
+    }
+
+/* Error state */
+.phone-group-error .phone-code,
+.phone-group-error input {
+    border-color: #ff4d4f !important;
+}
+
+    .phone-group-error .phone-code:focus,
+    .phone-group-error input:focus {
+        box-shadow: 0 0 0 2px rgba(255, 77, 79, 0.12);
+    }

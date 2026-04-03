@@ -14,7 +14,7 @@ public class PendingAccount
     public string FullName { get; set; } = default!;
     public DateTime? BirthDate { get; set; }
     public string Email { get; set; } = default!;
-    public int? PhoneNumber { get; set; }
+    public string? PhoneNumber { get; set; }
 
     // lưu hash luôn cho an toàn
     public string PasswordHash { get; set; } = default!;

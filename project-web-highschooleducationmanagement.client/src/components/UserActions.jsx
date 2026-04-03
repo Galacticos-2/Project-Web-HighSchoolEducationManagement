@@ -1,6 +1,8 @@
 ﻿import { useEffect, useMemo, useRef, useState } from "react";
 import "../styles/UserActions.css";
 import "../styles/myinfor.css";
+import { useNotifications } from "../context/useNotifications";
+import { useNavigate } from "react-router-dom";
 /**
  * Props:
  * variant: "admin" | "teacher" | "student"
@@ -17,6 +19,7 @@ export default function UserActions({
     variant = "admin",
     fullName = "User",
     avatarLetter,
+    avatarURL,
     onMyAccount,
     onChangePassword,
     onLogout,
@@ -31,19 +34,25 @@ export default function UserActions({
 
     const [open, setOpen] = useState(false);
     const wrapRef = useRef(null);
-
+    const [notifOpen, setNotifOpen] = useState(false);
     // close dropdown
     useEffect(() => {
 
         function handleClickOutside(e) {
-            if (!wrapRef.current) return;
-            if (!wrapRef.current.contains(e.target)) {
+            if (wrapRef.current && !wrapRef.current.contains(e.target)) {
                 setOpen(false);
+            }
+
+            if (notifRef.current && !notifRef.current.contains(e.target)) {
+                setNotifOpen(false);
             }
         }
 
         function handleEsc(e) {
-            if (e.key === "Escape") setOpen(false);
+            if (e.key === "Escape") {
+                setOpen(false);
+                setNotifOpen(false);
+            }
         }
 
         document.addEventListener("mousedown", handleClickOutside);
@@ -55,7 +64,19 @@ export default function UserActions({
         };
 
     }, []);
-
+    const nav = useNavigate();
+    const {
+        items,
+        unreadCount,
+        markAsRead,
+        deleteNotification,
+        toastItems,
+        removeToast,
+        handleToastClick,
+        formatNotificationTime
+    } = useNotifications();
+    
+    const notifRef = useRef(null);
     const handleMyAccount = () => {
         setOpen(false);
         onMyAccount?.();
@@ -70,7 +91,7 @@ export default function UserActions({
         setOpen(false);
         onLogout?.();
     };
-
+    
     /* =========================
        STUDENT + TEACHER UI
        ========================= */
@@ -79,8 +100,110 @@ export default function UserActions({
         return (
             <div className="user-actions">
 
-                <div className="user-menu" ref={wrapRef}>
+                <div className="user-notif" ref={notifRef}>
+                    <button
+                        type="button"
+                        className="user-notif-btn"
+                        onClick={() => setNotifOpen(v => !v)}
+                        title="Thông báo"
+                    >
+                        <span aria-hidden="true">🔔</span>
+                        {unreadCount > 0 && (
+                            <span className="user-notif-badge">
+                                {unreadCount > 99 ? "99+" : unreadCount}
+                            </span>
+                        )}
+                    </button>
 
+                    {notifOpen && (
+                        <div className="user-notif-dropdown">
+                            <div className="user-notif-header">Thông báo</div>
+
+                            {items.length === 0 ? (
+                                <div className="user-notif-empty">Chưa có thông báo.</div>
+                            ) : (
+                                    items.map((item) => (
+                                        <div
+                                            key={item.id}
+                                            className={`user-notif-item ${item.isRead ? "" : "unread"}`}
+                                        >
+                                            <button
+                                                type="button"
+                                                className="user-notif-remove"
+                                                onClick={async (e) => {
+                                                    e.stopPropagation();
+                                                    await deleteNotification(item.id);
+                                                }}
+                                                title="Xóa khỏi danh sách"
+                                            >
+                                                ×
+                                            </button>
+
+                                            <button
+                                                type="button"
+                                                className="user-notif-main"
+                                                onClick={async () => {
+                                                    await markAsRead(item.id);
+                                                    setNotifOpen(false);
+                                                    if (item.navigationUrl) nav(item.navigationUrl);
+                                                }}
+                                            >
+                                                <div className="user-notif-top">
+                                                    <div className="user-notif-title">{item.title}</div>
+                                                    <div className="user-notif-time">
+                                                        {formatNotificationTime(item.createdAtUtc)}
+                                                    </div>
+                                                </div>
+
+                                                <div className="user-notif-message">{item.message}</div>
+                                            </button>
+                                        </div>
+                                    ))
+                            )}
+                        </div>
+                    )}
+                    
+                </div>
+                <div className="floating-notification-stack">
+                    {toastItems.map((item) => (
+                        <div
+                            key={item.toastId}
+                            className={`floating-notification ${item.isRead ? "" : "unread"}`}
+                        >
+                            <button
+                                type="button"
+                                className="floating-notification-close"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    removeToast(item.toastId);
+                                }}
+                                title="Đóng"
+                            >
+                                ×
+                            </button>
+
+                            <button
+                                type="button"
+                                className="floating-notification-main"
+                                onClick={() => handleToastClick(item)}
+                            >
+                                <div className="floating-notification-top">
+                                    <div className="floating-notification-title">
+                                        {item.title}
+                                    </div>
+                                    <div className="floating-notification-time">
+                                        {formatNotificationTime(item.createdAtUtc)}
+                                    </div>
+                                </div>
+
+                                <div className="floating-notification-message">
+                                    {item.message}
+                                </div>
+                            </button>
+                        </div>
+                    ))}
+                </div>
+                <div className="user-menu" ref={wrapRef}>
                     <button
                         type="button"
                         className="user-avatar-btn"
@@ -89,7 +212,13 @@ export default function UserActions({
                         aria-expanded={open}
                         title={fullName}
                     >
-                        <span className="user-avatar">{letter}</span>
+                        <span className="user-avatar">
+                            {avatarURL ? (
+                                <img src={avatarURL} alt="Avatar" className="user-avatar-img" />
+                            ) : (
+                                letter
+                            )}
+                        </span>
 
                         <span className="user-name">{fullName}</span>
 
@@ -100,41 +229,29 @@ export default function UserActions({
 
                     {open && (
                         <div className="user-menu-dropdown">
-
-                            <button
-                                className="user-menu-item"
-                                onClick={handleMyAccount}
-                            >
+                            <button className="user-menu-item" onClick={handleMyAccount}>
                                 <span className="user-menu-icon">👤</span>
                                 <span>Tài khoản của tôi</span>
                             </button>
 
-                            <button
-                                className="user-menu-item"
-                                onClick={handleChangePw}
-                            >
+                            <button className="user-menu-item" onClick={handleChangePw}>
                                 <span className="user-menu-icon">🔑</span>
                                 <span>Đổi mật khẩu</span>
                             </button>
 
                             <div className="user-menu-divider" />
 
-                            <button
-                                className="user-menu-item danger"
-                                onClick={handleLogout}
-                            >
+                            <button className="user-menu-item danger" onClick={handleLogout}>
                                 <span className="user-menu-icon">↩</span>
                                 <span>Đăng xuất</span>
                             </button>
-
                         </div>
                     )}
-
                 </div>
-
             </div>
         );
     }
+    
 
     /* =========================
        ADMIN UI
@@ -236,10 +353,24 @@ export default function UserActions({
                             background: "rgba(255,255,255,0.18)",
                             display: "grid",
                             placeItems: "center",
-                            fontWeight: 900
+                            fontWeight: 900,
+                            overflow: "hidden"
                         }}
                     >
-                        {letter}
+                        {avatarURL ? (
+                            <img
+                                src={avatarURL}
+                                alt="Avatar"
+                                style={{
+                                    width: "100%",
+                                    height: "100%",
+                                    objectFit: "cover",
+                                    display: "block"
+                                }}
+                            />
+                        ) : (
+                            letter
+                        )}
                     </span>
 
                     <span style={{ fontWeight: 800 }}>

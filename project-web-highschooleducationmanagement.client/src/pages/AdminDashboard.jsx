@@ -1,10 +1,11 @@
 ﻿import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { adminApi } from "../api/adminApi";
-import { authStorage } from "../auth/authStorage";
+import { useAuth } from "../context/useAuth";
 import { classesApi } from "../api/classesApi";
 import { subjectsApi } from "../api/subjectsApi";
-
+import { notificationApi } from "../api/notificationApi";
+import { useNotifications } from "../context/useNotifications";
 import UserActions from "../components/UserActions";
 const ROLES = ["Student", "Teacher", "Admin"];
 
@@ -12,10 +13,21 @@ export default function AdminDashboard() {
     const nav = useNavigate();
 
     // ===== Auth/profile (REAL) =====
-    const profile = authStorage.getProfile();
+    const { profile, clearAuthState } = useAuth();
+
     const fullName = profile?.fullName || "Admin";
     const avatarLetter = (fullName?.trim()?.[0] || "A").toUpperCase();
+    const avatarURL = profile?.avatarURL || "";
+    const [notificationSetting, setNotificationSetting] = useState({
+        lessonUploadEnabled: true,
+        virtualClassReminderEnabled: true,
+        reminderMinutesBefore: [30],
+    });
 
+    const [notifMinuteInputs, setNotifMinuteInputs] = useState(["30"]);
+    const { items, unreadCount, markAsRead } = useNotifications();
+    const [notifOpen, setNotifOpen] = useState(false);
+    const notifRef = useRef(null);
     // Dropdown state
     const [userMenuOpen, setUserMenuOpen] = useState(false);
     const userMenuRef = useRef(null);
@@ -46,7 +58,29 @@ export default function AdminDashboard() {
 
     const [loading, setLoading] = useState(false);
     const [err, setErr] = useState("");
+    const loadNotificationSettings = async () => {
+        const { data } = await notificationApi.getSettings();
+        setNotificationSetting(data);
+        setNotifMinuteInputs((data?.reminderMinutesBefore || []).map(String));
+    };
 
+    const saveNotificationSettings = async () => {
+        const clean = notifMinuteInputs
+            .map(x => Number(String(x).trim()))
+            .filter(x => Number.isInteger(x) && x > 0)
+            .slice(0, 5);
+
+        const payload = {
+            lessonUploadEnabled: notificationSetting.lessonUploadEnabled,
+            virtualClassReminderEnabled: notificationSetting.virtualClassReminderEnabled,
+            reminderMinutesBefore: clean,
+        };
+
+        const { data } = await notificationApi.updateSettings(payload);
+        setNotificationSetting(data);
+        setNotifMinuteInputs((data?.reminderMinutesBefore || []).map(String));
+        alert("Đã lưu cài đặt thông báo.");
+    };
     const totalPages = useMemo(() => {
         return Math.max(1, Math.ceil((listState.total || 0) / pageSize));
     }, [listState.total]);
@@ -67,14 +101,20 @@ export default function AdminDashboard() {
     // ===== Close dropdown when click outside + ESC =====
     useEffect(() => {
         function onDocMouseDown(e) {
-            if (!userMenuRef.current) return;
-            if (!userMenuRef.current.contains(e.target)) {
+            if (userMenuRef.current && !userMenuRef.current.contains(e.target)) {
                 setUserMenuOpen(false);
+            }
+
+            if (notifRef.current && !notifRef.current.contains(e.target)) {
+                setNotifOpen(false);
             }
         }
 
         function onEsc(e) {
-            if (e.key === "Escape") setUserMenuOpen(false);
+            if (e.key === "Escape") {
+                setUserMenuOpen(false);
+                setNotifOpen(false);
+            }
         }
 
         document.addEventListener("mousedown", onDocMouseDown);
@@ -115,7 +155,7 @@ export default function AdminDashboard() {
         setUserMenuOpen(false);
     };
     const onLogout = () => {
-        authStorage.clear();
+        clearAuthState();
         setUserMenuOpen(false);
         nav("/login", { replace: true });
     };
@@ -187,6 +227,7 @@ export default function AdminDashboard() {
         
         loadClasses();
         loadSubjects();
+        loadNotificationSettings();
     }, []);
 
     useEffect(() => {
@@ -256,13 +297,139 @@ export default function AdminDashboard() {
             </button>
         );
     };
+    const NotificationSettingsPage = () => (
+        <div
+            style={{
+                background: "#fff",
+                borderRadius: 14,
+                padding: 16,
+                boxShadow: "0 10px 22px rgba(15,23,42,0.10)",
+                maxWidth: 720,
+            }}
+        >
+            <h3 style={{ marginTop: 0, color: "#0f172a" }}>Cài đặt thông báo</h3>
 
+            <div style={{ display: "grid", gap: 14 }}>
+                <label style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <input
+                        type="checkbox"
+                        checked={notificationSetting.lessonUploadEnabled}
+                        onChange={(e) =>
+                            setNotificationSetting(prev => ({
+                                ...prev,
+                                lessonUploadEnabled: e.target.checked
+                            }))
+                        }
+                    />
+                    Bật thông báo khi giáo viên đăng bài giảng
+                </label>
+
+                <label style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <input
+                        type="checkbox"
+                        checked={notificationSetting.virtualClassReminderEnabled}
+                        onChange={(e) =>
+                            setNotificationSetting(prev => ({
+                                ...prev,
+                                virtualClassReminderEnabled: e.target.checked
+                            }))
+                        }
+                    />
+                    Bật thông báo nhắc trước giờ lớp học ảo
+                </label>
+
+                <div>
+                    <div style={{ fontWeight: 700, marginBottom: 8 }}>
+                        Số phút nhắc trước
+                    </div>
+
+                    <div style={{ display: "grid", gap: 10 }}>
+                        {notifMinuteInputs.map((value, index) => (
+                            <div key={index} style={{ display: "flex", gap: 8 }}>
+                                <input
+                                    type="number"
+                                    min="1"
+                                    value={value}
+                                    onChange={(e) => {
+                                        const next = [...notifMinuteInputs];
+                                        next[index] = e.target.value;
+                                        setNotifMinuteInputs(next);
+                                    }}
+                                    placeholder={`Lần ${index + 1} - ví dụ 30`}
+                                    style={{
+                                        padding: "10px 12px",
+                                        borderRadius: 10,
+                                        border: "1px solid #dbe2ea",
+                                        width: 220,
+                                    }}
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        setNotifMinuteInputs(prev => prev.filter((_, i) => i !== index))
+                                    }
+                                    style={{
+                                        padding: "10px 12px",
+                                        borderRadius: 10,
+                                        border: "1px solid #ddd",
+                                        background: "#fff",
+                                        cursor: "pointer",
+                                    }}
+                                >
+                                    Xóa
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+
+                    {notifMinuteInputs.length < 5 && (
+                        <button
+                            type="button"
+                            onClick={() => setNotifMinuteInputs(prev => [...prev, ""])}
+                            style={{
+                                marginTop: 10,
+                                padding: "10px 14px",
+                                borderRadius: 10,
+                                border: "none",
+                                background: "#0f172a",
+                                color: "#fff",
+                                cursor: "pointer",
+                                fontWeight: 700,
+                            }}
+                        >
+                            Thêm lần nhắc
+                        </button>
+                    )}
+                </div>
+
+                <div>
+                    <button
+                        type="button"
+                        onClick={saveNotificationSettings}
+                        style={{
+                            padding: "10px 16px",
+                            borderRadius: 10,
+                            border: "none",
+                            background: "#4f46e5",
+                            color: "#fff",
+                            cursor: "pointer",
+                            fontWeight: 800,
+                        }}
+                    >
+                        Lưu cài đặt
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
     const PageTitle =
         activeMenu === "accounts"
             ? "Tài khoản"
             : activeMenu === "lessons"
                 ? "Bài học"
-                : "Điểm";
+                : activeMenu === "grades"
+                    ? "Điểm"
+                    : "Cài đặt thông báo";
 
     // ===== Layout styles =====
     const styles = {
@@ -934,7 +1101,22 @@ export default function AdminDashboard() {
 
                 {/* Profile (REAL name letter) */}
                 <div style={styles.profile}>
-                    <div style={styles.avatar}>{avatarLetter}</div>
+                    <div style={{ ...styles.avatar, overflow: "hidden" }}>
+                        {avatarURL ? (
+                            <img
+                                src={avatarURL}
+                                alt="Avatar"
+                                style={{
+                                    width: "100%",
+                                    height: "100%",
+                                    objectFit: "cover",
+                                    display: "block",
+                                }}
+                            />
+                        ) : (
+                            avatarLetter
+                        )}
+                    </div>
                     <div style={styles.profileTextWrap}>
                         <div style={styles.profileName}>{fullName}</div>
                         <div style={styles.profileSub}>Online</div>
@@ -947,6 +1129,7 @@ export default function AdminDashboard() {
                     <MenuItem id="accounts" label="Tài khoản" icon="👤" />
                     <MenuItem id="lessons" label="Bài học" icon="📚" />
                     <MenuItem id="grades" label="Điểm" icon="🏆" />
+                    <MenuItem id="notification-settings" label="Thông báo" icon="🔔" />
                 </div>
             </aside>
 
@@ -967,10 +1150,78 @@ export default function AdminDashboard() {
 
                     <div style={styles.topRight}>
                         {/* Notifications placeholder */}
-                        <button style={styles.iconBtn} title="Notifications">
-                            🔔
-                            <span style={styles.badge}>2</span>
-                        </button>
+                        <div ref={notifRef} style={{ position: "relative" }}>
+                            <button
+                                style={styles.iconBtn}
+                                title="Notifications"
+                                onClick={() => setNotifOpen(v => !v)}
+                            >
+                                🔔
+                                {unreadCount > 0 && (
+                                    <span style={styles.badge}>
+                                        {unreadCount > 99 ? "99+" : unreadCount}
+                                    </span>
+                                )}
+                            </button>
+
+                            {notifOpen && (
+                                <div
+                                    style={{
+                                        position: "absolute",
+                                        right: 0,
+                                        top: "calc(100% + 10px)",
+                                        width: 340,
+                                        maxHeight: 420,
+                                        overflowY: "auto",
+                                        background: "#fff",
+                                        border: "1px solid #e5e7eb",
+                                        borderRadius: 14,
+                                        boxShadow: "0 18px 40px rgba(0,0,0,0.20)",
+                                        zIndex: 100,
+                                        padding: 8,
+                                    }}
+                                >
+                                    <div style={{ padding: "10px 12px", fontWeight: 800, color: "#0f172a" }}>
+                                        Thông báo
+                                    </div>
+
+                                    {items.length === 0 ? (
+                                        <div style={{ padding: "12px", color: "#64748b" }}>
+                                            Chưa có thông báo.
+                                        </div>
+                                    ) : (
+                                        items.map((item) => (
+                                            <button
+                                                key={item.id}
+                                                type="button"
+                                                onClick={async () => {
+                                                    await markAsRead(item.id);
+                                                    setNotifOpen(false);
+                                                    if (item.navigationUrl) nav(item.navigationUrl);
+                                                }}
+                                                style={{
+                                                    width: "100%",
+                                                    border: "none",
+                                                    background: item.isRead ? "#fff" : "#eef6ff",
+                                                    padding: "10px 12px",
+                                                    borderRadius: 10,
+                                                    textAlign: "left",
+                                                    cursor: "pointer",
+                                                    marginBottom: 6,
+                                                }}
+                                            >
+                                                <div style={{ fontWeight: 700, color: "#0f172a", marginBottom: 4 }}>
+                                                    {item.title}
+                                                </div>
+                                                <div style={{ color: "#64748b", fontSize: 13 }}>
+                                                    {item.message}
+                                                </div>
+                                            </button>
+                                        ))
+                                    )}
+                                </div>
+                            )}
+                        </div>
 
                         {/* Messages placeholder */}
                         <button style={styles.iconBtn} title="Messages">
@@ -1047,6 +1298,7 @@ export default function AdminDashboard() {
                     {activeMenu === "accounts" && <AccountsPage />}
                     {activeMenu === "lessons" && <PlaceholderPage title="Bài học" />}
                     {activeMenu === "grades" && <PlaceholderPage title="Điểm" />}
+                    {activeMenu === "notification-settings" && <NotificationSettingsPage />}
                 </div>
             </main>
         </div>

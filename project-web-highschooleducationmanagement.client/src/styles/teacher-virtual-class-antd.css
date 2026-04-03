@@ -1,0 +1,43 @@
+.teacher-virtual-class-antd-page {
+    min-height: 100vh;
+    background: #f5f7fb;
+    padding: 24px;
+}
+
+.teacher-virtual-class-antd-card {
+    border-radius: 18px;
+    border: 1px solid #e7eaf0;
+    box-shadow: 0 10px 22px rgba(16, 58, 113, 0.06);
+}
+
+.teacher-virtual-class-antd-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.teacher-virtual-class-antd-error {
+    margin-bottom: 16px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: #fff2f0;
+    border: 1px solid #ffccc7;
+    color: #cf1322;
+}
+
+.teacher-virtual-class-antd-note {
+    margin-top: 4px;
+}
+
+@media (max-width: 768px) {
+    .teacher-virtual-class-antd-page {
+        padding: 16px;
+    }
+
+    .teacher-virtual-class-antd-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}

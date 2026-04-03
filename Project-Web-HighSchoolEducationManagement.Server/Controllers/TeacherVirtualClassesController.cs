@@ -31,12 +31,13 @@ public class TeacherVirtualClassesController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetMine(
     [FromQuery] int page = 1,
-    [FromQuery] int pageSize = 10
-)
+    [FromQuery] int pageSize = 10,
+    [FromQuery] string? sortBy = null,
+    [FromQuery] string? order = null)
     {
         var teacherId = GetTeacherId();
 
-        var data = await _svc.GetMineAsync(teacherId, page, pageSize);
+        var data = await _svc.GetMineAsync(teacherId, page, pageSize, sortBy, order);
 
         return Ok(data);
     }
@@ -112,6 +113,42 @@ public class TeacherVirtualClassesController : ControllerBase
             await _svc.UpdateAsync(teacherId, id, req);
 
             return Ok(new { message = "Updated" });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    [HttpGet("class-colors")]
+    public async Task<IActionResult> GetClassColors()
+    {
+        try
+        {
+            var teacherId = GetTeacherId();
+            var data = await _svc.GetClassColorsAsync(teacherId);
+            return Ok(data);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new
+            {
+                message = ex.Message,
+                detail = ex.InnerException?.Message
+            });
+        }
+    }
+
+    [HttpPut("class-colors")]
+    public async Task<IActionResult> UpsertClassColor([FromBody] UpsertTeacherClassColorRequest req)
+    {
+        try
+        {
+            var teacherId = GetTeacherId();
+
+            await _svc.UpsertClassColorAsync(teacherId, req);
+
+            return Ok(new { message = "Saved" });
         }
         catch (Exception ex)
         {

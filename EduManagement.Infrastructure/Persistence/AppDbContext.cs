@@ -17,10 +17,14 @@ public class AppDbContext : DbContext, IAppDbContext
     public DbSet<Admin> Admins => Set<Admin>();
     public DbSet<Teacher> Teachers => Set<Teacher>();
     public DbSet<Student> Students => Set<Student>();
+    public DbSet<StudentSubjectColor> StudentSubjectColors => Set<StudentSubjectColor>();
     public DbSet<PendingAccount> PendingAccounts => Set<PendingAccount>();
     public DbSet<TeacherAssignment> TeacherAssignments => Set<TeacherAssignment>();
     public DbSet<Lesson> Lessons => Set<Lesson>();
     public DbSet<Class> Classes => Set<Class>();
+    public DbSet<Notification> Notifications => Set<Notification>();
+    public DbSet<NotificationSetting> NotificationSettings => Set<NotificationSetting>();
+    public DbSet<TeacherClassColor> TeacherClassColors => Set<TeacherClassColor>();
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -81,9 +85,12 @@ public class AppDbContext : DbContext, IAppDbContext
             .HasMaxLength(100)
             .IsRequired();
         modelBuilder.Entity<VirtualClass>().ToTable("VirtualClass").HasKey(x => x.VirtualClassID);
+        modelBuilder.Entity<VirtualClass>();
+    modelBuilder.Entity<VirtualClass>().ToTable("VirtualClass").HasKey(x => x.VirtualClassID);
+
         modelBuilder.Entity<VirtualClass>()
-    .HasIndex(x => new { x.TeacherId, x.ClassId, x.SubjectId, x.StartTime, x.EndTime })
-    .IsUnique();
+            .HasIndex(x => new { x.TeacherId, x.ClassId, x.SubjectId, x.StudyDate, x.Period })
+            .IsUnique();
         modelBuilder.Entity<VirtualClass>()
             .HasOne(x => x.Teacher)
             .WithMany()
@@ -107,13 +114,44 @@ public class AppDbContext : DbContext, IAppDbContext
 
         modelBuilder.Entity<Lesson>().Property(x => x.LessonTitle).HasMaxLength(200).IsRequired();
         modelBuilder.Entity<Lesson>().Property(x => x.Status).HasMaxLength(20).IsRequired();
+        modelBuilder.Entity<Admin>()
+    .Property(x => x.AdminPhoneNumber)
+    .HasMaxLength(20)
+    .IsRequired(false);
 
+        modelBuilder.Entity<Teacher>()
+            .Property(x => x.TeacherPhoneNumber)
+            .HasMaxLength(20)
+            .IsRequired(false);
+
+        modelBuilder.Entity<Student>()
+            .Property(x => x.PhoneNumber)
+            .HasMaxLength(20)
+            .IsRequired(false);
+
+        modelBuilder.Entity<PendingAccount>()
+            .Property(x => x.PhoneNumber)
+            .HasMaxLength(20)
+            .IsRequired(false);
         modelBuilder.Entity<Lesson>().Property(x => x.FileName).HasMaxLength(255).IsRequired();
         modelBuilder.Entity<Lesson>().Property(x => x.StoredFileName).HasMaxLength(255).IsRequired();
         modelBuilder.Entity<Lesson>().Property(x => x.FilePath).HasMaxLength(500).IsRequired();
         modelBuilder.Entity<Lesson>().Property(x => x.ContentType).HasMaxLength(100).IsRequired();
         modelBuilder.Entity<TeacherAssignment>().ToTable("TeacherAssignment").HasKey(x => x.TeacherAssignmentID);
+        modelBuilder.Entity<Admin>()
+    .Property(x => x.AvatarURL)
+    .HasMaxLength(500)
+    .IsRequired(false);
 
+        modelBuilder.Entity<Teacher>()
+            .Property(x => x.AvatarURL)
+            .HasMaxLength(500)
+            .IsRequired(false);
+
+        modelBuilder.Entity<Student>()
+            .Property(x => x.AvatarURL)
+            .HasMaxLength(500)
+            .IsRequired(false);
         modelBuilder.Entity<TeacherAssignment>()
             .HasOne(x => x.Teacher)
             .WithMany()
@@ -141,5 +179,104 @@ public class AppDbContext : DbContext, IAppDbContext
             .WithMany()
             .HasForeignKey(x => x.SubjectId)
             .OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<StudentSubjectColor>(entity =>
+        {
+            entity.ToTable("StudentSubjectColor");
+            entity.HasKey(x => x.StudentSubjectColorID);
+
+            entity.Property(x => x.ColorHex)
+                .HasMaxLength(20)
+                .IsRequired();
+
+            entity.HasIndex(x => new { x.StudentId, x.SubjectId })
+                .IsUnique();
+
+            entity.HasOne(x => x.Student)
+                .WithMany()
+                .HasForeignKey(x => x.StudentId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(x => x.Subject)
+                .WithMany()
+                .HasForeignKey(x => x.SubjectId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // =======================
+        // TeacherClassColor
+        // =======================
+        modelBuilder.Entity<TeacherClassColor>(entity =>
+        {
+            entity.ToTable("TeacherClassColor");
+            entity.HasKey(x => x.TeacherClassColorID);
+
+            entity.Property(x => x.ColorHex)
+                .HasMaxLength(20)
+                .IsRequired();
+
+            entity.HasIndex(x => new { x.TeacherId, x.ClassId })
+                .IsUnique();
+
+            entity.HasOne(x => x.Teacher)
+                .WithMany()
+                .HasForeignKey(x => x.TeacherId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(x => x.Class)
+                .WithMany()
+                .HasForeignKey(x => x.ClassId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<Notification>().ToTable("Notification").HasKey(x => x.NotificationID);
+
+        modelBuilder.Entity<Notification>()
+            .Property(x => x.ReceiverRole)
+            .HasMaxLength(20)
+            .IsRequired();
+
+        modelBuilder.Entity<Notification>()
+            .Property(x => x.Title)
+            .HasMaxLength(200)
+            .IsRequired();
+
+        modelBuilder.Entity<Notification>()
+            .Property(x => x.Message)
+            .HasMaxLength(1000)
+            .IsRequired();
+
+        modelBuilder.Entity<Notification>()
+            .Property(x => x.Type)
+            .HasMaxLength(50)
+            .IsRequired();
+
+        modelBuilder.Entity<Notification>()
+            .Property(x => x.NavigationUrl)
+            .HasMaxLength(300)
+            .IsRequired(false);
+
+        modelBuilder.Entity<Notification>()
+            .Property(x => x.SourceType)
+            .HasMaxLength(50)
+            .IsRequired(false);
+
+        modelBuilder.Entity<Notification>()
+            .Property(x => x.DedupKey)
+            .HasMaxLength(200)
+            .IsRequired();
+
+        modelBuilder.Entity<Notification>()
+            .HasIndex(x => x.DedupKey)
+            .IsUnique();
+
+        modelBuilder.Entity<Notification>()
+            .HasIndex(x => new { x.ReceiverRole, x.ReceiverUserId, x.IsRead, x.CreatedAtUtc });
+
+        modelBuilder.Entity<NotificationSetting>().ToTable("NotificationSetting").HasKey(x => x.NotificationSettingID);
+
+        modelBuilder.Entity<NotificationSetting>()
+            .Property(x => x.ReminderOffsetsCsv)
+            .HasMaxLength(100)
+            .IsRequired();
     }
 }
